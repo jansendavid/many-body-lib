@@ -193,7 +193,9 @@ struct ElectronBasis
 
      return os;
    }
-   
+  BasisIt begin() {return basis.begin();}
+  BasisIt end() {return basis.end();}
+  
   std::map<double, BasisPair> basis;
   
   size_t sites;
@@ -210,7 +212,7 @@ template<size_t L>
   using BasisIt= typename  std::map<double, BasisPair>::iterator;
   using Type= BosonState<L>;
   PhononBasis(size_t maxPhonons);
-  PhononBasis()=default;
+  PhononBasis(): sites(L), maxPhonons(0) {};
   std::map<double, BasisPair> basis;
   size_t dim;
   const size_t sites;
@@ -219,6 +221,8 @@ template<size_t L>
   //  {
   //    return basis[i];
   //  }
+  BasisIt begin() {return basis.begin();}
+  BasisIt end() {return basis.end();}
   friend std::ostream& operator<<(std::ostream& os,  PhononBasis& phononBasis)
    {
      assert(phononBasis.dim==phononBasis.basis.size());
@@ -249,7 +253,8 @@ template<size_t L>
   const size_t numberOfParticles; // maximum number of bosons on one site
   size_t dim;
   
-  
+  BasisIt begin() {return basis.begin();}
+  BasisIt end() {return basis.end();}
   BosonState<L>& operator[](double i)
    {
      return basis[i];
@@ -319,6 +324,8 @@ template<size_t L>
    LeftBasis lbasis;
    RightBasis rbasis;
    std::map<size_t, BasisIds > basis;
+   BasisIt begin() {return basis.begin();}
+   BasisIt end() {return basis.end();}
      friend std::ostream& operator<<(std::ostream& os,  TensorProduct& tensorProduct)
     {
       assert(tensorProduct.dim==tensorProduct.basis.size());
