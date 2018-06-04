@@ -17,7 +17,16 @@ such that electronstat[0] returns 1 for the state 100
 #include<iterator>
 #include<numeric>
 #include<tuple>
+#include<set>
 // computing the factorial
+template<typename State>
+struct CompareState{
+     bool operator()(const State& lhs, const State& rhs)
+     {
+       return std::get<0>(lhs)< std::get<0>(rhs);
+     }
+     
+   };
 size_t Factorial(const size_t n)
 {
   if(n>20)
@@ -136,10 +145,13 @@ struct BosonState
 
 template<size_t L>
 struct ElectronBasis
-{  
-   using  StateIt=typename std::array<size_t, L>::iterator;
-  using BasisPair= typename std::pair<size_t, ElectronState<L>>;
-  using  BasisIt= typename  std::map<double, BasisPair>::iterator;
+{
+  using State= std::tuple<size_t, double, ElectronState<L>>;
+  using  StateIt=typename std::array<size_t, L>::iterator;
+  using Basis=std::set<State, CompareState<State>>;
+  using  BasisIt= typename  Basis::iterator;
+
+   
   ElectronBasis(size_t numberOfParticles): sites(L), dim(0) {
     for(size_t i=0; i<static_cast<size_t>(std::pow(2, L)); i++)
         {
@@ -149,7 +161,7 @@ struct ElectronBasis
             if(newState.state.count()==numberOfParticles)
              {
 	      
-   	      basis.insert({newState.GetId(), {dim, newState}});
+   	      basis.insert({newState.GetId(), dim, newState});
 	      dim++;    
              }
         
@@ -162,7 +174,7 @@ struct ElectronBasis
             
              
    	     
-   	      basis.insert({newState.GetId(), {i, newState}});
+   	      basis.insert({newState.GetId(), i, newState});
 	       dim++;    
              }
         
@@ -174,7 +186,7 @@ struct ElectronBasis
             
              
    	     
-   	      basis.insert({state.GetId(), {0, state}});
+   	      basis.insert({state.GetId(), 0, state});
 	       dim++;    
      
         
@@ -187,7 +199,7 @@ struct ElectronBasis
    
      while( it1!=electronBasis.basis.end())
        {
-	 os<< "id"<< '\t' << it1->first << '\t' <<it1->second.first <<  '\t' <<it1->second.second ;
+	 os<< "id"<< '\t' << std::get<0>(*it1) << '\t' <<std::get<1>(it1) <<  '\t' << std::get<2>(it1) ;
      it1++;
 	  }
 
@@ -196,7 +208,7 @@ struct ElectronBasis
   BasisIt begin() {return basis.begin();}
   BasisIt end() {return basis.end();}
   
-  std::map<double, BasisPair> basis;
+  Basis basis;
   
   size_t sites;
    size_t dim;
@@ -207,13 +219,16 @@ struct ElectronBasis
 template<size_t L>
   struct PhononBasis
 {
+  using Type= BosonState<L>;  
+  using State= std::tuple<size_t, double, BosonState<L>>;
+  using Basis=std::set<State, CompareState<State>>;
   using StateIt= typename std::array<size_t, L>::iterator;
-  using BasisPair= typename std::pair<size_t, BosonState<L>>;
-  using BasisIt= typename  std::map<double, BasisPair>::iterator;
-  using Type= BosonState<L>;
+
+  using BasisIt= typename  Basis::iterator;
+
   PhononBasis(size_t maxPhonons);
   PhononBasis(): sites(L), maxPhonons(0) {};
-  std::map<double, BasisPair> basis;
+  Basis basis;
   size_t dim;
   const size_t sites;
   const size_t maxPhonons; // maximum number of phonons on one site
@@ -243,13 +258,14 @@ template<size_t L>
 template<size_t L>
   struct BosonBasis
 {
-  using StateIt=typename std::array<size_t, L>::iterator;
   using Type= BosonState<L>;
-  using BasisPair= typename std::pair<size_t, BosonState<L>>;
-  using BasisIt= typename  std::map<double, BasisPair>::iterator;
+  using State= std::tuple<size_t, double, BosonState<L>>;
+  using Basis=std::set<State, CompareState<State>>;
+  using StateIt=typename std::array<size_t, L>::iterator;  
+  using BasisIt= typename  Basis::iterator;
   
   BosonBasis(size_t maxBosons);
-  std::map<double, BasisPair> basis;
+  Basis basis;
   const size_t numberOfParticles; // maximum number of bosons on one site
   size_t dim;
   
@@ -279,9 +295,16 @@ template<size_t L>
 
  template<class LeftBasis, class RightBasis>
  struct TensorProduct{
-
+   using State= std::tuple<size_t, double,double>;
+   struct compareState{
+     bool operator()(const State& lhs, const State& rhs)
+     {
+       return std::get<0>(lhs)< std::get<0>(rhs);
+     }
+   };
    struct BasisIds
    {
+
      BasisIds(double leftId, double rightId): leftId(leftId), rightId(rightId) {}
      double leftId;
      double rightId;
@@ -348,7 +371,7 @@ template<size_t L>
 PhononBasis<L>::PhononBasis(size_t maxPhonons): dim{0},  sites(L), maxPhonons(maxPhonons)  {
   std::array<size_t, L> stateArray;
   stateArray.fill(0);   
-  basis.insert({0., {0, stateArray}});
+  basis.insert({0, 0, stateArray});
      size_t numberOfPhonons=0;
       dim++;
       // generating all states of the form 0000...0phononnumber
@@ -358,7 +381,7 @@ PhononBasis<L>::PhononBasis(size_t maxPhonons): dim{0},  sites(L), maxPhonons(ma
      stateArray[L-1]= numberOfPhonons;		 
      do{  
        BosonState<L> newState{stateArray};
-       basis.insert({newState.GetId(), {dim, newState}});
+       basis.insert({dim, newState.GetId(),  newState});
      dim++;
 
        }while(std::next_permutation(stateArray.begin(), stateArray.end()));
@@ -380,7 +403,7 @@ PhononBasis<L>::PhononBasis(size_t maxPhonons): dim{0},  sites(L), maxPhonons(ma
          it1=stateArray.begin();
     do{
        BosonState<L> newState{stateArray};
-       basis.insert({newState.GetId(), {dim, newState}});
+       basis.insert({dim, newState.GetId(),  newState});
            dim++;
               }while(std::next_permutation(stateArray.begin(), stateArray.end()));
     }   
@@ -405,7 +428,7 @@ BosonBasis<L>::BosonBasis(size_t numberOfParticles): numberOfParticles(numberOfP
      do{
        if(static_cast<size_t>(std::accumulate(statearray.begin(), statearray.end(), 0))==numberOfParticles) {
        BosonState<L> newstate{statearray};
-       basis.insert({newstate.GetId(),{dim, newstate}});
+       basis.insert({dim, newstate.GetId(), newstate});
      dim++;
 	}
 
@@ -428,7 +451,7 @@ BosonBasis<L>::BosonBasis(size_t numberOfParticles): numberOfParticles(numberOfP
     do{
       if(static_cast<size_t>(std::accumulate(statearray.begin(), statearray.end(), 0))==numberOfParticles) {
       BosonState<L> newstate{statearray};
-      basis.insert({newstate.GetId(), {dim, newstate}});
+      basis.insert({dim, newstate.GetId(), newstate});
        
            dim++;
        }
