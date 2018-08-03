@@ -1,5 +1,9 @@
 #pragma once
 
+namespace Many_Body
+{
+
+
 enum class BasisInfoField{ id, position, state};
 enum class TPBasisInfoField{ position, lId, rId};
 
@@ -9,42 +13,66 @@ constexpr auto toBasisType(E enumerator) noexcept
   return static_cast<typename std::underlying_type_t<E>>(enumerator);
 }
  template<typename T>
- size_t position( T state)
+ size_t Position( const T& state)
  {
    
    return static_cast<size_t>(std::get<toBasisType(BasisInfoField::position)>(state));
  }
 
- size_t position( std::tuple<size_t, double, double> state)
+ size_t Position( const std::tuple<size_t, double, double>& state)
  {
    
    return static_cast<size_t>(std::get<toBasisType(TPBasisInfoField::position)>(state));
  }
 template<typename T>
- double id( T state)
+ double Id( const T& state)
  {
    
    return std::get<toBasisType(BasisInfoField::id)>(state);
  }
-double id( std::tuple<size_t, double, double> state)
+double Id( const std::tuple<size_t, double, double>& state)
  {
    
    return std::get<toBasisType(TPBasisInfoField::position)>(state);
  }
-double leftId( std::tuple<size_t, double, double> state)
+double LeftId( const std::tuple<size_t, double, double>& state)
  {
    
    return std::get<toBasisType(TPBasisInfoField::lId)>(state);
  }
-double rightId( std::tuple<size_t, double, double> state)
+double RightId( const std::tuple<size_t, double, double>& state)
  {
    
    return std::get<toBasisType(TPBasisInfoField::rId)>(state);
  }
 
 template< typename T>
-auto& state( const T& state)
+auto GetLattice( const T& state)
  {
    
    return std::get<toBasisType(BasisInfoField::state)>(state);
  }
+   template<class State, class T=double>
+   T Translate(const size_t translation, const State& state)     // translates to the left
+     {
+       
+       State newState(state);
+       
+       for(size_t t=0; t<translation; t++)
+	 {
+	   State tempState(newState);
+       //       std::cout << newstate;
+       for(size_t i=0; i<state.sites; i++)
+	 {
+	   size_t j=(i+1)%(state.sites);
+	   newState[i]=tempState[j];
+	 }
+       
+	 }
+
+        return newState.GetId();
+       
+       
+     }
+
+}

@@ -1,4 +1,5 @@
 # many-body-lib
+ervry thing defined in anmespace Many_Body
 A series of .hpp files which allows the generation of different Hamiltonians used in many-body phyiscs, using either a fermionic, bosonic or tensorproduct basis
 # Name defenitions:
 State is object containg one lattice and the identification

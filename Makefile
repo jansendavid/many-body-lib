@@ -12,7 +12,7 @@ main: $(OBJECTS) basis.hpp operators.hpp
 	$(CXX) $(FLAGS) -o main $(OBJECTS)  $(LIBS) 
 #-static
 
-test: test.cpp basis.hpp operators.hpp accesfunctions.hpp
+test: test.cpp basis.hpp operators.hpp accesfunctions.hpp numerics.hpp
 	$(CXX) $(FLAGS) -o test test.cpp  $(LIBS) $(TESTLIBS)
 #-static
 

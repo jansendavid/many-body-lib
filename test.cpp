@@ -5,7 +5,7 @@
 #include"operators.hpp"
 using namespace boost::unit_test;
 using boost::unit_test_framework::test_suite;
-
+using namespace Many_Body;
 BOOST_AUTO_TEST_SUITE(basistesting)
 BOOST_AUTO_TEST_CASE(phonondimension)
 {
@@ -110,11 +110,14 @@ BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE(operatortesting)
 BOOST_AUTO_TEST_CASE(operatoroperations)
 {
-   // const size_t L=3;
-   // ElectronBasis<L> e;
-   // operators::numberoperator<ElectronBasis<L>> n1(e);
+   const size_t L=3;
+   ElectronBasis<L> e(2);
+   Operators::NumberOperator<ElectronBasis<L>> n1(e);
+   std::cout << n1;
+   Operators::EKinOperator<ElectronBasis<L>> n2(e);
+   // std::cout << n2;
   //   numberoperator<ElectronBasis> n2;
-  //       kineticoperator<ElectronBasis> cdagc1(e);
+  //      kineticoperator<ElectronBasis> cdagc1(e);
   // 	kineticoperator<ElectronBasis> cdagc2;
   
   // 	double t=3;
@@ -123,7 +126,7 @@ BOOST_AUTO_TEST_CASE(operatoroperations)
   // 		hamiltonian<ElectronBasis > H2{t*n2+ l*cdagc2};
   // 		H2(e);
   // 		cout<< H2.energies();
-  // 				cout<< H1.energies(); 
+ // 				cout<< H1.energies(); 
 
        
 }

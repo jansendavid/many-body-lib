@@ -1,28 +1,29 @@
 #include<iostream>
-#include"basis.hpp"
-//#include"operators.hpp"
+//#include"basis.hpp"
+
 int main()
 {
-const size_t L1=3;
-  const size_t L2=4;
-  const size_t L3=5;
+// const size_t L1=3;
+//   const size_t L2=4;
+//   const size_t L3=5;
  //  const size_t L4=6;
 
 
-    PhononBasis<L1> g{1};
-  std::cout << g << '\n';
-    BosonBasis<L1> gg{1};
-  std::cout << gg << '\n';
-ElectronBasis<L1> e{1};
-     std::cout << e << '\n';
+  //  many_body::PhononBasis<L1> g{1};
+  
+  std::cout << Many_Body::PrimeNumber(3) << '\n';
+//     BosonBasis<L1> gg{1};
+//   std::cout << gg << '\n';
+// ElectronBasis<L1> e{1};
+//      std::cout << e << '\n';
   
 
 
 
 
-   TensorProduct<  ElectronBasis<L1>,  PhononBasis<L1>> TP(e, g);
+//    TensorProduct<  ElectronBasis<L1>,  PhononBasis<L1>> TP(e, g);
 
-   std::cout << TP;
+//    std::cout << TP;
   //  for(size_t i=1; i<2; i++)
   //      {
   // 	  PhononBasis<L1> g1{i};
