@@ -1,9 +1,9 @@
 #include<iostream>
-//#include"basis.hpp"
+#include"basis.hpp"
 
 int main()
 {
-// const size_t L1=3;
+ const size_t L1=3;
 //   const size_t L2=4;
 //   const size_t L3=5;
  //  const size_t L4=6;
@@ -14,7 +14,7 @@ int main()
   std::cout << Many_Body::PrimeNumber(3) << '\n';
 //     BosonBasis<L1> gg{1};
 //   std::cout << gg << '\n';
-// ElectronBasis<L1> e{1};
+  Many_Body::ElectronBasis<L1> e{1};
 //      std::cout << e << '\n';
   
 
