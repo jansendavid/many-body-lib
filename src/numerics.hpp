@@ -4,6 +4,7 @@
 namespace Many_Body{
 const double pi = M_PI;
   static std::complex<double> im{0,1};
+    static constexpr double err= 0.0000001;
 size_t Factorial(const size_t n)
 {
   if(n>20)

@@ -18,12 +18,13 @@ OBJECTS= main.cpp
 
 TESTLIBS+= -lboost_unit_test_framework
 #  DEBUG
-ND=+ -DNDEBUG -O3
+ND+= -DNDEBUG -O3
 D+= -g
 main: $(OBJECTS) src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp
-	g++ $(FLAGS) $(INCS) -o main $(OBJECTS) $(MKLLINK)
+	g++ $(FLAGS) $(INCS) -o main $(OBJECTS) $(MKLLINK) $(ND)
 #-static
-
+test: testdir/test.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/timeev.hpp
+	$(CXX) $(D)  $(FLAGS) $(INCS) testdir/test.cpp -o test  $(MKLLINK) 
 basistest: testdir/basistest.cpp src/basis.hpp src/accesfunctions.hpp src/numerics.hpp
 	$(CXX) $(FLAGS) $(INCS) testdir/basistest.cpp -o basistest  $(MKLLINK) $(LIBS) $(TESTLIBS)
 

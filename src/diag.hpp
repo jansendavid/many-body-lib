@@ -2,6 +2,7 @@
 #include<vector>
 #include"mkl_lapacke.h"
 #include <eigen3/Eigen/Sparse>
+#include <eigen3/Eigen/Dense>
 namespace Many_Body{
    template <typename T>
    std::vector<MKL_INT> FeastRow(  const Eigen::SparseMatrix<T, Eigen::RowMajor> A )
@@ -29,11 +30,10 @@ std::copy (A.outerIndexPtr(), A.outerIndexPtr()+N, row.begin() );
  return col;
   }
 
-     template< class T, class Y>  
-   void diagherm(T& aH, Y& ev);
+
   // AFTER APPLYING THIS FUCTION MAT= AH.ADJOINT*H*AH+DIAG
-    template< class T, class Y>  
-  void diagherm(T& aH, Y& ev)
+
+  void diag(Eigen::MatrixXcd& aH, Eigen::VectorXd& ev)
   {
     MKL_INT N= ev.size();
         MKL_INT LDA= N;
@@ -46,6 +46,28 @@ std::copy (A.outerIndexPtr(), A.outerIndexPtr()+N, row.begin() );
 
 
   }
+
+
+  void diag(Eigen::MatrixXd& aH, Eigen::VectorXd& ev)
+  {
+    MKL_INT N= ev.size();
+        MKL_INT LDA= N;
+        MKL_INT info= LAPACKE_dsyev(LAPACK_COL_MAJOR, 'V', 'U', N, aH.data(), LDA, ev.data());
+    if(info!=0)
+      {
+  	std::cout << " diagonalization failed" << '\n';
+      }
+
+
+
+  }
+  void Lanczos(Eigen::MatrixXd A, size_t iteration)
+  {
+    using namespace Eigen;
+    BandMatrix<Scalar,Size,Supers,Subs,Options> mat;
+  }
+  
+       
 
 
 };
