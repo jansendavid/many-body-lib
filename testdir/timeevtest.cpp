@@ -37,8 +37,10 @@ BOOST_AUTO_TEST_CASE(timeev)
    std::cout <<eigenVals<< std::endl;
    Eigen::VectorXd outputTime(numberOfSteps);
      Eigen::VectorXd outputVals(numberOfSteps);
-     TimeEv::timeev_exact(inistate, HH, OO, eigenVals, outputVals, outputTime, dt, numberOfSteps);
-     Many_Body::ToFile(outputTime, outputVals, "timetestexact.dat", numberOfSteps);
+     // TimeEv::timeev_exact(inistate, HH, OO, eigenVals, outputVals, outputTime, dt, numberOfSteps);
+     // Many_Body::ToFile(outputTime, outputVals, "timetestexact.dat", numberOfSteps);
+     Eigen::VectorXd q(numberOfSteps);
+     Many_Body::Lanczos(HH, inistate, 12);
 }
 
 

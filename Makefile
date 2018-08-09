@@ -12,7 +12,7 @@ INCS+=-I${MANYBODY}/src
 #FLAGS= -std=c++17
 FLAGS+= -Wall 
 #MKLLINGING
-MKLLINK+= -DMKL_Complex16="std::complex<double>" -DMKL_ILP64 -m64 -I${MKLROOT}/include -Wl,--start-group ${MKLROOT}/lib/intel64/libmkl_intel_lp64.a ${MKLROOT}/lib/intel64/libmkl_intel_thread.a ${MKLROOT}/lib/intel64/libmkl_core.a -Wl,--end-group -liomp5 -lpthread -lm -ldl
+MKLLINK+= -I${MKLROOT}/include -DMKL_Complex16="std::complex<double>" -L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lm -ldl
 OBJECTS= main.cpp
 # OTHER LIBS
 
@@ -31,7 +31,10 @@ basistest: testdir/basistest.cpp src/basis.hpp src/accesfunctions.hpp src/numeri
 operatortest: testdir/basistest.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp
 	$(CXX) $(FLAGS) $(INCS) testdir/operatortest.cpp -o operatortest  $(MKLLINK) $(LIBS) $(TESTLIBS)
 
-timeevtest: testdir/timeevtest.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/timeev.hpp
+diagtest: testdir/diagtest.cpp src/basis.hpp  src/accesfunctions.hpp src/numerics.hpp src/timeev.hpp src/diag.hpp
+	$(CXX) $(FLAGS) $(INCS) testdir/diagtest.cpp -o diagtest  $(MKLLINK) $(LIBS) $(TESTLIBS)
+
+timeevtest: testdir/timeevtest.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/timeev.hpp src/diag.hpp
 	$(CXX) $(FLAGS) $(INCS) testdir/timeevtest.cpp -o timeevtest  $(MKLLINK) $(LIBS) $(TESTLIBS)
 #-static
 

@@ -3,7 +3,7 @@
 #include <boost/test/unit_test.hpp>
 #include"basis.hpp"
 #include"operators.hpp"
-#include"diag.hpp"
+//#include"diag.hpp"
 
 using namespace boost::unit_test;
 using boost::unit_test_framework::test_suite;
@@ -20,8 +20,8 @@ BOOST_AUTO_TEST_CASE(operatoroperations)
    Mat NR=Operators::NumberOperator(e);
    std::cout << NR;
    Mat EK=Operators::EKinOperator(e);
-   // Operators::EKinOperator<ElectronBasis<L>> n2(e);
-   //    std::cout << EK;
+   
+      std::cout << EK;
    // VectorXd v(5);
   //  MatrixXcd mat = MatrixXcd::Random(5, 5);
   // MatrixXcd mat4= mat+mat.adjoint();
