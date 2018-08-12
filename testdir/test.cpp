@@ -8,31 +8,33 @@ using namespace Many_Body;
 int main()
 {
   
- size_t size=3;
-  Eigen::VectorXd x = Eigen::VectorXd::Random(size);
+    size_t size=2;
+  Eigen::VectorXcd x = Eigen::VectorXcd::Random(size);
   x=x/x.norm();
+  std::cout<< x.norm()<<std::endl;
 std::cout<< x<<std::endl;
-    Eigen::MatrixXd AA = Eigen::MatrixXd::Random(size, size);
-     Eigen::MatrixXd A = AA + AA.transpose();
-  std::cout<< A<<std::endl;
-  Eigen::MatrixXd B=A;
+    Eigen::MatrixXcd AA = Eigen::MatrixXcd::Random(size, size);
+    Eigen::MatrixXcd A = AA.adjoint()*AA;
+
+std::cout<< A<<std::endl;
+  Eigen::MatrixXcd B=A;
   Eigen::VectorXd evA(size);
   Eigen::VectorXd evB(size);
-  Many_Body::TriDiagMat tri=Many_Body::Lanczos(B, x, size);
-  std::cout<< "en"<<std::endl;
-    std::cout<< tri.diagel<<std::endl;
-      std::cout<< "to"<<std::endl;
-        std::cout<< tri.offDiag<<std::endl;
-	 std::cout<< "to"<<std::endl;
+  Eigen::MatrixXcd Q(size, size);
+s  Many_Body::TriDiagMat tri=Many_Body::Lanczos(B, x, size, Q);
+  std::cout<< "D " << tri.diagel<<std::endl;
+  std::cout<< "O " << tri.offDiag<<std::endl;  
 Eigen::MatrixXd S(size, size);
- S.setZero();
- diag(tri, S, evB);
-  diag(A, evA);
-  //Many_Body::diag(A, evA);
+  S.setZero();
+  diag(tri, S, evB);
+   diag(A, evA);
+        std::cout << '\n';
   for (int i = 0; i < size; ++i)
   {
-    std::cout << evA(i) << "  " << evB(i) << '\n';
+    //    std::cout << std::abs(evA(i)-evB(i)) << '\n';
+        std::cout << evB(i)<< '\n';
   }
+  
   
   return 0;
 };
