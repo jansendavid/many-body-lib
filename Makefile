@@ -39,4 +39,4 @@ timeevtest: testdir/timeevtest.cpp src/basis.hpp src/operators.hpp src/accesfunc
 #-static
 
 clean:
-	rm *.o main test *.bin
+	rm *.o main test timeevtest operatortest diagtest basistest *.bin

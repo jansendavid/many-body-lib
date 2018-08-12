@@ -84,12 +84,14 @@ std::copy (A.outerIndexPtr(), A.outerIndexPtr()+N, row.begin() );
 
 
    }
-  
-  TriDiagMat Lanczos(Eigen::MatrixXd& A, Eigen::VectorXd& state, const size_t iterations, Eigen::MatrixXd& Q)
+  template<typename Matrix>
+  TriDiagMat Lanczos(Matrix& A, Eigen::VectorXcd& state, const size_t iterations, Eigen::MatrixXcd& Q)
   {
     using namespace Eigen::internal;
     using namespace Eigen;
-    //    assert(std::abs(state.norm() -1)< err); // check if norm is =1 of initial state
+    	assert(std::abs(state.norm() -1.) < Many_Body::err);
+
+
 
 
      
@@ -98,72 +100,6 @@ std::copy (A.outerIndexPtr(), A.outerIndexPtr()+N, row.begin() );
    
         long double beta=1;
 
-    double alpha(0);
-    Eigen::VectorXd bandTdiag(iterations);
-        Eigen::VectorXd bandTOff(iterations-1);
-    bandTdiag.setZero();
-        bandTOff.setZero();
-
-    Eigen::VectorXd qk=state;
-    Eigen::VectorXd qkmin(A.rows());
-    qkmin.setZero();
-    size_t dim=0;
-
-    for (size_t k = 1; k < iterations; ++k)
-      {
-    	Eigen::VectorXd qMiddle=A*qk;
-     	alpha=qk.adjoint()*qMiddle;
-     	Eigen::VectorXd  rk=qMiddle - alpha*qk -beta*qkmin;
-    	beta=rk.norm();
-    	bandTdiag(k-1)=alpha;
-    	bandTOff(k-1)=beta;
-
-     	qkmin=qk;
-     	 if( std::abs(beta)<0.0001)
-     	   {
-    	     std::cout<< "ERROR" << beta << std::endl;
-    	     dim=k;
-    	         Q.resize(A.rows(), dim);
-    		 bandTdiag.resize( dim);
-    		 bandTOff.resize( dim-1);
-     	    break;
-     	   }
-
-	 qk=rk/rk.norm();
-     	 Q.col(k)=qk;
-    	 dim=k;
-
-            }
-    
-
-    
-     {
-       Eigen::VectorXd qMiddle=A*qk;
-       	alpha=qk.adjoint()*qMiddle;
-       		        bandTdiag(dim)=(alpha);
-
-    }
-     
-     std::cout << " Q TEST  "<<(Q.adjoint()*Q).sum() - iterations <<std::endl;
-     TriDiagMat T(bandTdiag, bandTOff);
-    return T;
-  }
-
-  
-  
-    TriDiagMat Lanczos(Eigen::MatrixXcd& A, Eigen::VectorXcd& state, const size_t iterations, Eigen::MatrixXcd& Q)
-  {
-    using namespace Eigen::internal;
-    using namespace Eigen;
-    //    assert(std::abs(state.norm() -1)< err); // check if norm is =1 of initial state
-
-
-     
-     Q.setZero();
-     Q.col(0)=state;
-   
-        long double beta=1;
-	//double beta=0;
     double alpha(0);
     Eigen::VectorXd bandTdiag(iterations);
         Eigen::VectorXd bandTOff(iterations-1);
@@ -175,32 +111,46 @@ std::copy (A.outerIndexPtr(), A.outerIndexPtr()+N, row.begin() );
     qkmin.setZero();
     size_t dim=0;
 
-    for (size_t k = 1; k < iterations; ++k)
-      {
-    	Eigen::VectorXcd qMiddle=A*qk;
-	std::complex<double> c=qk.adjoint()*qMiddle;
-     	alpha=real(c);
-     	Eigen::VectorXcd  rk=qMiddle - alpha*qk -beta*qkmin;
-    	beta=rk.norm();
-    	bandTdiag(k-1)=alpha;
-    	bandTOff(k-1)=beta;
+     for (size_t k = 1; k < iterations; ++k)
+       {
+     	Eigen::VectorXcd qMiddle=A*qk;
+     	std::complex<double> c=qk.adjoint()*qMiddle;
+      	alpha=real(c);
+      	Eigen::VectorXcd  rk=qMiddle - alpha*qk -beta*qkmin;
+     	beta=rk.norm();
 
-     	qkmin=qk;
-     	 if( std::abs(beta)<0.0001)
+		bandTdiag(k-1)=alpha;
+     	bandTOff(k-1)=beta;
+
+      	qkmin=qk;
+	qk=rk/rk.norm();
+	     Q.col(k)=qk;
+     	 
+	  	 if( std::abs(beta)<0.0001)
      	   {
-    	     std::cout<< "ERROR" << beta << std::endl;
-    	     dim=k;
-    	         Q.resize(A.rows(), dim);
-    		 bandTdiag.resize( dim);
-    		 bandTOff.resize( dim-1);
+
+	     Eigen::MatrixXcd W=Q;
+	           Q.resize(A.rows(), k);
+		 for (int i = 0; i < k; ++i)
+		   {
+		     Q.col(i)=W.col(i);
+		     
+		   }
+
+		 
+    		  bandTdiag.resize( k);
+    		  bandTOff.resize( k-1);
+
+		 
      	    break;
      	   }
 
-  	 qk=rk/rk.norm();
-     	 Q.col(k)=qk;
-    	 dim=k;
 
-            }
+    	 
+	dim=k;   
+    	 
+
+             }
     
 
     
@@ -212,11 +162,15 @@ std::copy (A.outerIndexPtr(), A.outerIndexPtr()+N, row.begin() );
        		        bandTdiag(dim)=(alpha);
 
     }
+          assert(std::abs( (Q.adjoint()*Q).sum() -(dim+1)) < Many_Body::err);     
 
-     std::cout << " Q TEST  "<<(Q.adjoint()*Q).sum() - iterations <<std::endl;
+
      TriDiagMat T(bandTdiag, bandTOff);
     return T;
   }
+
+  
+  
 
   
        

@@ -12,63 +12,118 @@ using namespace Many_Body;
 BOOST_AUTO_TEST_SUITE(timeevesting)
 BOOST_AUTO_TEST_CASE(timeev)
 {
+  {
   size_t numberOfSteps=10;
-   const size_t L=3;
+   const size_t L=4;
    ElectronBasis<L> e(2);
    //std::cout << e << std::endl;
-   Operators::Mat H= Operators::NumberOperator(e)+Operators::EKinOperator(e);
-   Eigen::VectorXd inistate=Eigen::VectorXd::Random(e.dim);
-   inistate=inistate/inistate.norm();
-   // inistate.setZero();
-   // inistate[0]=1;
+   // Eigen::MatrixXd AA = Eigen::MatrixXd::Random(e.dim, e.dim);
+   // 	 Eigen::MatrixXd H = AA + AA.transpose();
+        Operators::Mat H= Operators::NumberOperator(e)+Operators::EKinOperator(e);
+   Eigen::VectorXcd inistate(e.dim);
+  
+   inistate.setZero();
+   inistate[0]=1;
    Eigen::VectorXd eigenVals(e.dim);
-   //std::cout <<H<< std::endl;
-    //Operators::Mat O = Operators::EKinOperator(e);
-    Eigen::MatrixXd O(e.dim, e.dim);
+
+   Operators::Mat O(e.dim, e.dim);
     O.setZero();
-    O(1, 1)=0.5;
-    O(2, 2)=0.5;
+    O.coeffRef(1, 1)=0.5;
+    O.coeffRef(2, 2)=0.5;
     
     // HAmiltonian =H
-   // Eigen::MatrixXd HH=Eigen::MatrixXd(H);
+   Eigen::MatrixXd HH=Eigen::MatrixXd(H);
    // Eigen::MatrixXd HH2=Eigen::MatrixXd(H);
-    Eigen::MatrixXcd AA = Eigen::MatrixXcd::Random(e.dim, e.dim);
-    Eigen::MatrixXcd HH = AA.adjoint()*AA;
-        Eigen::MatrixXcd HH2=HH;
-   Eigen::MatrixXd OO=O;
-   // .cast<std::complex<double>>();
+
+   
+   
+   
    Many_Body::diag(HH, eigenVals);
 
    double dt= 5;
-   Eigen::VectorXcd newIn=inistate.cast<std::complex<double>>();
-      Eigen::VectorXcd newIn2=inistate.cast<std::complex<double>>();
-   std::cout <<e.dim<< std::endl;
+
+	
+
    Eigen::MatrixXcd evExp=TimeEv::EigenvalExponent(eigenVals, dt);
    Eigen::MatrixXcd cEVec=HH.cast<std::complex<double>>();
    Eigen::VectorXd outputTime(numberOfSteps);
    Eigen::VectorXd outputVals(numberOfSteps);
        Eigen::VectorXd outputVals2(numberOfSteps);
+       Eigen::VectorXcd newIn=inistate;
+              Eigen::VectorXcd newIn2=inistate;
            for (size_t i = 0; i < numberOfSteps; ++i)
        {
-	    // Eigen::VectorXd inistate2=Eigen::VectorXd::Random(e.dim);
-	    //     Eigen::VectorXcd newIn2=inistate2.cast<std::complex<double>>();
-	 // Eigen::MatrixXd HH2=AA + AA.transpose();
-	// 		newIn2=newIn2/newIn2.norm();
+
        	 TimeEv::timeev_exact(newIn, cEVec, evExp);
-       	TimeEv::timeev_lanzcos(newIn2, HH2, 3, dt); 
-     		std::complex<double> c=(newIn.adjoint()*(OO*newIn))(0);
-       		std::complex<double> c2=(newIn2.adjoint()*(OO*newIn2))(0);
-       		// assert(imag(c)<Many_Body::err);
-   //    // 				outputVals(i)=real(c);
-      							outputVals2(i)=real(c2);
-        		outputTime(i)=i*dt;
-			std::cout << real(c) << "  " << real(c2) << '\n';
+  	 TimeEv::timeev_lanzcos(newIn2, H, 3, dt); 
+  	 std::complex<double> c=(newIn.adjoint()*(O*newIn))(0);
+  	 std::complex<double> c2=(newIn2.adjoint()*(O*newIn2))(0);
+
+  			// 	outputVals(i)=real(c);
+  			// 	outputVals2(i)=real(c2);
+        		// outputTime(i)=i*dt;
+	 
+  	 BOOST_CHECK(std::abs(real(c2)-real(c))<Many_Body::err);
         }
      
       // Many_Body::ToFile(outputTime, outputVals, "timetestexact.dat", numberOfSteps);
       // Many_Body::ToFile(outputTime, outputVals2, "timetestexact2.dat", numberOfSteps);
      // Eigen::VectorXd q(numberOfSteps);
-     
+       }
+
+	   {
+  size_t numberOfSteps=2;
+   const size_t L=4;
+   ElectronBasis<L> e(2);
+   // Operators::Mat H= Operators::NumberOperator(e)+Operators::EKinOperator(e);
+   //std::cout << e << std::endl;
+   //   Eigen::MatrixXd HH=Eigen::MatrixXd(H);
+    Eigen::MatrixXcd AA = Eigen::MatrixXcd::Random(e.dim, e.dim);
+   Eigen::MatrixXcd H = AA.adjoint()*AA;
+Eigen::MatrixXcd HH=Eigen::MatrixXcd(H);
+   Eigen::VectorXcd inistate=Eigen::VectorXcd::Random(e.dim);
+   inistate=inistate/inistate.norm();
+  
+   Eigen::VectorXd eigenVals(e.dim);
+   // Eigen::MatrixXcd BB = Eigen::MatrixXcd::Random(e.dim, e.dim);
+   // Eigen::MatrixXcd B = BB.adjoint()*BB;
+  Operators::Mat B(e.dim, e.dim);
+    B.setZero();
+    B.coeffRef(1, 1)=0.5;
+    B.coeffRef(2, 2)=0.5;
+    
+
+    //Eigen::MatrixXcd HH=Eigen::MatrixXcd(H);
+
+
+   
+   
+   
+   Many_Body::diag(HH, eigenVals);
+
+   double dt= 5;
+
+	   Eigen::MatrixXcd cEVec=HH.cast<std::complex<double>>();
+
+   Eigen::MatrixXcd evExp=TimeEv::EigenvalExponent(eigenVals, dt);
+
+   Eigen::VectorXd outputTime(numberOfSteps);
+   Eigen::VectorXd outputVals(numberOfSteps);
+   Eigen::VectorXd outputVals2(numberOfSteps);
+   Eigen::VectorXcd newIn=inistate;
+   Eigen::VectorXcd newIn2=inistate;
+           for (size_t i = 0; i < numberOfSteps; ++i)
+       {
+
+       	 TimeEv::timeev_exact(newIn, cEVec, evExp);
+	 TimeEv::timeev_lanzcos(newIn2, H, e.dim, dt); 
+	 std::complex<double> c=(newIn.adjoint()*(B*newIn))(0);
+	 std::complex<double> c2=(newIn2.adjoint()*(B*newIn2))(0);
+
+	 	 BOOST_CHECK(std::abs(real(c2)-real(c))<0.001);
+        }
+
+       }
 }
 
 
