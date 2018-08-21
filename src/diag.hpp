@@ -119,23 +119,23 @@ std::copy (A.outerIndexPtr(), A.outerIndexPtr()+N, row.begin() );
       	Eigen::VectorXcd  rk=qMiddle - alpha*qk -beta*qkmin;
      	beta=rk.norm();
 
-		bandTdiag(k-1)=alpha;
+    		bandTdiag(k-1)=alpha;
      	bandTOff(k-1)=beta;
 
       	qkmin=qk;
-	qk=rk/rk.norm();
-	     Q.col(k)=qk;
+    	qk=rk/rk.norm();
+    	     Q.col(k)=qk;
      	 
-	  	 if( std::abs(beta)<0.0001)
+    	  	 if( std::abs(beta)<0.0001)
      	   {
-
-	     Eigen::MatrixXcd W=Q;
-	           Q.resize(A.rows(), k);
-		 for (int i = 0; i < k; ++i)
-		   {
-		     Q.col(i)=W.col(i);
+	     //  std::cout << "danger " << std::endl;
+    	     Eigen::MatrixXcd W=Q;
+    	           Q.resize(A.rows(), k);
+    		 for (int i = 0; i < k; ++i)
+    		   {
+    		     Q.col(i)=W.col(i);
 		     
-		   }
+    		   }
 
 		 
     		  bandTdiag.resize( k);
@@ -147,7 +147,7 @@ std::copy (A.outerIndexPtr(), A.outerIndexPtr()+N, row.begin() );
 
 
     	 
-	dim=k;   
+    	dim=k;   
     	 
 
              }
@@ -162,7 +162,8 @@ std::copy (A.outerIndexPtr(), A.outerIndexPtr()+N, row.begin() );
        		        bandTdiag(dim)=(alpha);
 
     }
-          assert(std::abs( (Q.adjoint()*Q).sum() -(dim+1)) < Many_Body::err);     
+     // std::cout<<Q.rows() << "  " << Q.cols() << "  "<< // (Q*Q.adjoint()).sum() << dim +1 << std::endl;
+               assert(std::abs( (Q.adjoint()*Q).sum() -(dim+1)) < Many_Body::err);
 
 
      TriDiagMat T(bandTdiag, bandTOff);

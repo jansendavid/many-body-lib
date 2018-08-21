@@ -39,6 +39,7 @@ namespace TimeEv{
   template<typename Matrix>
   void timeev_lanzcos( Eigen::VectorXcd& initialState,  Matrix& hamiltonian, size_t lanczosDim, double dt)
   {
+    
     Eigen::VectorXcd initialState2=initialState;
     Eigen::MatrixXcd Q(hamiltonian.rows(), lanczosDim);
       Many_Body::TriDiagMat tri=Many_Body::Lanczos(hamiltonian, initialState2, lanczosDim, Q);
@@ -53,7 +54,7 @@ namespace TimeEv{
        Eigen::MatrixXcd Q2=Q.cast<std::complex<double>>();
        VectorXcd initialStateTemp(Q.cols());
 
-	 initialStateTemp= evExp*(S2.row(0).transpose()); // CHECK WHY IT DOSENT WORK
+	 initialStateTemp= evExp*(S2.row(0).transpose());
     	initialStateTemp= S2*initialStateTemp;
  	  	initialState= Q2*initialStateTemp;
 		assert(std::abs(initialState.norm() -1.) < Many_Body::err);

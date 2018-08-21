@@ -20,6 +20,9 @@ TESTLIBS+= -lboost_unit_test_framework
 #  DEBUG
 ND+= -DNDEBUG -O3
 D+= -g
+# executables
+EXEC+=test timeevtest exvalcompare operatortest diagtest basistest basisbenchmark
+
 main: $(OBJECTS) src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp
 	g++ $(FLAGS) $(INCS) -o main $(OBJECTS) $(MKLLINK) $(ND)
 #-static
@@ -36,7 +39,12 @@ diagtest: testdir/diagtest.cpp src/basis.hpp  src/accesfunctions.hpp src/numeric
 
 timeevtest: testdir/timeevtest.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/timeev.hpp src/diag.hpp
 	$(CXX) $(FLAGS) $(INCS) testdir/timeevtest.cpp -o timeevtest  $(MKLLINK) $(LIBS) $(TESTLIBS)
+
+exvalcompare: testdir/exvalcompare.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/timeev.hpp src/diag.hpp
+	$(CXX) $(FLAGS) $(INCS) testdir/exvalcompare.cpp -o exvalcompare  $(MKLLINK) $(LIBS) $(TESTLIBS) -DMOM
 #-static
 
+basisbenchmark: benchmarkdir/basisbenchmark.cpp src/basis.hpp src/accesfunctions.hpp src/numerics.hpp
+	$(CXX) $(FLAGS) $(INCS) benchmarkdir/basisbenchmark.cpp -o basisbenchmark  $(MKLLINK) $(LIBS)  $(ND) -g
 clean:
-	rm *.o main test timeevtest operatortest diagtest basistest *.bin
+	rm *.o main $(EXEC)

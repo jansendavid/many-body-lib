@@ -15,4 +15,4 @@ for ex in tests:
     if failure:
         print( 'expirienced error while deleteing %s ' % ex)
         sys.exit(1)
- print( 'All modules of the Many Body library were successfully tested ')
+print( 'All modules of the Many Body library were successfully tested ')

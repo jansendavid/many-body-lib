@@ -4,7 +4,7 @@
 #include<cmath>
 #include <eigen3/Eigen/Sparse>
 #ifdef MOM
-using ValType= complex<double>; 
+using ValType= std::complex<double>; 
 #else
 using ValType= double;
 #endif
