@@ -3,8 +3,8 @@
 #include <boost/test/unit_test.hpp>
 #include"basis.hpp"
 #include"operators.hpp"
-//#include"diag.hpp"
-
+#include"tpoperators.hpp"
+#include"diag.hpp"
 using namespace boost::unit_test;
 using boost::unit_test_framework::test_suite;
 using namespace Many_Body;
@@ -15,13 +15,33 @@ BOOST_AUTO_TEST_CASE(operatoroperations)
 {
   using namespace Eigen;
   using Mat=Operators::Mat;
-   const size_t L=3;
-   ElectronBasis<L> e(2);
-   Mat NR=Operators::NumberOperator(e);
-   std::cout << NR;
-   Mat EK=Operators::EKinOperator(e);
+  const size_t L=5;
+
+   ElectronBasis<L> e1(1);
+   //std::cout << int(L/2) << std::endl;
+   ElectronBasis<L> e2(3);
+      double t1=1;
+   double t2=1;
+   double u=1;
+   // std::cout<< e1;
+   //   std::cout<< e2;
+   TensorProduct<ElectronBasis<L>, ElectronBasis<L>> TP(e1, e2);
+   //        std::cout<< TP;
+   Mat E1=Operators::EKinOperatorL(TP, e1, t1);
+   Mat E2=Operators::EKinOperatorR(TP, e2, t2);
+    Mat C=Operators::CalculateCouplungOperator(TP, e2, u);
+    Mat H=E1+E2+ C;
+
+    Eigen::MatrixXd HH =Eigen::MatrixXd(H);
+    //std::cout << HH << std::endl;
+    Eigen::VectorXd ev(TP.dim);
+    diag(HH, ev);
+
+    std::cout << ev << std::endl;
+   // std::cout << NR;
+   // Mat EK=Operators::EKinOperator(e);
    
-      std::cout << EK;
+   //    std::cout << EK;
    // VectorXd v(5);
   //  MatrixXcd mat = MatrixXcd::Random(5, 5);
   // MatrixXcd mat4= mat+mat.adjoint();
