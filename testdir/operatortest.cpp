@@ -1,10 +1,11 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE Suites
+#define EIGEN_USE_MKL_ALL 
 #include <boost/test/unit_test.hpp>
 #include"basis.hpp"
 #include"operators.hpp"
 #include"tpoperators.hpp"
-#include"diag.hpp"
+
 using namespace boost::unit_test;
 using boost::unit_test_framework::test_suite;
 using namespace Many_Body;
@@ -15,11 +16,11 @@ BOOST_AUTO_TEST_CASE(operatoroperations)
 {
   using namespace Eigen;
   using Mat=Operators::Mat;
-  const size_t L=5;
+  const size_t L=3;
 
    ElectronBasis<L> e1(1);
    //std::cout << int(L/2) << std::endl;
-   ElectronBasis<L> e2(3);
+   ElectronBasis<L> e2(2);
       double t1=1;
    double t2=1;
    double u=1;
@@ -27,17 +28,19 @@ BOOST_AUTO_TEST_CASE(operatoroperations)
    //   std::cout<< e2;
    TensorProduct<ElectronBasis<L>, ElectronBasis<L>> TP(e1, e2);
    //        std::cout<< TP;
+   //Mat E11=Operators::EKinOperator(TP,  t1);
+   //   std::cout<< E11;
    Mat E1=Operators::EKinOperatorL(TP, e1, t1);
    Mat E2=Operators::EKinOperatorR(TP, e2, t2);
     Mat C=Operators::CalculateCouplungOperator(TP, e2, u);
     Mat H=E1+E2+ C;
 
     Eigen::MatrixXd HH =Eigen::MatrixXd(H);
-    //std::cout << HH << std::endl;
+    std::cout << HH << std::endl;
     Eigen::VectorXd ev(TP.dim);
-    diag(HH, ev);
+    // diag(HH, ev);
 
-    std::cout << ev << std::endl;
+    // std::cout << ev << std::endl;
    // std::cout << NR;
    // Mat EK=Operators::EKinOperator(e);
    

@@ -3,7 +3,7 @@ import sys
 import math
 import os
 import shutil
-tests=['basistest', 'operatortest', 'diagtest', 'timeevtest']
+tests=['basistest', 'operatortest', 'diagtest32',  'diagtest64', 'timeevtest']
 for ex in tests:    
     cmd='make %s && ./%s' % (ex, ex)
     failure= os.system(cmd)

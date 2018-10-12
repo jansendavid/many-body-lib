@@ -1,6 +1,6 @@
 #pragma once
-#include "timeev.hpp"
-#include "diag.hpp"
+#include "lanzcos.hpp"
+#include "diag.h"
 #include <complex>
 namespace TimeEv{
     using Many_Body::im;
@@ -42,10 +42,14 @@ namespace TimeEv{
     
     Eigen::VectorXcd initialState2=initialState;
     Eigen::MatrixXcd Q(hamiltonian.rows(), lanczosDim);
+
       Many_Body::TriDiagMat tri=Many_Body::Lanczos(hamiltonian, initialState2, lanczosDim, Q);
+
       Eigen::MatrixXd S(Q.cols(), Q.cols());
       Eigen::VectorXd eigenVals(Q.cols());
+
      	 Many_Body::diag(tri, S, eigenVals);
+
 
 
 
@@ -55,9 +59,12 @@ namespace TimeEv{
        VectorXcd initialStateTemp(Q.cols());
 
 	 initialStateTemp= evExp*(S2.row(0).transpose());
+
     	initialStateTemp= S2*initialStateTemp;
+	
  	  	initialState= Q2*initialStateTemp;
-		assert(std::abs(initialState.norm() -1.) < Many_Body::err);
+		
+		  assert(std::abs(initialState.norm() -1.) < Many_Body::err);
 	
     return ; 
   }

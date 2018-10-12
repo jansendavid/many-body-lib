@@ -3,9 +3,10 @@
 #include <boost/test/unit_test.hpp>
 
 #include<iostream>
-
+#include <eigen3/Eigen/Eigenvalues> 
 #include"numerics.hpp"
-#include"diag.hpp"
+#include"diag.h"
+#include"lanzcos.hpp"
 #include "files.hpp"
 using namespace boost::unit_test;
 using boost::unit_test_framework::test_suite;
@@ -25,15 +26,18 @@ BOOST_AUTO_TEST_CASE(timeev)
   Eigen::VectorXd evB(size);
   Eigen::MatrixXcd Q(size, size);
   Many_Body::TriDiagMat tri=Many_Body::Lanczos(B, x, size, Q);
-
+  Eigen::EigenSolver<Eigen::MatrixXd> es(A);
 Eigen::MatrixXd S(size, size);
  S.setZero();
+
+
  diag(tri, S, evB);
-  diag(A, evA);
+  diagMat(A, evA);
 
   for (int i = 0; i < size; ++i)
   {
-       BOOST_CHECK(std::abs(evA(i)-evB(i))<Many_Body::err);
+
+    BOOST_CHECK(std::abs(evA(i)-evB(i))<Many_Body::err);
   }
 
   }{
@@ -43,28 +47,33 @@ Eigen::MatrixXd S(size, size);
 
     Eigen::MatrixXcd AA = Eigen::MatrixXcd::Random(size, size);
     Eigen::MatrixXcd A = AA.adjoint()*AA;
+        Eigen::MatrixXcd C = AA.adjoint()*AA;
 
 
   Eigen::MatrixXcd B=A;
   Eigen::VectorXd evA(size);
   Eigen::VectorXd evB(size);
+    Eigen::VectorXd evC(size);
   Eigen::MatrixXcd Q(size, size);
   Many_Body::TriDiagMat tri=Many_Body::Lanczos(B, x, size, Q);
 
 Eigen::MatrixXd S(size, size);
   S.setZero();
   diag(tri, S, evB);
-   diag(A, evA);
-        std::cout << '\n';
+
+    diagMatzheev(A, evC);
+        diagMatOnlyEv(C, evA);
+  //       std::cout << '\n';
   for (int i = 0; i < size; ++i)
   {
-    BOOST_CHECK(std::abs(evA(i)-evB(i))<Many_Body::err);
+
+         BOOST_CHECK(std::abs(evA(i)-evB(i))<Many_Body::err);
 
 
   }
   }
-  //
-}
+//   //
+ }
 
 
 BOOST_AUTO_TEST_SUITE_END()
