@@ -38,7 +38,7 @@ libs/libeigenmkl32.a: diag32.o
 	ar cr libs/libeigenmkl32.a diag32.o
 
 main: $(OBJECTS) src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp
-	g++ $(FLAGS) $(INCS) -o main $(OBJECTS) $(MKLLINK) $(ND)
+	$(CXX) $(FLAGS) $(INCS) main.cpp -o main  $(MKLLINKPROG32) $(LIBSLINK) $(LIBS32) 
 #-static
 test: testdir/test.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/timeev.hpp
 	$(CXX) $(D)  $(FLAGS) $(INCS) testdir/test.cpp -o test  $(MKLLINKPROG32) 

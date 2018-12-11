@@ -70,6 +70,16 @@ return;
 	in.read((char*) X.data(), get_size(X)*sizeof(value_type));
 	return;
   }
+   template<typename T>
+   void bin_read(const std::string filename, std::vector<T>& X )
+  {
+
+
+	std::ifstream in(filename, std::ios::in | std::ios::binary);
+
+	in.read((char*) X.data(), X.size()*sizeof(T));
+	return;
+  }
   template<typename T>
   void bin_write(const std::string& filename, const T& X)
   {

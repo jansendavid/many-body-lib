@@ -122,6 +122,123 @@ using Lattice=typename SubBasis::Lattice;
     
   return op;
   }
+ template<class TotalBasis, class SubBasis >
+  Mat EKinOperatorLNNN(const TotalBasis& totalBasis, const SubBasis& subBasis, double var=1. , size_t m=0)
+     {
+       using SubBasisIt= typename SubBasis::BasisIt;
+	 using TpBasisIt= typename TotalBasis::BasisIt;
+	      using LeftBasisIt= typename TotalBasis::LeftBasisIt;     
+     using RightBasisIt= typename TotalBasis::RightBasisIt;
+     	      using LeftBasis= typename TotalBasis::LB;     
+     using RightBasis= typename TotalBasis::RB;  
+using Lattice=typename SubBasis::Lattice;     
+    
+ 
+   size_t dim=totalBasis.dim;
+    size_t sites=totalBasis.sites;
+    Mat op(dim, dim);
+      op.setZero();
+      
+      
+      
+	   for( auto& tpState : totalBasis)
+	     {
+	       	    for(size_t i=0; i<sites; i++)
+                 {
+	       LeftBasisIt it2=subBasis.find(LeftId(tpState));	     
+
+	       Lattice state=GetLattice(*it2);
+                     size_t j=(i+2)%sites;
+	   	    		    if(state[i]==state[j])
+   	       	     {
+	  // 	     
+    		  
+   	   	     }
+   	   	    else{
+		        	       Lattice temp=state;
+	  		       state[j]=temp[i];
+	  		       state[i]=temp[j];
+		 
+	  		       size_t signControl=CheckSign(temp, i, j);
+		       
+	  		       it2= subBasis.find(state.GetId());
+	  	       RightBasisIt it3=totalBasis.rbasis.find(RightId(tpState));
+	  	       size_t newStateNr= Position(*it3)*totalBasis.lbasis.dim +Position(*it2);
+	   	              if(signControl%2==0)
+   	   	    	 {
+	   		   op.coeffRef(newStateNr, Position(tpState))-= var;}
+   	   	       else
+   	   	    	 { op.coeffRef(newStateNr, Position(tpState))+= var;}
+		    }
+
+	   	     }
+ 	      	     }
+	   
+
+   	  
+    
+  return op;
+  }
+
+
+  template<class TotalBasis, class SubBasis >
+  Mat EKinOperatorRNNN(const TotalBasis& totalBasis, const SubBasis& subBasis, double var=1. , size_t m=0)
+     {
+       using SubBasisIt= typename SubBasis::BasisIt;
+       using TpBasisIt= typename TotalBasis::BasisIt;
+       using LeftBasisIt= typename TotalBasis::LeftBasisIt;     
+       using RightBasisIt= typename TotalBasis::RightBasisIt;
+       using LeftBasis= typename TotalBasis::LB;     
+       using RightBasis= typename TotalBasis::RB;  
+       using Lattice=typename SubBasis::Lattice;     
+    
+ 
+   size_t dim=totalBasis.dim;
+    size_t sites=totalBasis.sites;
+    Mat op(dim, dim);
+      op.setZero();
+      
+      
+      
+	  for( auto& tpState : totalBasis)
+	    {
+	      	    for(size_t i=0; i<sites; i++)
+                {
+	       RightBasisIt it2=subBasis.find(RightId(tpState));	     
+
+	       Lattice state=GetLattice(*it2);
+                     size_t j=(i+2)%sites;
+	   	    		    if(state[i]==state[j])
+   	       	     {
+
+
+   	   	     }
+   	   	    else{
+		      Lattice temp=state;
+	  		       state[j]=temp[i];
+	  		       state[i]=temp[j];
+		 
+	  		       size_t signControl=CheckSign(temp, i, j);
+		       
+	  		       it2= subBasis.find(state.GetId());
+	  	       LeftBasisIt it3=totalBasis.lbasis.find(LeftId(tpState));
+	  	       size_t newStateNr= Position(*it2)*totalBasis.lbasis.dim +Position(*it3);
+	  	              if(signControl%2==0)
+   	  	    	 {
+	   		   op.coeffRef(newStateNr, Position(tpState))-= var;}
+   	   	       else
+   	   	    	 { op.coeffRef(newStateNr, Position(tpState))+= var;}
+    	  
+
+
+	   	     }
+ 	     	     }
+	   
+
+   	  }
+    
+  return op;
+  }
 
   template<class TotalBasis, class SubBasis >
   Mat EKinOperatorR(const TotalBasis& totalBasis, const SubBasis& subBasis, double var=1. , size_t m=0)
