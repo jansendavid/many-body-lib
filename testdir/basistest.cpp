@@ -13,6 +13,7 @@ BOOST_AUTO_TEST_CASE(phonondimension)
   // const size_t L2=4;
   // const size_t L3=5;
   // const size_t L4=6;
+  // runtime
   BosonState b1(5);
    std::vector<int> state {1, 4, 1, 0};
      BosonState b2(state);
