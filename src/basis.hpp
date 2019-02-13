@@ -67,7 +67,7 @@ auto& operator[] ( int i) const{
   auto& operator[]( int i) {
       return (state[i]);
     }
-   int Count()
+    int Count() const
    {
      int sum = std::accumulate(state.begin(), state.end(), 0);
      return sum;

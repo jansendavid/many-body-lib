@@ -23,7 +23,7 @@ LIBS32+=-leigenmkl32
 LIBS64+=-leigenmkl64
 TESTLIBS+= -lboost_unit_test_framework
 #  DEBUG
-ND+= -DNDEBUG -O3
+ND+= -DNDEBUG -O2
 D+= -g
 # executables
 EXEC+=test timeevtest exvalcompare operatortest diagtest32 diagtest64 basistest basisbenchmark
