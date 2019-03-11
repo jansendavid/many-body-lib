@@ -1,20 +1,5 @@
 # many-body-lib
-ervry thing defined in anmespace Many_Body
-A series of .hpp files which allows the generation of different Hamiltonians used in many-body phyiscs, using either a fermionic, bosonic or tensorproduct basis
-# Name defenitions:
-State is object containg one lattice and the identification
-In a state:
-LatticeIt iterates throug a lattice= a vector with particles
-In a Basis:
-Lattice is an object containg lattice array with elctrons + dim + id
-BasisType is the tuple containg lattice + id + position. The type of the basis
-Latticeit is same
-Basis is set od basistypes
-Basisit iterator poiting to basis element
+This is a libray written to do exact diagoanlization of 1d qunatum lattice Hamiltonians which is often used in ED and MBL studies. Typical Hamiltonians which can be studied are the Heisenberg chain, the Holstein model and Bose and Fermi Hubbard model as well as many others which might will only require minor implementations for the user. The code currently do not incoorporate symmetries, but both U1 and translation symmtry can be easily implemented. The code also includes time evolution with the Lanczos algorithms and offersinterface for different eigensolvers depeneding on the needs of the user. 
+This code relies heavily on Eigen and is most efficient when combined with MKL. 
 
- In tensor product:
- BasisType is the tuple containing left and right identiefiers and position= id
- LTLattice and R are the types of the left and right basis'
- Basis set containing basistype
- basisIt iterates through basis
  
