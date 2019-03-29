@@ -4,3 +4,5 @@
 #include"timeev.hpp"
 #include"accesfunctions.hpp"
 #include"diag.hpp"
+#include"tpoperators.hpp"
+#include"files.hpp"
