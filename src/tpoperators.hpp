@@ -21,7 +21,7 @@ namespace Operators{
   using Mat= Eigen::SparseMatrix<ValType,Eigen::RowMajor>;
 
   template<class TotalBasis, class SubBasis>
-  Mat NumberOperator(const TotalBasis& totalBasis, const SubBasis& subBasis, const double omega=1.)
+  Mat NumberOperator(const TotalBasis& totalBasis, const SubBasis& subBasis, const double omega=1., const bool& PB=true)
  {    using BasisIt= typename TotalBasis::BasisIt;
     using Const_BasisIt= typename TotalBasis::Const_BasisIt;
     size_t dim=totalBasis.dim;
@@ -38,7 +38,7 @@ namespace Operators{
 	  for(size_t i=0; i<sites; i++)
 	    {
 
-	    op.coeffRef(Position(tpState), Position(tpState))+=ValType(omega*totalBasis.particlesAt(Id(tpState), i));
+ op.coeffRef(Position(tpState), Position(tpState))+=(omega*subBasis.particlesAt(RightId(tpState), i));
        
 	   
 	  }
@@ -66,7 +66,7 @@ namespace Operators{
     return m;
   }
   template<class TotalBasis, class SubBasis >
-  Mat EKinOperatorL(const TotalBasis& totalBasis, const SubBasis& subBasis, double var=1. , size_t m=0)
+  Mat EKinOperatorL(const TotalBasis& totalBasis, const SubBasis& subBasis, double var=1. , const bool& PB=true)
      {
        using SubBasisIt= typename SubBasis::BasisIt;
 	 using TpBasisIt= typename TotalBasis::BasisIt;
@@ -86,12 +86,12 @@ using Lattice=typename SubBasis::Lattice;
       
 	   for( auto& tpState : totalBasis)
 	     {
-	       	    for(size_t i=0; i<sites; i++)
+	       	    for(size_t i=0; i<Operators::Length( sites, PB); i++)
                  {
 	       LeftBasisIt it2=subBasis.find(LeftId(tpState));	     
 
 	       Lattice state=GetLattice(*it2);
-                     size_t j=(i+1)%sites;
+                     size_t j=Operators::NextWithBC(i, sites, PB);
 	   	    		    if(state[i]==state[j])
    	       	     {
 	  // 	     
@@ -102,7 +102,7 @@ using Lattice=typename SubBasis::Lattice;
 	  		       state[j]=temp[i];
 	  		       state[i]=temp[j];
 		 
-	  		       size_t signControl=CheckSign(temp, i, j);
+	  	     size_t signControl=CheckSign(temp, i, j);
 		       
 	  		       it2= subBasis.find(state.GetId());
 	  	       RightBasisIt it3=totalBasis.rbasis.find(RightId(tpState));
@@ -330,6 +330,134 @@ auto it21=totalBasis.lbasis.find(LeftId(tpState));
       return op;
       
        }
+  // Holstein model obc, for now this is n_0(n)
+   template<typename TotalBasis, typename Basis>
+  Mat BosonCOperator(const TotalBasis& totalBasis, Basis& subBasis, double var=1. , const bool& PB=true)
+  {
+          using TpBasisIt= typename TotalBasis::BasisIt;
+      using BasisIt= typename Basis::BasisIt;
+      using LeftBasisIt= typename TotalBasis::LeftBasisIt;
+      using LeftLattice=  typename    TotalBasis::LeftLattice;     
+      using RightBasisIt= typename TotalBasis::RightBasisIt;     
+      using RightLattice=typename TotalBasis::RightLattice;
+       
+   size_t dim=totalBasis.dim;
+    size_t sites=totalBasis.sites;
+    Mat op(dim, dim);
+      op.setZero();
+        	for(const auto& tpState : totalBasis)   
+  	  {	    
 
+  	 
+
+  	    RightBasisIt it2=subBasis.find(RightId(tpState));
+	    for(int i=0; i<sites; i++)
+	      {
+			
+	    	    LeftBasisIt it33=totalBasis.lbasis.find(LeftId(tpState));
+	     LeftLattice stateEl(GetLattice(*it33));
+	     if(stateEl[i]==0){continue;}
+  	    size_t particleNumber=subBasis.particlesAt(RightId(tpState), i);
+
+  	     if( particleNumber==subBasis.maxParticles)
+  	       {
+  	       }
+  	     else{
+  	       LeftBasisIt it3=totalBasis.lbasis.find(LeftId(tpState));
+  	       RightLattice state(GetLattice(*it2));
+
+  	       state[i]= particleNumber+1;
+
+  	       it2= subBasis.find(state.GetId());
+  	      
+  	       size_t newStateNr= Position(*it2)*totalBasis.lbasis.dim +Position(*it3);
+
+
+  	       op.coeffRef(newStateNr, Position(tpState))+= var*(std::sqrt(state[i]));
+  	   
+
+  		    }
+	      }
+  	  }
+  		return op;
+  }
+
+ template<typename TotalBasis, typename Basis>
+ Mat BosonDOperator(const TotalBasis& totalBasis, Basis& subBasis,   double var=1. ,  const bool& PB=true)
+  {
+     
+
+          using TpBasisIt= typename TotalBasis::BasisIt;
+      using BasisIt= typename Basis::BasisIt;
+      using LeftBasisIt= typename TotalBasis::LeftBasisIt;
+      using LeftLattice=  typename    TotalBasis::LeftLattice;     
+      using RightBasisIt= typename TotalBasis::RightBasisIt;     
+      using RightLattice=typename TotalBasis::RightLattice;
+       
+   size_t dim=totalBasis.dim;
+    size_t sites=totalBasis.sites;
+    Mat op(dim, dim);
+      op.setZero();
+  	for(const auto& tpState : totalBasis)   
+  	  {
+
+  	    RightBasisIt it2=subBasis.find(RightId(tpState));
+	    for(int i=0; i<sites; i++)
+	      {
+	
+	    	    LeftBasisIt it33=totalBasis.lbasis.find(LeftId(tpState));
+	     LeftLattice stateEl(GetLattice(*it33));
+	     if(stateEl[i]==0){continue;}
+
+	    size_t particleNumber=subBasis.particlesAt(RightId(tpState), i);
+
+  	     if( particleNumber==0)
+  	       {
+  	       }
+  	     else{
+  	       LeftBasisIt it3=totalBasis.lbasis.find(LeftId(tpState));
+  	       RightLattice state(GetLattice(*it2));
+
+  	       state[i]= particleNumber-1;
+
+
+  	       it2= subBasis.find(state.GetId());
+
+  	       size_t newStateNr= Position(*it2)*totalBasis.lbasis.dim +Position(*it3);
+
+  	       op.coeffRef(newStateNr, Position(tpState))+= var*(std::sqrt(state[i]+1));
+  	   
+	     
+  		    }
+  	  }
+	  }
+  		return op;
+   }  
+
+    // template<class TotalBasis, class SubBasis>
+ //  Mat NumberOperatore(const TotalBasis& totalBasis, const SubBasis& subBasis, const double omega=1., const bool& PB=true)
+ // {    using BasisIt= typename TotalBasis::BasisIt;
+ //    using Const_BasisIt= typename TotalBasis::Const_BasisIt;
+ //    size_t dim=totalBasis.dim;
+ //    size_t sites=totalBasis.sites;
+ //    Mat op(dim, dim);
+ //   op.setZero();
   
+
+
+ //      for(const auto& tpState : totalBasis)
+ // 	{
+
+	 
+ // 	  for(size_t i=0; i<Operators::Length( sites, PB); i++)
+ // 	    {
+
+ // 	      op.coeffRef(Position(tpState), Position(tpState))+=ValType(omega*subBasis.particlesAt(LeftId(tpState), i));
+       
+	   
+ // 	  }
+ // 	}
+ //      return op;
+      
+ //       }
 }
