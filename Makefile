@@ -7,6 +7,7 @@ MKLPATH=${MKLROOT}/lib/intel64_lin
 MKLINCLUDE=${MKLROOT}/include
 
 INCS+=-I${MANYBODY}/src
+INCS+=-I/usr/include/eigen3/
 # FLAGS
 
 #FLAGS= -std=c++17

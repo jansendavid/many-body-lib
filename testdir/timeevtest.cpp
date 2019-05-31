@@ -16,7 +16,7 @@ BOOST_AUTO_TEST_CASE(timeev)
   {
   size_t numberOfSteps=10;
    const size_t L=5;
-   ElectronBasis e(2, L);
+   ElectronBasis e( L, 2);
    std::cout << e.dim << std::endl;
    // Eigen::MatrixXd AA = Eigen::MatrixXd::Random(e.dim, e.dim);
    // 	 Eigen::MatrixXd H = AA + AA.transpose();

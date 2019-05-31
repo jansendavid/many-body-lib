@@ -9,58 +9,63 @@ using namespace Many_Body;
 BOOST_AUTO_TEST_SUITE(basistesting)
 BOOST_AUTO_TEST_CASE(phonondimension)
 {
-  // const size_t L1=3;
-  // const size_t L2=4;
-  // const size_t L3=5;
-  // const size_t L4=6;
-  // runtime
-  BosonState b1(5);
-   std::vector<int> state {1, 4, 1, 0};
-     BosonState b2(state);
-     std::cout<< b2[1]<< std::endl;
-     BOOST_CHECK(std::abs(b1.GetId()-0)<0.0001);
-          BOOST_CHECK(std::abs(b2[1]-4)<0.0001);
-	  PhononBasis g1{1, 4};
+  const size_t L1=3;
+  const size_t L2=4;
+  const size_t L3=5;
+  const size_t L4=6;
 
-   for(size_t i=2; i<3; i++)
-     {
-       PhononBasis g1{i, 4};
-       PhononBasis g2{i, 3};
-  //     PhononBasis<L3> g3{i};
-  //     PhononBasis<L4> g4{i};
+  BosonState b1( 4, 5);
+    
+  std::vector<int> state {1, 4, 1, 0};
+    BosonState b2(state);
+    
+    
+ 
+      BOOST_CHECK(b1.GetId()==0);
+      BOOST_CHECK(b2[1]==4);
+      PhononBasis g1{ 4, 1};
 
-       BOOST_CHECK(g1.dim==static_cast<size_t>(std::pow((i+1), 4)));
-       BOOST_CHECK(g2.dim==static_cast<size_t>(std::pow((i+1), 3)));
-  //     BOOST_CHECK(g3.dim==static_cast<size_t>(std::pow((i+1), L3)));
-  //     BOOST_CHECK(g4.dim==static_cast<size_t>(std::pow((i+1), L4)));
+    for(size_t i=2; i<3; i++)
+      {
+	PhononBasis g1{ 4, i};
+        PhononBasis g2{ 3, i};
+   
+
+        BOOST_CHECK(g1.dim==static_cast<size_t>(std::pow((i+1), 4)));
+        BOOST_CHECK(g2.dim==static_cast<size_t>(std::pow((i+1), 3)));
+   
       
-  }
+   }
 }
 BOOST_AUTO_TEST_CASE(electrondimension)
 {
   ElectronState df;
-  std::vector<int> state {1, 1, 1, 0};
+  std::vector<int> state {1, 1,      1, 0};
   ElectronState constru1(state);
-    BOOST_CHECK(std::abs(constru1.GetId()-14.)<0.0001);
-    constru1.flip(1);
-      BOOST_CHECK(std::abs(constru1.GetId()-10.)<0.0001);
-      ElectronState constru2(3, 4);
-      BOOST_CHECK(std::abs(constru2.GetId()-3.)<0.0001);
-ElectronBasis g1( 3);
-      const ElectronBasis g2(2,5);
-      ElectronBasis g3(1, 3);
+
+     BOOST_CHECK(constru1.GetId()==14);
+      constru1.flip(1);
+
+      BOOST_CHECK(constru1.GetId()==10);
+        ElectronState constru2(3, 4);
+	
+//        BOOST_CHECK(constru2.GetId()==3);
+ ElectronBasis g1( 3);
+
+ const ElectronBasis g2(5, 2);
+       ElectronBasis g3( 3, 1);
       
-      BOOST_CHECK(g1.dim==std::pow(2, 3));
-    BOOST_CHECK(g2.dim==Factorial(5)/(Factorial(5-2)*Factorial(2)));
-    BOOST_CHECK(g3.dim== 3);
+       BOOST_CHECK(g1.dim==std::pow(2, 3));
+     BOOST_CHECK(g2.dim==Factorial(5)/(Factorial(5-2)*Factorial(2)));
+     BOOST_CHECK(g3.dim== 3);
     
 
 
 
  }
 
-BOOST_AUTO_TEST_CASE(bosondimension)
-{
+// BOOST_AUTO_TEST_CASE(bosondimension)
+// {
 
    // const size_t L2=4;
    // const size_t L3=5;
@@ -79,31 +84,35 @@ BOOST_AUTO_TEST_CASE(bosondimension)
 
 
 
- }
+// }
 
-BOOST_AUTO_TEST_CASE(tensorproductdimension)
-{
-  // const size_t L1=3;
- //  const size_t L2=4;
- //  const size_t L3=5;
- // //  const size_t L4=6;
+ BOOST_AUTO_TEST_CASE(tensorproductdimension)
+ {
+//   // const size_t L1=3;
+//  //  const size_t L2=4;
+//  //  const size_t L3=5;
+//  // //  const size_t L4=6;
 
 
-  PhononBasis g{1, 4};
-  ElectronBasis e{1, 4};
+   PhononBasis g{ 4, 1};
+
+   
+
+ ElectronBasis e{ 4, 1};
+
  TensorProduct<  ElectronBasis,  PhononBasis> TP(e, g);
 
 
-    for(size_t i=1; i<2; i++)
-        {
-	  PhononBasis g1{i, 3};
-	  PhononBasis g2{i, 4};
-	  PhononBasis g3{i, 5};
+     for(size_t i=1; i<2; i++)
+         {
+	   PhononBasis g1{3, i};
+	   PhononBasis g2{ 4, i};
+	   PhononBasis g3{ 5, i};
 
 
-	  ElectronBasis e1{1, 3};
- 	 ElectronBasis e2{2, 4};
- 	 ElectronBasis e3{3, 5};
+	   ElectronBasis e1{ 3, 1};
+	   ElectronBasis e2{ 4, 2};
+	   ElectronBasis e3{ 5, 3};
 
  TensorProduct<  ElectronBasis,  PhononBasis> TP1(e1, g1);
   	 TensorProduct<  ElectronBasis,  PhononBasis> TP2(e2, g2);
@@ -114,6 +123,6 @@ BOOST_AUTO_TEST_CASE(tensorproductdimension)
   	 BOOST_CHECK(g3.dim*e3.dim==TP3.dim);
 
 
-  }
+   }
 }
 BOOST_AUTO_TEST_SUITE_END()

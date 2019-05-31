@@ -22,7 +22,7 @@ such that electronstat[0] returns 1 for the state 100
 // computing the factorial
 namespace Many_Body{
 template<typename State>
-std::tuple<double, size_t, State> getState(double id)
+std::tuple<size_t, size_t, State> getState(size_t id)
 {
   State aState(0);
   return {id, 0, aState};
@@ -35,122 +35,151 @@ struct CompareState{
      }
      
    };
+  struct isFermion{
+    bool isFer{1};
+  };
+    struct isBoson{
+    bool isFer{0};
+    };
+  struct stateBase{
+    stateBase(): sites(0), maxParNr{0}  {};
 
+    stateBase(std::vector<int> state, int MaxParNr=1): sites(state.size()), maxParNr(std::max(*(std::max_element(state.begin(), state.end())), MaxParNr))  {
 
- struct ElectronState
- {
-   using LatticeIt=typename std::vector<int>::iterator;
-   using Const_LatticeIt=typename std::vector<int>::const_iterator;
-   ElectronState(): state(0), sites(0)  {};
-   ElectronState(std::vector<int> state): state(state), sites(state.size())  {};
-
-   ElectronState(int stateInt, int sites):  sites(sites), state(sites,0)  { 
-          
-     std::vector<int>::reverse_iterator rit = state.rbegin();
+         id=makeId(state);
+   };
+        stateBase(int sites, int maxParNr=1): sites(sites), maxParNr(maxParNr), id(0) {};
+    size_t id{0};
+    int maxParNr{0};
+    size_t sites{0};
+    // member functions
+    std::vector<int> makeStateVec() const
+   {
+     std::vector<int> state(sites, 0);
+          std::vector<int>::reverse_iterator rit = state.rbegin();
+     	  size_t IdCop=id;
      for (; rit!= state.rend(); ++rit)
        {
-	 *rit=stateInt%2;
-	 stateInt/=2;
+	 
+     	 *rit=IdCop%(maxParNr+1);
+     	 IdCop/=(maxParNr+1);
        }
- 
-    };
-   std::vector<int> state;
-const int sites;
-   void flip(int i)
-   {
-     state[i]=(state[i]+1)%2;
+	  return state;
+
    }
-auto& operator[] ( int i) const{
-      return (state[i]);
-    }
-   
-  auto& operator[]( int i) {
-      return (state[i]);
-    }
-    int Count() const
+    
+     inline size_t GetId()
    {
-     int sum = std::accumulate(state.begin(), state.end(), 0);
-     return sum;
-   }
- inline double GetId()
+
+     return id;
+              }
+       inline size_t makeId(std::vector<int>& state)
    {
-     int sum=0;
-     int mult=1;
+     size_t sum=0;
+     size_t mult=1;
+
       std::vector<int>::reverse_iterator rit = state.rbegin();
   for (; rit!= state.rend(); ++rit)
     {
+
       sum+=(*rit)*mult;
-	 mult*=2;
+      mult*=(maxParNr+1);
        }
 
-     return double(sum);
+     return sum;
+     
               }
-   friend std::ostream& operator<<(std::ostream& os, const ElectronState& state) 
+           void setPartNr(size_t site, size_t nr)
+    {
+      assert(nr<=maxParNr && nr>=0);
+      std::vector<int> state=makeStateVec();
+        state[site]=nr;
+	id=makeId(state);
+    }
+        int Count() const
    {
-
+     std::vector<int> state=makeStateVec();
+     int sum = std::accumulate(state.begin(), state.end(), 0);
+     return sum;
+   }
+    
+    auto operator[] ( int i) const{
+  std::vector<int> state=makeStateVec();
+  return (state[i]);
+    }
+       friend std::ostream& operator<<(std::ostream& os, const  stateBase& state) 
+   {
+     std::vector<int> stateVec=state.makeStateVec();
      for(size_t i=0; i<state.sites; i++)
-       { os<< state[i] << std::setw(3);
+       { os<< stateVec[i] << std::setw(3);
    	   }
      os << '\n';
      return os;
    }
+  };
+
+  struct ElectronState: public stateBase
+ {
+ using LatticeIt=typename std::vector<int>::iterator;
+ using Const_LatticeIt=typename std::vector<int>::const_iterator;
+// using stateBase::Count;
+   //    using stateBase::setPartNr;
+   ElectronState(): stateBase()  {};
+   ElectronState(std::vector<int> state): stateBase(state, 1)  {
+         
+   };
+
+  ElectronState(int stateInt, int sites):  stateBase(sites, 1) {
+    id=stateInt;
+
+    }
+    
+
+
+   void flip(int i)
+   {
+     std::vector<int> state=makeStateVec();
+
+     state[i]=(state[i]+1)%2;
+
+
+     id=makeId(state);
+
+   }
+
 
  };
 
 
-struct BosonState
+  struct BosonState: public stateBase
   {
     using LatticeIt=typename std::vector<int>::iterator;
         using Const_LatticeIt=typename std::vector<int>::const_iterator;
-    BosonState(int sites): sites(sites),  state(sites, 0) {};
-    BosonState(): sites(0) {};
+    BosonState(int sites, int BosonNr=1): stateBase(sites, BosonNr) {};
+    BosonState(): stateBase() {};
    
-    BosonState(const std::vector<int>& state): state{state}, sites(state.size()) {};
-
-
-    std::vector<int> state;
-
-    inline double GetId()
-    {
-      double id=0;
-      if(std::accumulate(state.begin(), state.end(), 0)==0)
-	{}
-      else{
-       for(size_t k=0; k<sites; k++)
-        {
-        // defining bijective hashkey to identify the states
-        id+=std::sqrt(PrimeNumber(k+1))*state[k];	   
-        }
-      }
-      return id;
-    }
-    
-    auto& operator[] ( size_t i) {
-        return state[i];
-    }
-      auto& operator[] ( size_t i) const
-    {
-        return state[i];
-    }
-
+    BosonState( std::vector<int>& state, int BosonNr=1): stateBase(state, BosonNr) {  
+      };
 
        friend std::ostream& operator<<(std::ostream& os, const  BosonState& aState)
    {
 
+     std::vector<int> state=aState.makeStateVec();
      for(int i=0; i<aState.sites; i++)
-       { os<< aState[i]  << std::setw(3);
+       {
+	 os<< aState[i]  << std::setw(3);
    	   }
      os << '\n';
      return os;
    }
- const  int sites;
+
   };
 
 
 struct ElectronBasis
 {
   using Lattice=ElectronState;
-  using BasisType= std::tuple< double, size_t, Lattice>;
+  using BasisType= std::tuple< size_t, size_t, Lattice>;
   using LatticeIt=typename Lattice::LatticeIt;
   using Const_LatticeIt=typename Lattice::Const_LatticeIt;
   using Basis=std::set<BasisType, CompareState<BasisType>>;
@@ -158,7 +187,7 @@ struct ElectronBasis
   using Const_BasisIt= typename  Basis::const_iterator;
 
    
-  ElectronBasis(int numberOfParticles, int sites): sites(sites), dim(0) {
+  ElectronBasis( int sites,int numberOfParticles): sites(sites), dim(0) {
     for(int i=0; i<static_cast<int>(std::pow(2, sites)); i++)
         {
 
@@ -205,20 +234,20 @@ struct ElectronBasis
 
      return os;
    }
-    const BasisType operator[] (double id) {
+    const BasisType operator[] (size_t id) {
     Lattice aLattice;
     BasisType aState(id, 0, aLattice);
     return *basis.find(aState);
   }
     
-   size_t particlesAt(double id, size_t site) const
+   size_t particlesAt(size_t id, size_t site) const
   {
     Lattice aLattice;
     BasisType aState=*basis.find({id, 0, aLattice});
     return std::get<toBasisType(BasisInfoField::state)>(aState)[site];
     
   }
-     void flip(double id, int site) const
+     void flip(size_t id, int site) const
   {
     Lattice aLattice;
     BasisType aState=*basis.find({id, 0, aLattice});
@@ -235,7 +264,7 @@ struct ElectronBasis
     BasisType aState(id, 0, aLattice);
     return basis.find(aState);
   }
-    Const_BasisIt find(double id) const
+    Const_BasisIt find(size_t id) const
   {
     Lattice aLattice;
     BasisType aState(id, 0, aLattice);
@@ -253,25 +282,25 @@ struct ElectronBasis
    struct PhononBasis
  {
    using Lattice= BosonState;  
-  using BasisType= std::tuple<double, size_t, Lattice>;
+  using BasisType= std::tuple<size_t, size_t, Lattice>;
   using Basis=std::set<BasisType, CompareState<BasisType>>;
   using LatticeIt= typename Lattice::LatticeIt;
   using Const_LatticeIt= typename Lattice::Const_LatticeIt;
   using BasisIt= typename  Basis::iterator;
   using Const_BasisIt= typename  Basis::const_iterator;
-   PhononBasis(int maxPhonons, int sites);
+   PhononBasis( int sites, int maxPhonons);
     PhononBasis(int sites): sites(sites), maxParticles(0) {};
    Basis basis;
    size_t dim;
    const int sites;
    const int maxParticles;
   
-  const BasisType operator[] (double id) {
+   const BasisType operator[] (size_t id) {
     Lattice aLattice;
     BasisType aState(id, 0, aLattice);
     return *basis.find(aState);
   }
-   int particlesAt(double id, int site)  const
+   int particlesAt(size_t id, int site)  const
   {
     Lattice aLattice;
     BasisType aState=*basis.find({id, 0, aLattice});
@@ -279,13 +308,13 @@ struct ElectronBasis
     
   }
   
-  BasisIt find(double id)
+  BasisIt find(size_t id)
   {
     Lattice aLattice;
     BasisType aState(id, 0, aLattice);
     return basis.find(aState);
   }
-    Const_BasisIt find(double id) const
+    Const_BasisIt find(size_t id) const
   {
     Lattice aLattice;
     BasisType aState(id, 0, aLattice);
@@ -302,9 +331,9 @@ struct ElectronBasis
    
      while( it1!=phononBasis.basis.end())
        {
-	 os<< "id"<< '\t' << std::get<toBasisType(BasisInfoField::id)>(*it1) << '\t'<<"position"<< '\t'<<std::get<toBasisType(BasisInfoField::position)>(*it1)<<  '\t'<< "state"<< '\t' << std::get<toBasisType(BasisInfoField::state)>(*it1);
+ 	 os<< "id"<< '\t' << std::get<toBasisType(BasisInfoField::id)>(*it1) << '\t'<<"position"<< '\t'<<std::get<toBasisType(BasisInfoField::position)>(*it1)<<  '\t'<< "state"<< '\t' << std::get<toBasisType(BasisInfoField::state)>(*it1);
      it1++;
-	  }
+ 	  }
 
      return os;
    }
@@ -312,73 +341,13 @@ struct ElectronBasis
    
    };
 
-// template<size_t L>
-//   struct BosonBasis
-// {
-//   using Lattice= BosonState<L>;
-//   using BasisType= std::tuple<double, size_t, Lattice>;
-//   using Basis=std::set<BasisType, CompareState<BasisType>>;
-//   using LatticeIt=typename Lattice::LatticeIt;
-//   using Const_LatticeIt=typename Lattice::Const_LatticeIt;  
-//   using BasisIt= typename  Basis::iterator;
-//   using Const_BasisIt= typename  Basis::const_iterator;
-
-//   BosonBasis(size_t numberOfParticles);
-//   Basis basis;
-//   const size_t numberOfParticles; // maximum number of bosons on one site
-//     const size_t maxParticles;
-//   size_t dim;
-//    const BasisType operator[] (double id) {
-//     Lattice aLattice;
-//     BasisType aState(id, 0, aLattice);
-//     return *basis.find(aState);
-//   }
-//   BasisIt find(double id)
-//   {
-//     Lattice aLattice;
-//     BasisType aState(id, 0, aLattice);
-//     return basis.find(aState);
-//   }
-//     Const_BasisIt find(double id) const
-//   {
-//     Lattice aLattice;
-//     BasisType aState(id, 0, aLattice);
-//     return basis.find(aState);
-//   }
-//   BasisIt begin() {return basis.begin();}
-//   BasisIt end() {return basis.end();}
-//    Const_BasisIt begin() const {return basis.begin();}
-//   Const_BasisIt end() const {return basis.end();}
-//   size_t particlesAt(double id, size_t site) const
-//   {
-//      Lattice aLattice;
-//      BasisType aState=*basis.find({id, 0, aLattice});
-//     return std::get<toBasisType(BasisInfoField::state)>(aState)[site];
-    
-//   }
-//   friend std::ostream& operator<<(std::ostream& os,  BosonBasis& bosonBasis)
-//    {
-//      assert(bosonBasis.dim==bosonBasis.basis.size());
-//      Const_BasisIt it1= bosonBasis.begin();
-   
-//      while( it1!=bosonBasis.basis.end())
-//        {
-// os<< "id"<< '\t' << std::get<toBasisType(BasisInfoField::id)>(*it1) << '\t'<<"position"<< '\t'<<std::get<toBasisType(BasisInfoField::position)>(*it1)<<  '\t'<< "state"<< '\t' << std::get<toBasisType(BasisInfoField::state)>(*it1);
-//      it1++;
-// 	  }
-
-//      return os;
-//    }
-
-   
-//   };
 
 
 template<class LeftBasis, class RightBasis>
  struct TensorProduct{
   using LB= LeftBasis;
   using RB= RightBasis;
-  using BasisType= std::tuple<size_t, double, double>;
+  using BasisType= std::tuple<size_t, size_t, size_t>;
   using Basis=std::set<BasisType, CompareState<BasisType>>;
   using BasisIt= typename Basis::iterator;
   using Const_BasisIt= typename Basis::const_iterator;
@@ -431,7 +400,7 @@ template<class LeftBasis, class RightBasis>
     BasisType aState(id, 0, 0);
     return basis.find(aState);
   }
-    Const_BasisIt find(double id) const
+    Const_BasisIt find(size_t id) const
   {
     
     BasisType aState(id, 0, 0);
@@ -453,12 +422,12 @@ template<class LeftBasis, class RightBasis>
     }
 
 
- };
+  };
 
 
-  // MEMBER FUNCTION:
+//   // MEMBER FUNCTION:
 
-   PhononBasis::PhononBasis(int maxPhonons, int sites): dim{0},  sites(sites), maxParticles(maxPhonons)  {
+  PhononBasis::PhononBasis( int sites, int maxPhonons): dim{0},  sites(sites), maxParticles(maxPhonons)  {
      std::vector<int> stateArray(sites, 0);
   basis.insert({0, 0, stateArray});
   int numberOfPhonons=0;
@@ -470,8 +439,11 @@ template<class LeftBasis, class RightBasis>
       std::fill(stateArray.begin(), stateArray.end(), 0);
       stateArray[sites-1]= numberOfPhonons;		 
       do
-    	{  
-    	Lattice newState{stateArray};
+    	{
+	  
+	  Lattice newState{stateArray, maxPhonons};
+	  //	  std::cout<< newState<<std::endl;
+
 	//	std::cout<< newState;
     	basis.insert({  newState.GetId(), dim,  newState});
     	dim++;
@@ -499,7 +471,9 @@ template<class LeftBasis, class RightBasis>
     	  it1=stateArray.begin();
     do
       {
-    	Lattice newState{stateArray};
+
+    	Lattice newState{stateArray, maxPhonons};
+
     	basis.insert({ newState.GetId(), dim,   newState});
     	dim++;
       }
@@ -510,57 +484,6 @@ template<class LeftBasis, class RightBasis>
 
    
  }
-
-// template<size_t L>
-// BosonBasis<L>::BosonBasis(size_t numberOfParticles): numberOfParticles(numberOfParticles), maxParticles(numberOfParticles), dim{0} {
-//   std::array<size_t, L> statearray;
-//   statearray.fill(0);   
-
-//      size_t numberofbosons=0;
-
-//       // generating all states of the form 0000...0bosonnumber
-//     while(numberofbosons<numberOfParticles)
-//     {
-//       numberofbosons++;
-//       statearray.fill(0);
-//       statearray[L-1]= numberofbosons;		 
-//      do
-//        {
-// 	 if(static_cast<size_t>(std::accumulate(statearray.begin(), statearray.end(), 0))==numberOfParticles) {
-// 	   Lattice newState{statearray};
-// 	   basis.insert({newState.GetId(), dim,  newState});
-// 	   dim++;
-// 	}
-
-//        }while(std::next_permutation(statearray.begin(), statearray.end()));    
-     
-//     		  // Permutating over the rest of the states
-
-//            LatticeIt it1= statearray.begin();
-//         while(statearray[0]<statearray[L-1])
-//         {
-//          if(*it1==*(it1+1))                    // if the number of bosons at size i ar
-//                                     //equal to the number on site i+1 it set it to
-//                                     // zero and iterate one forward
-//         {*it1=0;
-//     	   it1++; }
-//               else                                      // if the number is smaller, i increase it
-//     		                                       // by one and go back to site 0
-//         { *it1+=1; 
-//          it1=statearray.begin();
-//     do{
-//       if(static_cast<size_t>(std::accumulate(statearray.begin(), statearray.end(), 0))==numberOfParticles) {
-//      Lattice newState{statearray};
-//       basis.insert({newState.GetId(), dim, newState});
-       
-//            dim++;
-//        }
-//               }while(std::next_permutation(statearray.begin(), statearray.end()));
-//     }   
-//       }
-//  }
-   
-// }
 
 
 

@@ -86,13 +86,15 @@ using Lattice=typename TotalBasis::Lattice;
 	  	    if(totalBasis.particlesAt(currentID, i)>0 && totalBasis.particlesAt(currentID, j)<totalBasis.maxParticles)
 	      	     {
 	     	       Lattice state=GetLattice(*it2);
+		       state.setPartNr(j, totalBasis.particlesAt(currentID, j) +1);
+		       		       state.setPartNr(i, totalBasis.particlesAt(currentID, i) -1);
+		       //		       std::vector<int> state=St.makeStateVec();
 
 	  	       //		       TD<state> a(state);
-	    	       state[j]=totalBasis.particlesAt(currentID, j) +1;
-	     	       state[i]=totalBasis.particlesAt(currentID, i) -1;
 
-	  	       auto it3= totalBasis.find(state.GetId());
-	  	       size_t  newStateNr=Position(*(totalBasis.find(state.GetId())));
+
+	  	       auto it3= totalBasis.find(state.id);
+	  	       size_t  newStateNr=Position(*(totalBasis.find(state.id)));
       op.coeffRef(newStateNr, Position(tpState))-= 0.5*var*(std::sqrt(static_cast<double>(state[i]+1.)))*(std::sqrt(static_cast<double>(state[j])));
 	  	       op.coeffRef(Position(tpState), newStateNr )-= 0.5*var*(std::sqrt(static_cast<double>(state[i]+1.)))*(std::sqrt(static_cast<double>(state[j])));
 

@@ -86,6 +86,7 @@ using Lattice=typename SubBasis::Lattice;
       
 	   for( auto& tpState : totalBasis)
 	     {
+
 	       	    for(size_t i=0; i<Operators::Length( sites, PB); i++)
                  {
 	       LeftBasisIt it2=subBasis.find(LeftId(tpState));	     
@@ -98,15 +99,21 @@ using Lattice=typename SubBasis::Lattice;
     		  
    	   	     }
    	   	    else{
-		        	       Lattice temp=state;
-	  		       state[j]=temp[i];
-	  		       state[i]=temp[j];
-		 
+		      
+
+		      Lattice temp=state;
+		      
+		       state.setPartNr(j, temp[i]);
+		      state.setPartNr(i, temp[j]);
+		     		 
 	  	     size_t signControl=CheckSign(temp, i, j);
 		       
-	  		       it2= subBasis.find(state.GetId());
+		     it2= subBasis.find(state.GetId());
+		     
 	  	       RightBasisIt it3=totalBasis.rbasis.find(RightId(tpState));
+		     
 	  	       size_t newStateNr= Position(*it3)*totalBasis.lbasis.dim +Position(*it2);
+		     
 	   	              if(signControl%2==0)
    	   	    	 {
 	   		   op.coeffRef(newStateNr, Position(tpState))-= var;}
@@ -156,8 +163,8 @@ using Lattice=typename SubBasis::Lattice;
    	   	     }
    	   	    else{
 		        	       Lattice temp=state;
-	  		       state[j]=temp[i];
-	  		       state[i]=temp[j];
+				       state.setPartNr(j, temp[i]);
+				       state.setPartNr(i, temp[j]);
 		 
 	  		       size_t signControl=CheckSign(temp, i, j);
 		       
@@ -215,8 +222,8 @@ using Lattice=typename SubBasis::Lattice;
    	   	     }
    	   	    else{
 		      Lattice temp=state;
-	  		       state[j]=temp[i];
-	  		       state[i]=temp[j];
+			     state.setPartNr(j, temp[i]);
+ state.setPartNr(i, temp[j]);
 		 
 	  		       size_t signControl=CheckSign(temp, i, j);
 		       
@@ -274,8 +281,8 @@ using Lattice=typename SubBasis::Lattice;
    	   	     }
    	   	    else{
 		      Lattice temp=state;
-	  		       state[j]=temp[i];
-	  		       state[i]=temp[j];
+		      state.setPartNr(j, temp[i]);
+ state.setPartNr(i, temp[j]);
 		 
 	  		       size_t signControl=CheckSign(temp, i, j);
 		       
@@ -365,8 +372,9 @@ auto it21=totalBasis.lbasis.find(LeftId(tpState));
   	     else{
   	       LeftBasisIt it3=totalBasis.lbasis.find(LeftId(tpState));
   	       RightLattice state(GetLattice(*it2));
-
-  	       state[i]= particleNumber+1;
+			     state.setPartNr(i, particleNumber+1);
+ 
+ 
 
   	       it2= subBasis.find(state.GetId());
   	      
@@ -418,8 +426,8 @@ auto it21=totalBasis.lbasis.find(LeftId(tpState));
   	       LeftBasisIt it3=totalBasis.lbasis.find(LeftId(tpState));
   	       RightLattice state(GetLattice(*it2));
 
-  	       state[i]= particleNumber-1;
 
+	       state.setPartNr(i, particleNumber-1);
 
   	       it2= subBasis.find(state.GetId());
 

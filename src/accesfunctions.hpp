@@ -19,28 +19,28 @@ constexpr auto toBasisType(E enumerator) noexcept
    return static_cast<size_t>(std::get<toBasisType(BasisInfoField::position)>(state));
  }
 
- size_t Position( const std::tuple<size_t, double, double>& state)
+ size_t Position( const std::tuple<size_t, size_t, size_t>& state)
  {
    
    return static_cast<size_t>(std::get<toBasisType(TPBasisInfoField::position)>(state));
  }
 template<typename T>
- double Id( const T& state)
+ size_t Id( const T& state)
  {
    
    return std::get<toBasisType(BasisInfoField::id)>(state);
  }
-double Id( const std::tuple<size_t, double, double>& state)
+size_t Id( const std::tuple<size_t, size_t, size_t>& state)
  {
    
    return std::get<toBasisType(TPBasisInfoField::position)>(state);
  }
-double LeftId( const std::tuple<size_t, double, double>& state)
+size_t LeftId( const std::tuple<size_t, size_t, size_t>& state)
  {
    
    return std::get<toBasisType(TPBasisInfoField::lId)>(state);
  }
-double RightId( const std::tuple<size_t, double, double>& state)
+size_t RightId( const std::tuple<size_t, size_t, size_t>& state)
  {
    
    return std::get<toBasisType(TPBasisInfoField::rId)>(state);
