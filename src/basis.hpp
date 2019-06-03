@@ -302,8 +302,11 @@ struct ElectronBasis
   }
    int particlesAt(size_t id, int site)  const
   {
+
     Lattice aLattice;
     BasisType aState=*basis.find({id, 0, aLattice});
+
+
     return std::get<toBasisType(BasisInfoField::state)>(aState)[site];
     
   }
