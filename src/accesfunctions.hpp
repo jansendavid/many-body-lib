@@ -65,7 +65,8 @@ auto GetLattice( const T& state)
        for(size_t i=0; i<state.sites; i++)
 	 {
 	   size_t j=(i+1)%(state.sites);
-	   newState[i]=tempState[j];
+	   //	   newState[i]=tempState[j];
+	   newState.setPartNr(i, tempState[j]);
 	 }
        
 	 }

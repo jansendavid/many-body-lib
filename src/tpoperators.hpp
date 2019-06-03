@@ -4,6 +4,7 @@
 #include<cmath>
 #include <eigen3/Eigen/Sparse>
 #include <type_traits>
+#include"operators.hpp"
 #ifdef MOM
 using ValType= std::complex<double>; 
 #else
@@ -22,7 +23,8 @@ namespace Operators{
 
   template<class TotalBasis, class SubBasis>
   Mat NumberOperator(const TotalBasis& totalBasis, const SubBasis& subBasis, const double omega=1., const bool& PB=true)
- {    using BasisIt= typename TotalBasis::BasisIt;
+
+  {    using BasisIt= typename TotalBasis::BasisIt;
     using Const_BasisIt= typename TotalBasis::Const_BasisIt;
     size_t dim=totalBasis.dim;
     size_t sites=totalBasis.sites;
