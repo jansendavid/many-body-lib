@@ -57,6 +57,8 @@ diagtest64: testdir/diagtest.cpp src/basis.hpp  src/accesfunctions.hpp src/numer
 	$(CXX) $(FLAGS) $(INCS) testdir/diagtest.cpp -o diagtest64  $(MKLLINKPROG64) $(LIBSLINK) $(LIBS64) $(TESTLIBS)
 timeevtest: testdir/timeevtest.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/timeev.hpp src/diag.h
 	$(CXX) $(FLAGS) $(INCS) testdir/timeevtest.cpp -o timeevtest  $(MKLLINKPROG32) $(LIBSLINK) $(LIBS32) $(TESTLIBS)
+FTLMtest: testdir/FTLMtest.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/timeev.hpp src/diag.h
+	$(CXX) $(FLAGS) $(INCS)  testdir/FTLMtest.cpp -o FTLMtest  $(MKLLINKPROG32) $(LIBSLINK) $(LIBS32) $(TESTLIBS)
 reddmtest: testdir/reddmtest.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h
 	$(CXX) $(FLAGS) $(INCS) testdir/reddmtest.cpp -o reddmtest  $(MKLLINKPROG32) $(LIBSLINK) $(LIBS32) $(TESTLIBS)
 reddm: examples/reddm.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h
