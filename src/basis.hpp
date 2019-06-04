@@ -21,12 +21,12 @@ such that electronstat[0] returns 1 for the state 100
 #include"numerics.hpp"
 // computing the factorial
 namespace Many_Body{
-template<typename State>
-std::tuple<size_t, size_t, State> getState(size_t id)
-{
-  State aState(0);
-  return {id, 0, aState};
-}
+// template<typename State>
+// std::tuple<size_t, size_t, State> getState(size_t id)
+// {
+//   State aState(0);
+//   return {id, 0, aState};
+// }
 template<typename State>
 struct CompareState{
      bool operator()(const State& lhs, const State& rhs) const
@@ -44,11 +44,11 @@ struct CompareState{
   struct stateBase{
     stateBase(): sites(0), maxParNr{0}  {};
 
-    stateBase(std::vector<int> state, int MaxParNr=1): sites(state.size()), maxParNr(std::max(*(std::max_element(state.begin(), state.end())), MaxParNr))  {
+    stateBase(std::vector<int> state, int MaxParNr): sites(state.size()), maxParNr( MaxParNr)  {
 
          id=makeId(state);
    };
-        stateBase(int sites, int maxParNr=1): sites(sites), maxParNr(maxParNr), id(0) {};
+    stateBase(int sites, int maxParNr): sites(sites), maxParNr(maxParNr), id(0) {};
     size_t id{0};
     int maxParNr{0};
     size_t sites{0};
@@ -79,13 +79,14 @@ struct CompareState{
      size_t mult=1;
 
       std::vector<int>::reverse_iterator rit = state.rbegin();
+      
   for (; rit!= state.rend(); ++rit)
     {
 
       sum+=(*rit)*mult;
       mult*=(maxParNr+1);
        }
-
+  
      return sum;
      
               }
@@ -94,7 +95,9 @@ struct CompareState{
       assert(nr<=maxParNr && nr>=0);
       std::vector<int> state=makeStateVec();
         state[site]=nr;
+
 	id=makeId(state);
+
     }
         int Count() const
    {
@@ -155,10 +158,10 @@ struct CompareState{
   {
     using LatticeIt=typename std::vector<int>::iterator;
         using Const_LatticeIt=typename std::vector<int>::const_iterator;
-    BosonState(int sites, int BosonNr=1): stateBase(sites, BosonNr) {};
+    BosonState(int sites, int BosonNr): stateBase(sites, BosonNr) {};
     BosonState(): stateBase() {};
    
-    BosonState( std::vector<int>& state, int BosonNr=1): stateBase(state, BosonNr) {  
+    BosonState( std::vector<int>& state, int BosonNr): stateBase(state, BosonNr) {  
       };
 
        friend std::ostream& operator<<(std::ostream& os, const  BosonState& aState)
@@ -235,21 +238,21 @@ struct ElectronBasis
      return os;
    }
     const BasisType operator[] (size_t id) {
-    Lattice aLattice;
+      Lattice aLattice(sites, maxParticles);
     BasisType aState(id, 0, aLattice);
     return *basis.find(aState);
   }
     
    size_t particlesAt(size_t id, size_t site) const
   {
-    Lattice aLattice;
+    Lattice aLattice(sites, maxParticles);
     BasisType aState=*basis.find({id, 0, aLattice});
     return std::get<toBasisType(BasisInfoField::state)>(aState)[site];
     
   }
      void flip(size_t id, int site) const
   {
-    Lattice aLattice;
+    Lattice aLattice(sites, maxParticles);
     BasisType aState=*basis.find({id, 0, aLattice});
     return std::get<toBasisType(BasisInfoField::state)>(aState).flip(site);
     
@@ -289,14 +292,14 @@ struct ElectronBasis
   using BasisIt= typename  Basis::iterator;
   using Const_BasisIt= typename  Basis::const_iterator;
    PhononBasis( int sites, int maxPhonons);
-    PhononBasis(int sites): sites(sites), maxParticles(0) {};
+   //    PhononBasis(int sites): sites(sites), maxParticles(0) {};
    Basis basis;
    size_t dim;
    const int sites;
    const int maxParticles;
   
    const BasisType operator[] (size_t id) {
-    Lattice aLattice;
+     Lattice aLattice(sites, maxParticles);
     BasisType aState(id, 0, aLattice);
     return *basis.find(aState);
   }
@@ -313,8 +316,8 @@ struct ElectronBasis
   
   BasisIt find(size_t id)
   {
-    Lattice aLattice;
-    BasisType aState(id, 0, aLattice);
+    Lattice aLattice(sites, maxParticles);
+    BasisType aState(id, maxParticles, aLattice);
     return basis.find(aState);
   }
     Const_BasisIt find(size_t id) const
@@ -432,7 +435,7 @@ template<class LeftBasis, class RightBasis>
 
   PhononBasis::PhononBasis( int sites, int maxPhonons): dim{0},  sites(sites), maxParticles(maxPhonons)  {
      std::vector<int> stateArray(sites, 0);
-  basis.insert({0, 0, stateArray});
+     basis.insert({0, 0, {stateArray, maxPhonons}});
   int numberOfPhonons=0;
   dim++;
 //       // generating all states of the form 0000...0phononnumber
