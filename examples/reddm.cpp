@@ -14,19 +14,22 @@ int main(int argc, char *argv[])
 
     using Mat= Operators::Mat;
   int L=4;
-  double omega=1;
-  double gamma=1;
-  double t0=1;
-  double T=0.01;
+  const double t0=std::stod(argv[1]);
+  const double gamma=std::stod(argv[2]);
+  const double omega=std::stod(argv[3]);
+  std::string somg=std::string(argv[3]).substr(0,3);
+  std::string sgam=std::string(argv[2]).substr(0,3);
+
+  int M=6;
    using HolsteinBasis= TensorProduct<ElectronBasis, PhononBasis>;
         PhononBasis g2{ 2, 1};
   ElectronBasis e( L, 1);
   //  std::cout<< e<<std::endl;
   
-  PhononBasis ph(L, 5);
+  PhononBasis ph(L, M);
   //std::cout<< ph<<std::endl;
   HolsteinBasis TP(e, ph);
-  //  std::cout<< TP.dim << std::endl;
+    std::cout<< TP.dim << std::endl;
         Mat E1=Operators::EKinOperatorL(TP, e, t0, true);
       Mat Ebdag=Operators::BosonCOperator(TP, ph, gamma, true);
       Mat Eb=Operators::BosonDOperator(TP, ph, gamma, true);
@@ -37,11 +40,23 @@ int main(int argc, char *argv[])
       Eigen::VectorXd eigenVals(TP.dim);
       Mat H=E1+Eph  +Ebdag + Eb;
           Eigen::MatrixXd HH=Eigen::MatrixXd(H);
-	 auto optModes=makeThermalRDMTP(HH, TP, T,2);
+	 		   std::vector<double> Tr={0.0110, 0.0111, 0.0112, 0.0115, 0.0120, 0.0150};
+	  for(auto t: Tr){
+	      std::string sT=std::string(std::to_string(t)).substr(0,6);
+
+	 auto optModes=makeThermalRDMTP(HH, TP, t,0);
 	  //	  std::cout << "sum of all eigenvalues "<< optModes.sum()<< std::endl;
+	 int n=0;
 	  for(auto& l : optModes)
-	    { 
-	      std::cout<< l<<std::endl;
+	    {
+	      	      std::string sn=std::string(std::to_string(n)).substr(0,1);
+	      	 std::string filename="OML"+std::to_string(L)+"M"+std::to_string(M)+"t0_"+"1.0"+"gam"+sgam+"omg"+ somg+"T"+ sT+ "esec" +sn  + ".bin";
+		 //	      std::cout<< l<<std::endl;
+	         bin_write(filename, l);
+		 n++;
+	    }
+	  std::cout<< t << std::endl;
+	  
 	    }
   //   std::cout<< TP<< std::endl;
   // Eigen::VectorXd v1=Eigen::VectorXd::Zero(TP.dim);

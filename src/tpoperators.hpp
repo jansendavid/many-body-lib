@@ -91,10 +91,12 @@ using Lattice=typename SubBasis::Lattice;
 
 	       	    for(size_t i=0; i<Operators::Length( sites, PB); i++)
                  {
+
 	       LeftBasisIt it2=subBasis.find(LeftId(tpState));	     
 
 	       Lattice state=GetLattice(*it2);
                      size_t j=Operators::NextWithBC(i, sites, PB);
+		     //		   std::cout<< i << "  " << j <<std::endl;
 	   	    		    if(state[i]==state[j])
    	       	     {
 	  // 	     
@@ -118,9 +120,9 @@ using Lattice=typename SubBasis::Lattice;
 		     
 	   	              if(signControl%2==0)
    	   	    	 {
-	   		   op.coeffRef(newStateNr, Position(tpState))-= var;}
+	   		   op.coeffRef(newStateNr, Position(tpState))-= ValType{var};}
    	   	       else
-   	   	    	 { op.coeffRef(newStateNr, Position(tpState))+= var;}
+   	   	    	 { op.coeffRef(newStateNr, Position(tpState))+= ValType{var};}
 		    }
 
 	   	     }
@@ -349,7 +351,7 @@ auto it21=totalBasis.lbasis.find(LeftId(tpState));
       using LeftLattice=  typename    TotalBasis::LeftLattice;     
       using RightBasisIt= typename TotalBasis::RightBasisIt;     
       using RightLattice=typename TotalBasis::RightLattice;
-       
+
    size_t dim=totalBasis.dim;
     size_t sites=totalBasis.sites;
     Mat op(dim, dim);
@@ -358,32 +360,41 @@ auto it21=totalBasis.lbasis.find(LeftId(tpState));
   	  {	    
 
   	 
-
-  	    RightBasisIt it2=subBasis.find(RightId(tpState));
+  	 
 	    for(int i=0; i<sites; i++)
 	      {
-			
+
+		  	    RightBasisIt it2=subBasis.find(RightId(tpState));
+
 	    	    LeftBasisIt it33=totalBasis.lbasis.find(LeftId(tpState));
 	     LeftLattice stateEl(GetLattice(*it33));
-	     if(stateEl[i]==0){continue;}
+
+	     if(stateEl[i]==0){
+
+	       continue;}
   	    size_t particleNumber=subBasis.particlesAt(RightId(tpState), i);
 
   	     if( particleNumber==subBasis.maxParticles)
   	       {
   	       }
   	     else{
+	       
   	       LeftBasisIt it3=totalBasis.lbasis.find(LeftId(tpState));
   	       RightLattice state(GetLattice(*it2));
+
+
+	       //	       std::cout<<" at site " << i << " we  started with e "<< stateEl<< "and ph  started with satte " << state << std::endl;
 			     state.setPartNr(i, particleNumber+1);
- 
- 
+
+			     //			      std::cout<< "and got " << state << std::endl;
 
   	       it2= subBasis.find(state.GetId());
   	      
-  	       size_t newStateNr= Position(*it2)*totalBasis.lbasis.dim +Position(*it3);
+  	       size_t newStateNr= Position(*it2) *totalBasis.lbasis.dim +Position(*it3) ;
 
 
-  	       op.coeffRef(newStateNr, Position(tpState))+= var*(std::sqrt(state[i]));
+
+  	       op.coeffRef(newStateNr, Position(tpState))+= ValType{var*(std::sqrt(state[i]))};
   	   
 
   		    }
@@ -411,31 +422,38 @@ auto it21=totalBasis.lbasis.find(LeftId(tpState));
   	for(const auto& tpState : totalBasis)   
   	  {
 
-  	    RightBasisIt it2=subBasis.find(RightId(tpState));
+  	    
 	    for(int i=0; i<sites; i++)
 	      {
-	
+		RightBasisIt it2=subBasis.find(RightId(tpState));
+		//		std::cout<< "at "<<Position(tpState) <<" havinfg state BD " << i <<std::endl;
+
 	    	    LeftBasisIt it33=totalBasis.lbasis.find(LeftId(tpState));
 	     LeftLattice stateEl(GetLattice(*it33));
-	     if(stateEl[i]==0){continue;}
-
+	     //std::cout<< "acted on e state " << stateEl<< std::endl; 
+	     if(stateEl[i]==0){
+	       //	       std::cout<< " evaluateing "<<stateEl << "at " << i << " gave " <<stateEl[i] <<std::endl;
+										 continue;}
+	     //std::cout<< "and got " << satte << std::endl;
 	    size_t particleNumber=subBasis.particlesAt(RightId(tpState), i);
 
   	     if( particleNumber==0)
   	       {
   	       }
   	     else{
+	       
   	       LeftBasisIt it3=totalBasis.lbasis.find(LeftId(tpState));
   	       RightLattice state(GetLattice(*it2));
-
+	       //std::cout<<" at site " << i << " we  started with e "<< stateEl<< "and ph  started with satte " << state << std::endl;
 
 	       state.setPartNr(i, particleNumber-1);
-
+	       //      std::cout<< "and got " << state << std::endl;
   	       it2= subBasis.find(state.GetId());
 
   	       size_t newStateNr= Position(*it2)*totalBasis.lbasis.dim +Position(*it3);
+	       
 
-  	       op.coeffRef(newStateNr, Position(tpState))+= var*(std::sqrt(state[i]+1));
+  	       op.coeffRef(newStateNr, Position(tpState))+= ValType{var*(std::sqrt(state[i]+1))};
   	   
 	     
   		    }

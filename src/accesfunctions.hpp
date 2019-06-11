@@ -49,7 +49,7 @@ size_t RightId( const std::tuple<size_t, size_t, size_t>& state)
 template< typename T>
 auto GetLattice( const T& state)
  {
-   
+   //std::cout<< " max nr "<<state.maxParNr<< std:endl;
    return std::get<toBasisType(BasisInfoField::state)>(state);
  }
    template<class State, class T=double>

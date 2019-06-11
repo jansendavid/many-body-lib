@@ -11,6 +11,7 @@ std::vector<Eigen::VectorXd> makeThermalRDMTP(Matrix& H, TotalBasis& TP, double 
   double beta=1./T;
   Eigen::VectorXd ev(H.rows());
   diagMat(H, ev);
+  std::cout<< "GS "<< ev[0]<<std::endl;
   Eigen::MatrixXd rho=Eigen::MatrixXd::Zero(H.rows(), H.rows());
   double Z{0};
   //  std::cout<< ev << std::endl;
