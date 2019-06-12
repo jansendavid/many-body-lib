@@ -1,8 +1,8 @@
 # pragma once
-
+#define EIGEN_USE_MKL_ALL
 #include"basis.hpp"
 #include<cmath>
-#include <eigen3/Eigen/Sparse>
+#include <Eigen/Sparse>
 #include <type_traits>
 #include"operators.hpp"
 #ifdef MOM
@@ -24,8 +24,9 @@ namespace Operators{
   template<class TotalBasis, class SubBasis>
   Mat NumberOperator(const TotalBasis& totalBasis, const SubBasis& subBasis, const double omega=1., const bool& PB=true)
 
-  {    using BasisIt= typename TotalBasis::BasisIt;
-    using Const_BasisIt= typename TotalBasis::Const_BasisIt;
+  {
+
+
     size_t dim=totalBasis.dim;
     size_t sites=totalBasis.sites;
     Mat op(dim, dim);
@@ -70,12 +71,12 @@ namespace Operators{
   template<class TotalBasis, class SubBasis >
   Mat EKinOperatorL(const TotalBasis& totalBasis, const SubBasis& subBasis, double var=1. , const bool& PB=true)
      {
-       using SubBasisIt= typename SubBasis::BasisIt;
-	 using TpBasisIt= typename TotalBasis::BasisIt;
+
+
 	      using LeftBasisIt= typename TotalBasis::LeftBasisIt;     
      using RightBasisIt= typename TotalBasis::RightBasisIt;
-     	      using LeftBasis= typename TotalBasis::LB;     
-     using RightBasis= typename TotalBasis::RB;  
+
+
 using Lattice=typename SubBasis::Lattice;     
     
  
@@ -136,12 +137,12 @@ using Lattice=typename SubBasis::Lattice;
  template<class TotalBasis, class SubBasis >
   Mat EKinOperatorLNNN(const TotalBasis& totalBasis, const SubBasis& subBasis, double var=1. , size_t m=0)
      {
-       using SubBasisIt= typename SubBasis::BasisIt;
-	 using TpBasisIt= typename TotalBasis::BasisIt;
+
+
 	      using LeftBasisIt= typename TotalBasis::LeftBasisIt;     
      using RightBasisIt= typename TotalBasis::RightBasisIt;
-     	      using LeftBasis= typename TotalBasis::LB;     
-     using RightBasis= typename TotalBasis::RB;  
+
+
 using Lattice=typename SubBasis::Lattice;     
     
  
@@ -195,12 +196,12 @@ using Lattice=typename SubBasis::Lattice;
   template<class TotalBasis, class SubBasis >
   Mat EKinOperatorRNNN(const TotalBasis& totalBasis, const SubBasis& subBasis, double var=1. , size_t m=0)
      {
-       using SubBasisIt= typename SubBasis::BasisIt;
-       using TpBasisIt= typename TotalBasis::BasisIt;
+
+
        using LeftBasisIt= typename TotalBasis::LeftBasisIt;     
        using RightBasisIt= typename TotalBasis::RightBasisIt;
-       using LeftBasis= typename TotalBasis::LB;     
-       using RightBasis= typename TotalBasis::RB;  
+
+
        using Lattice=typename SubBasis::Lattice;     
     
  
@@ -254,12 +255,12 @@ using Lattice=typename SubBasis::Lattice;
   template<class TotalBasis, class SubBasis >
   Mat EKinOperatorR(const TotalBasis& totalBasis, const SubBasis& subBasis, double var=1. , size_t m=0)
      {
-       using SubBasisIt= typename SubBasis::BasisIt;
-       using TpBasisIt= typename TotalBasis::BasisIt;
+
+
        using LeftBasisIt= typename TotalBasis::LeftBasisIt;     
        using RightBasisIt= typename TotalBasis::RightBasisIt;
-       using LeftBasis= typename TotalBasis::LB;     
-       using RightBasis= typename TotalBasis::RB;  
+
+
        using Lattice=typename SubBasis::Lattice;     
     
  
@@ -313,8 +314,8 @@ using Lattice=typename SubBasis::Lattice;
     Mat CalculateCouplungOperator( const TotalBasis& totalBasis, const Basis& subBasis,   const double u=1.)
     {
 
-      using BasisIt= typename TotalBasis::BasisIt;
-    using Const_BasisIt= typename TotalBasis::Const_BasisIt;
+
+
     using LeftLattice=typename TotalBasis::LeftLattice;
     using RightLattice=typename TotalBasis::RightLattice; 
     size_t dim=totalBasis.dim;
@@ -345,8 +346,8 @@ auto it21=totalBasis.lbasis.find(LeftId(tpState));
    template<typename TotalBasis, typename Basis>
   Mat BosonCOperator(const TotalBasis& totalBasis, Basis& subBasis, double var=1. , const bool& PB=true)
   {
-          using TpBasisIt= typename TotalBasis::BasisIt;
-      using BasisIt= typename Basis::BasisIt;
+
+
       using LeftBasisIt= typename TotalBasis::LeftBasisIt;
       using LeftLattice=  typename    TotalBasis::LeftLattice;     
       using RightBasisIt= typename TotalBasis::RightBasisIt;     
@@ -408,8 +409,8 @@ auto it21=totalBasis.lbasis.find(LeftId(tpState));
   {
      
 
-          using TpBasisIt= typename TotalBasis::BasisIt;
-      using BasisIt= typename Basis::BasisIt;
+
+
       using LeftBasisIt= typename TotalBasis::LeftBasisIt;
       using LeftLattice=  typename    TotalBasis::LeftLattice;     
       using RightBasisIt= typename TotalBasis::RightBasisIt;     

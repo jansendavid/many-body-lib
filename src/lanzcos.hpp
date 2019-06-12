@@ -1,8 +1,8 @@
 #pragma once
 #include<vector>
 #include"mkl_lapacke.h"
-#include <eigen3/Eigen/Sparse>
-#include <eigen3/Eigen/Dense>
+#include <Eigen/Sparse>
+#include <Eigen/Dense>
 
 namespace Many_Body{
   struct TriDiagMat{
@@ -17,7 +17,6 @@ namespace Many_Body{
   void diag(    Many_Body::TriDiagMat& tri, Eigen::MatrixXd& z, Eigen::VectorXd& ev)
   {
     MKL_INT N= ev.size();
-        MKL_INT LDA= N;
         MKL_INT info= LAPACKE_dstedc(LAPACK_COL_MAJOR, 'I', N, tri.dData(), tri.offData(), z.data(), N);
     if(info!=0)
       {
@@ -78,7 +77,7 @@ namespace Many_Body{
 	     std::cout<< "happend "<<std::endl;
 	     Eigen::MatrixXcd W=Q;
 	           Q.resize(A.rows(), k);
-		 for (int i = 0; i < k; ++i)
+		 for (size_t i = 0; i < k; ++i)
 		   {
 		     Q.col(i)=W.col(i);
 		     
@@ -110,9 +109,8 @@ namespace Many_Body{
 
     }
 
+     //                  assert(std::abs( (Q.adjoint()*Q).sum() -(dim+1)) < Many_Body::err);     
 
-     //          std::cout<< (Q.adjoint()*Q).sum() -(dim+1)<<std::endl;
-           assert(std::abs( (Q.adjoint()*Q).sum() -(dim+1)) < Many_Body::err);     
 
 	  
 	  

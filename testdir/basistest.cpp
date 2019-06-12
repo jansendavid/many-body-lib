@@ -16,8 +16,8 @@ BOOST_AUTO_TEST_CASE(phonondimension)
 
   BosonState b1( 4, 5);
     
-  std::vector<int> state {1, 4, 1, 0};
-    BosonState b2(state);
+  std::vector<size_t> state {1, 4, 1, 0};
+  BosonState b2(state, 5);
     
     
  
@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_CASE(phonondimension)
 BOOST_AUTO_TEST_CASE(electrondimension)
 {
   ElectronState df;
-  std::vector<int> state {1, 1,      1, 0};
+  std::vector<size_t> state {1, 1,      1, 0};
   ElectronState constru1(state);
 
      BOOST_CHECK(constru1.GetId()==14);
