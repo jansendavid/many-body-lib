@@ -3,7 +3,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include<iostream>
-#include <eigen3/Eigen/Eigenvalues> 
+#include <Eigen/Eigenvalues> 
 #include"numerics.hpp"
 #include"diag.h"
 #include"lanzcos.hpp"
