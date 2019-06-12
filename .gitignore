@@ -39,3 +39,5 @@ main
 *.png
 *.dat
 massif*
+diagtest32
+diagtest64
