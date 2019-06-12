@@ -1,8 +1,9 @@
 # pragma once
-
+//#define
+//EIGEN_USE_MKL_ALL
 #include"basis.hpp"
 #include<cmath>
-#include <eigen3/Eigen/Sparse>
+#include <Eigen/Sparse>
 #ifdef MOM
 using ValType= std::complex<double>; 
 #else
@@ -34,8 +35,9 @@ namespace Operators{
    
   template<class TotalBasis, bool PB=true>
  Mat NumberOperator(const TotalBasis& totalBasis, const double omega=1.)
- {    using BasisIt= typename TotalBasis::BasisIt;
-    using Const_BasisIt= typename TotalBasis::Const_BasisIt;
+ {
+   
+
     size_t dim=totalBasis.dim;
     size_t sites=totalBasis.sites;
     Mat op(dim, dim);

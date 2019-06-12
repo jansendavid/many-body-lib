@@ -5,7 +5,7 @@
 #include<utility>
 #include <iomanip>
 #include <vector>
-#include <eigen3/Eigen/Dense> 
+#include <Eigen/Dense> 
 namespace Many_Body{
   using namespace Eigen;
   template<typename T>
