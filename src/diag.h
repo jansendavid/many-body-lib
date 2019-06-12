@@ -3,8 +3,8 @@
 #include<complex>
 #include<iostream>
 #include"mkl_lapacke.h"
-#include <eigen3/Eigen/Sparse>
-#include <eigen3/Eigen/Dense>
+#include <Eigen/Sparse>
+#include <Eigen/Dense>
 
 namespace Many_Body{
   
