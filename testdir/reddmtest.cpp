@@ -1,9 +1,9 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE Suites
 #include <boost/test/unit_test.hpp>
-
+#define EIGEN_USE_MKL_ALL
 #include<iostream>
-#include <eigen3/Eigen/Eigenvalues> 
+#include <Eigen/Eigenvalues> 
 #include"numerics.hpp"
 #include"reddm.hpp"
 #include"tpoperators.hpp"
@@ -28,6 +28,7 @@ BOOST_AUTO_TEST_CASE(timeev)
   PhononBasis ph(L, 3);
   //std::cout<< ph<<std::endl;
   HolsteinBasis TP(e, ph);
+  std::cout<< TP.dim << std::endl;
         Mat E1=Operators::EKinOperatorL(TP, e, t0, true);
       Mat Ebdag=Operators::BosonCOperator(TP, ph, gamma, true);
       Mat Eb=Operators::BosonDOperator(TP, ph, gamma, true);

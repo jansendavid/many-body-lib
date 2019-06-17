@@ -1,6 +1,6 @@
 
 #include<iostream>
-#include <eigen3/Eigen/Eigenvalues> 
+#include <Eigen/Eigenvalues> 
 #include"numerics.hpp"
 #include"reddm.hpp"
 #include"tpoperators.hpp"
@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
 
   int M=6;
    using HolsteinBasis= TensorProduct<ElectronBasis, PhononBasis>;
-        PhononBasis g2{ 2, 1};
+
   ElectronBasis e( L, 1);
   //  std::cout<< e<<std::endl;
   
@@ -40,12 +40,15 @@ int main(int argc, char *argv[])
       Eigen::VectorXd eigenVals(TP.dim);
       Mat H=E1+Eph  +Ebdag + Eb;
           Eigen::MatrixXd HH=Eigen::MatrixXd(H);
-	 		   std::vector<double> Tr={0.0110, 0.0111, 0.0112, 0.0115, 0.0120, 0.0150};
+	  Eigen::VectorXd ev=Eigen::VectorXd(TP.dim);
+	  bool isDiag=false;
+	  std::vector<double> Tr={0.0100, 0.1000, 1.000, 2.0000, 5.0000, 10.0000};
 	  for(auto t: Tr){
 	      std::string sT=std::string(std::to_string(t)).substr(0,6);
 
-	 auto optModes=makeThermalRDMTP(HH, TP, t,0);
+	      auto optModes=makeThermalRDMTP(HH,ev,  TP, t, isDiag, 0);
 	  //	  std::cout << "sum of all eigenvalues "<< optModes.sum()<< std::endl;
+	      isDiag=true;
 	 int n=0;
 	  for(auto& l : optModes)
 	    {

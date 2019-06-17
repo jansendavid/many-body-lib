@@ -269,7 +269,7 @@ struct ElectronBasis
   BasisIt end() {return basis.end();}
   Const_BasisIt begin() const {return basis.begin();}
   Const_BasisIt end() const {return basis.end();}
-  BasisIt find(double id)
+  BasisIt find(size_t id)
   {
     Lattice aLattice;
     BasisType aState(id, 0, aLattice);
@@ -410,7 +410,7 @@ template<class LeftBasis, class RightBasis>
   BasisIt end() {return basis.end();}
   Const_BasisIt begin() const {return basis.begin();}
   Const_BasisIt end() const {return basis.end();}
-  BasisIt find(double id)
+  BasisIt find(size_t id)
   {
     
     BasisType aState(id, 0, 0);

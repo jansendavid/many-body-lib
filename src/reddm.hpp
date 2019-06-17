@@ -1,16 +1,18 @@
  #ifndef REDDM_H
 #define REDDM_H
 #include"basis.hpp"
-#include <eigen3/Eigen/Dense>
+#include <Eigen/Dense>
 #include"diag.h"
 namespace Many_Body{
   
-template<typename TotalBasis, typename Matrix>
-std::vector<Eigen::VectorXd> makeThermalRDMTP(Matrix& H, TotalBasis& TP, double T, int site=0)
+  template<typename TotalBasis, typename Matrix, typename Vector>
+  std::vector<Eigen::VectorXd> makeThermalRDMTP(Matrix& H, Vector& ev, TotalBasis& TP, double T, bool isDiag=false, int site=0)
 {
   double beta=1./T;
-  Eigen::VectorXd ev(H.rows());
+  if(!isDiag)
+    {
   diagMat(H, ev);
+    }
   std::cout<< "GS "<< ev[0]<<std::endl;
   Eigen::MatrixXd rho=Eigen::MatrixXd::Zero(H.rows(), H.rows());
   double Z{0};

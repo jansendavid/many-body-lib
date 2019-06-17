@@ -1,9 +1,9 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE Suites
 #include <boost/test/unit_test.hpp>
-
+#define EIGEN_USE_MKL_ALL
 #include<iostream>
-#include <eigen3/Eigen/Eigenvalues> 
+#include <Eigen/Eigenvalues> 
 #include"numerics.hpp"
 #include"reddm.hpp"
 #include"tpoperators.hpp"
@@ -22,7 +22,8 @@ BOOST_AUTO_TEST_CASE(LT)
   double t0=1;
   int M=2;
   double mean= 0.5*omega*L*M;
-  double beta=1./mean;
+  double beta=1.;
+  ///mean;
   
   double T=1./beta;
    using HolsteinBasis= TensorProduct<ElectronBasis, PhononBasis>;
@@ -35,17 +36,17 @@ BOOST_AUTO_TEST_CASE(LT)
   HolsteinBasis TP(e, ph);
 
 
-        Mat E1=Operators::EKinOperatorL(TP, e, t0, false);
-       Mat Ebdag=Operators::BosonCOperator(TP, ph, gamma, false);
+        Mat E1=Operators::EKinOperatorL(TP, e, t0, true);
+       Mat Ebdag=Operators::BosonCOperator(TP, ph, gamma, true);
        std::cout<< "dim "<< TP.dim<< std::endl;
-       Mat Eb=Operators::BosonDOperator(TP, ph, gamma, false);
-       Mat Eph=Operators::NumberOperator(TP, ph, omega,  false);
+       Mat Eb=Operators::BosonDOperator(TP, ph, gamma, true);
+       Mat Eph=Operators::NumberOperator(TP, ph, omega,  true);
       
-      //Mat E=Operators::NumberOperatore(TP, e, 1, false);
+      //Mat E=Operators::NumberOperatore(TP, e, 1, true);
       //    std::cout<< HH << std::endl;
       Eigen::VectorXd eigenVals(TP.dim);
        	Mat H=E1+Eph +Ebdag + Eb;
-	auto O=Operators::NumberOperator(TP, ph, omega,  false);
+	auto O=Operators::NumberOperator(TP, ph, omega,  true);
 	std::vector<Mat> v{H, O};
        //       auto HH=Eigen::MatrixXd(H);
 
@@ -53,13 +54,13 @@ BOOST_AUTO_TEST_CASE(LT)
       //    diagMat(HH, ev);
 
 
-	auto o=LTLM(H, v, T, 800);
+	auto o=LTLM(H, v, T, 10);
 
 
   
 	           std::cout<< "for beta/mean = " << beta << std::endl;
        for(auto& l: o)
-   	{std::cout<< l/L <<std::endl; }
+   	{std::cout<< l <<std::endl; }
   
        // BosonState p(v, 2);
        // 	       std::cout<<"x " <<p << "  id "<< p.GetId()<< std::endl;        
@@ -78,7 +79,8 @@ BOOST_AUTO_TEST_CASE(T)
   double t0=1;
   int M=2;
   double mean= 0.5*omega*L*M;
-  double beta=1./mean;
+  double beta=1.;
+  ///mean;
   
   double T=1./beta;
    using HolsteinBasis= TensorProduct<ElectronBasis, PhononBasis>;
@@ -91,11 +93,11 @@ BOOST_AUTO_TEST_CASE(T)
   HolsteinBasis TP(e, ph);
 
 
-        Mat E1=Operators::EKinOperatorL(TP, e, t0, false);
-       Mat Ebdag=Operators::BosonCOperator(TP, ph, gamma, false);
+        Mat E1=Operators::EKinOperatorL(TP, e, t0, true);
+       Mat Ebdag=Operators::BosonCOperator(TP, ph, gamma, true);
        std::cout<< "dim "<< TP.dim<< std::endl;
-       Mat Eb=Operators::BosonDOperator(TP, ph, gamma, false);
-       Mat Eph=Operators::NumberOperator(TP, ph, omega,  false);
+       Mat Eb=Operators::BosonDOperator(TP, ph, gamma, true);
+       Mat Eph=Operators::NumberOperator(TP, ph, omega,  true);
       
       Mat N=Operators::NumberOperator(TP, ph, 1,  true);
       //    std::cout<< HH << std::endl;
@@ -108,11 +110,11 @@ BOOST_AUTO_TEST_CASE(T)
       auto ev=Eigen::VectorXd(H.rows());
       //    diagMat(HH, ev);
 
-      auto  o=FTLM(H, v, T, 800);
+      auto  o=FTLM(H, v, T, 500);
 
        std::cout<< "for beta/mean = " << beta << std::endl;
        for(auto& l: o)
-   	{std::cout<< l/L <<std::endl; }
+   	{std::cout<< l <<std::endl; }
   
  }
 

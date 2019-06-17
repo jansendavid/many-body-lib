@@ -1,5 +1,6 @@
 #include<iostream>
-#include <eigen3/Eigen/Eigenvalues> 
+#define EIGEN_USE_MKL_ALL
+#include <Eigen/Eigenvalues> 
 #include"numerics.hpp"
 #include"reddm.hpp"
 #include"tpoperators.hpp"
@@ -10,18 +11,18 @@ using namespace Many_Body;
 int main(int argc, char *argv[])
 {
    using Mat= Operators::Mat;
-    int L=4;
+    int L=3;
   double omega=1;
   double gamma=1;
   double t0=1;
   int M=2;
-  double mean=1;
-  //0.5*omega*L*M;
+  double mean=0.5*omega*L*M;;
+  
   double beta=0.5/mean;
   
   double T=1./beta;
    using HolsteinBasis= TensorProduct<ElectronBasis, PhononBasis>;
-        PhononBasis g2{ 2, 1};
+      
   ElectronBasis e( L, 1);
 
   
@@ -30,11 +31,11 @@ int main(int argc, char *argv[])
   HolsteinBasis TP(e, ph);
 
 
-        Mat E1=Operators::EKinOperatorL(TP, e, t0, false);
-       Mat Ebdag=Operators::BosonCOperator(TP, ph, gamma, false);
+        Mat E1=Operators::EKinOperatorL(TP, e, t0, true);
+       Mat Ebdag=Operators::BosonCOperator(TP, ph, gamma, true);
        std::cout<< "dim "<< TP.dim<< std::endl;
-       Mat Eb=Operators::BosonDOperator(TP, ph, gamma, false);
-       Mat Eph=Operators::NumberOperator(TP, ph, omega,  false);
+       Mat Eb=Operators::BosonDOperator(TP, ph, gamma, true);
+       Mat Eph=Operators::NumberOperator(TP, ph, omega,  true);
       
       Mat N=Operators::NumberOperator(TP, ph, 1,  true);
       //    std::cout<< HH << std::endl;
@@ -51,7 +52,7 @@ int main(int argc, char *argv[])
 
        std::cout<< "for beta/mean = " << beta << std::endl;
        for(auto& l: o)
-   	{std::cout<< l/L <<std::endl; }
+   	{std::cout<< l/mean <<std::endl; }
   
   return 0;
 }

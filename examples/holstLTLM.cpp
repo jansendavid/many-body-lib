@@ -1,5 +1,6 @@
 #include<iostream>
-#include <eigen3/Eigen/Eigenvalues> 
+#define EIGEN_USE_MKL_ALL
+#include <Eigen/Eigenvalues> 
 #include"numerics.hpp"
 #include"reddm.hpp"
 #include"tpoperators.hpp"
@@ -9,13 +10,14 @@ using namespace Many_Body;
     using Mat= Operators::Mat;
 int main(int argc, char *argv[])
 {
-      int L=5;
+      int L=4;
   double omega=1;
   double gamma=1;
   double t0=1;
-  int M=2;
+  int M=9;
   double mean= 0.5*omega*L*M;
-  double beta=1./mean;
+  double beta=22.;
+  ///mean;
   
   double T=1./beta;
    using HolsteinBasis= TensorProduct<ElectronBasis, PhononBasis>;
@@ -28,17 +30,17 @@ int main(int argc, char *argv[])
   HolsteinBasis TP(e, ph);
 
 
-        Mat E1=Operators::EKinOperatorL(TP, e, t0, false);
-       Mat Ebdag=Operators::BosonCOperator(TP, ph, gamma, false);
+        Mat E1=Operators::EKinOperatorL(TP, e, t0, true);
+       Mat Ebdag=Operators::BosonCOperator(TP, ph, gamma, true);
        std::cout<< "dim "<< TP.dim<< std::endl;
-       Mat Eb=Operators::BosonDOperator(TP, ph, gamma, false);
-       Mat Eph=Operators::NumberOperator(TP, ph, omega,  false);
+       Mat Eb=Operators::BosonDOperator(TP, ph, gamma, true);
+       Mat Eph=Operators::NumberOperator(TP, ph, omega,  true);
       
-      //Mat E=Operators::NumberOperatore(TP, e, 1, false);
+      //Mat E=Operators::NumberOperatore(TP, e, 1, true);
       //    std::cout<< HH << std::endl;
       Eigen::VectorXd eigenVals(TP.dim);
        	Mat H=E1+Eph +Ebdag + Eb;
-	auto O=Operators::NumberOperator(TP, ph, omega,  false);
+	auto O=Operators::NumberOperator(TP, ph, omega,  true);
 	std::vector<Mat> v{H, O};
        //       auto HH=Eigen::MatrixXd(H);
 
@@ -46,13 +48,13 @@ int main(int argc, char *argv[])
       //    diagMat(HH, ev);
 
 
-	auto o=LTLM(H, v, T, 800);
+	auto o=LTLM(H, v, T, 10);
 
 
   
 	           std::cout<< "for beta/mean = " << beta << std::endl;
        for(auto& l: o)
-   	{std::cout<< l/L <<std::endl; }
+   	{std::cout<< l <<std::endl; }
   
   return 0;
 }

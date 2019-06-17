@@ -3,17 +3,23 @@
 #include"basis.hpp"
 #include"lanzcos.hpp"
 #include"diag.h"
-#include<boost/mpi.hpp>
-#include<boost/mpi/communicator.hpp>
-#include<boost/mpi/environment.hpp>
-namespace mpi=boost::mpi;
+#include<random>
+// #include<boost/mpi.hpp>
+// #include<boost/mpi/communicator.hpp>
+// #include<boost/mpi/environment.hpp>
+//namespace mpi=boost::mpi;
 template<typename Matrix, typename Container>
 auto  calculate_lanczFT(Matrix& hamiltonian, Container& observable, double beta, size_t lanczosDim=20)->std::tuple<std::vector<double>, double>
 {
-              auto Z=std::complex<double>{0, 0};
-    auto A=std::complex<double>{0, 0};
-   Eigen::VectorXcd iniState=Eigen::VectorXcd::Random(hamiltonian.rows());
+   std::random_device rd;
+std::mt19937 gen(rd());  //here you could set the seed, but std::random_device already does that
+std::uniform_real_distribution<float> dis(-1.0, 1.0);
+
+ 
+   Eigen::VectorXcd iniState=Eigen::VectorXcd::NullaryExpr(hamiltonian.rows(),[&](){return dis(gen);});
    iniState/=iniState.norm();
+   auto Z=std::complex<double>{0, 0};
+    auto A=std::complex<double>{0, 0};
     Eigen::MatrixXcd Q(hamiltonian.rows(), lanczosDim);
 
 
@@ -46,7 +52,8 @@ auto  calculate_lanczFT(Matrix& hamiltonian, Container& observable, double beta,
 template<typename Matrix, typename Container>
 auto  calculate_lanczLT(Matrix& hamiltonian, Container& observable, double beta, size_t lanczosDim=20)->std::tuple<std::vector<double>, double>
 {
-              auto Z=std::complex<double>{0, 0};
+  auto Z=std::complex<double>{0, 0};
+ 
     auto A=std::complex<double>{0, 0};
        Eigen::VectorXcd iniState=Eigen::VectorXcd::Random(hamiltonian.rows());
 
@@ -140,11 +147,11 @@ std::vector<double> LTLM(Matrix& hamiltonian, Container& observable,  double T, 
   return obstot;
      }
 
-void paraLM(){
-  mpi::environment env;
-  mpi::communicator world;
-  std::cout<< " i am process # "<< world.rank() << std::endl;
-};
+// void paraLM(){
+//   mpi::environment env;
+//   mpi::communicator world;
+//   std::cout<< " i am process # "<< world.rank() << std::endl;
+// };
 
 //  size_t runs=10;
 // // make initial vector
