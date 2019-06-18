@@ -39,7 +39,8 @@ BOOST_AUTO_TEST_CASE(timeev)
       Eigen::VectorXd eigenVals(TP.dim);
             Mat H=E1+Eph  +Ebdag + Eb;
           Eigen::MatrixXd HH=Eigen::MatrixXd(H);
-	  auto optModes=makeThermalRDMTP(HH, TP, T,2);
+	  Eigen::VectorXd ev(TP.dim);
+	  auto optModes=makeThermalRDMTP(HH, ev, TP, T, false, 2);
 	  double sum=0;
 	  for(auto& l : optModes)
 	    { 
@@ -61,6 +62,30 @@ BOOST_AUTO_TEST_CASE(timeev)
   // 	// 	std::cout<< g2<<std::endl;
   // 	//	makeRedDM(g2, 0, M);
   // 	makeRedDMTP(TP, ph,  0, M);
+	
+ }
+BOOST_AUTO_TEST_CASE(vecred)
+{
+    using Mat= Operators::Mat;
+  int L=4;
+  double omega=1;
+  double gamma=1;
+  double t0=1;
+  double T=2;
+   using HolsteinBasis= TensorProduct<ElectronBasis, PhononBasis>;
+        PhononBasis g2{ 2, 1};
+  ElectronBasis e( L, 1);
+  //  std::cout<< e<<std::endl;
+  
+  PhononBasis ph(L, 3);
+  Eigen::VectorXcd psi=Eigen::VectorXcd::Random(ph.dim);
+  psi/=psi.norm();
+  MatrixXcd rho=psi*psi.adjoint();
+  makeRedDM(ph, 0,  rho);
+  std::cout<< std::endl;
+  std::cout<< std::endl;
+  makeRedDM(ph, 0,  psi);
+  
 	
  }
 
