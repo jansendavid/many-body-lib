@@ -72,7 +72,9 @@ struct CompareState{
 	  return state;
 
    }
-    
+    void setId(size_t Id){
+      id=Id;
+    }
      inline size_t GetId()
    {
 
@@ -138,7 +140,7 @@ struct CompareState{
          
    };
 
-  ElectronState(size_t stateInt, size_t sites):  stateBase(sites, 1) {
+   ElectronState( size_t sites, size_t stateInt):  stateBase(sites, 1) {
     id=stateInt;
 
     }
@@ -198,12 +200,12 @@ struct ElectronBasis
   using Const_BasisIt= typename  Basis::const_iterator;
 
    
-  ElectronBasis( size_t sites,size_t numberOfParticles): sites(sites), dim(0) {
+  ElectronBasis( size_t sites, size_t numberOfParticles): sites(sites), dim(0) {
     for(size_t i=0; i<static_cast<size_t>(std::pow(2, sites)); i++)
         {
 
 	   
-   	  ElectronState newState(i, sites);
+   	  ElectronState newState( sites, i);
             if(newState.Count()==numberOfParticles)
              {
 	      

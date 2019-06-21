@@ -34,14 +34,15 @@ LIBS32+=-leigenmkl32
 LIBS64+=-leigenmkl64
 TESTLIBS+= -lboost_unit_test_framework
 #  DEBUG
-ND+= -DNDEBUG -O2
+ND+= -DNDEBUG
+OP+=-O2
 D+= -g
 # executables
 EXEC+=test timeevtest exvalcompare operatortest diagtest32 diagtest64 basistest basisbenchmark
 diag32.o: src/diag.h src/diag.cpp
-	$(IXX) $(ND)  $(FLAGS) $(INCS) src/diag.cpp -c -o diag32.o  $(MKLLINK32)
+	$(IXX) $(ND)  $(FLAGS) $(INCS) src/diag.cpp -c -o diag32.o  $(MKLLINK32) $(OP)
 diag64.o: src/diag.h src/diag.cpp
-	$(IXX) $(ND)  $(FLAGS) $(INCS) src/diag.cpp -c -o diag64.o  $(MKLLINK64)
+	$(IXX) $(ND)  $(FLAGS) $(INCS) src/diag.cpp -c -o diag64.o  $(MKLLINK64) $(OP)
 # LIBS
 libs/libeigenmkl64.a: diag64.o
 	ar cr libs/libeigenmkl64.a diag64.o
@@ -49,49 +50,53 @@ libs/libeigenmkl32.a: diag32.o
 	ar cr libs/libeigenmkl32.a diag32.o
 
 main: $(OBJECTS) src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp
-	$(IXX) $(FLAGS) $(INCS) main.cpp -o main  $(MKLLINK32) $(LIBSLINK) $(LIBS32) 
+	$(IXX) $(FLAGS) $(INCS) main.cpp -o main  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(OP)
 #-static
 test: testdir/test.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/timeev.hpp
-	$(IXX) $(D)  $(FLAGS) $(INCS) testdir/test.cpp -o test  $(MKLLINK32) 
+	$(IXX) $(D)  $(FLAGS) $(INCS) testdir/test.cpp -o test  $(MKLLINK32) $(OP)
 basistest: testdir/basistest.cpp src/basis.hpp src/accesfunctions.hpp src/numerics.hpp
-	$(IXX) $(FLAGS) $(INCS) testdir/basistest.cpp -o basistest  $(MKLLINK32) $(LIBSLINK) $(TESTLIBS)
+	$(IXX) $(FLAGS) $(INCS) testdir/basistest.cpp -o basistest  $(MKLLINK32) $(LIBSLINK) $(TESTLIBS) $(OP)
 
 operatortest: testdir/basistest.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp
-	$(IXX) $(FLAGS) $(INCS) testdir/operatortest.cpp -o operatortest  $(MKLLINK32) $(LIBSLINK) $(TESTLIBS) $(LIBS32) -lboost_chrono
+	$(IXX) $(FLAGS) $(INCS) testdir/operatortest.cpp -o operatortest  $(MKLLINK32) $(LIBSLINK) $(TESTLIBS) $(LIBS32)  $(OP)
 
 diagtest32: testdir/diagtest.cpp src/basis.hpp  src/accesfunctions.hpp src/numerics.hpp src/timeev.hpp src/diag.h libs/libeigenmkl32.a
-	$(IXX) $(FLAGS) $(INCS) testdir/diagtest.cpp -o diagtest32  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(TESTLIBS)
+	$(IXX) $(FLAGS) $(INCS) testdir/diagtest.cpp -o diagtest32  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(TESTLIBS) $(OP)
 
 diagtest64: testdir/diagtest.cpp src/basis.hpp  src/accesfunctions.hpp src/numerics.hpp src/timeev.hpp src/diag.h libs/libeigenmkl64.a
-	$(IXX) $(FLAGS) $(INCS) testdir/diagtest.cpp -o diagtest64  $(MKLLINK64) $(LIBSLINK) $(LIBS64) $(TESTLIBS)
+	$(IXX) $(FLAGS) $(INCS) testdir/diagtest.cpp -o diagtest64  $(MKLLINK64) $(LIBSLINK) $(LIBS64) $(TESTLIBS) $(OP)
 timeevtest: testdir/timeevtest.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/timeev.hpp src/diag.h
-	$(CXX) $(FLAGS) $(INCS) testdir/timeevtest.cpp -o timeevtest  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(TESTLIBS)
+	$(CXX) $(FLAGS) $(INCS) testdir/timeevtest.cpp -o timeevtest  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(TESTLIBS) $(OP)
 FTLMtest: testdir/FTLMtest.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/timeev.hpp src/diag.h
-	$(CXX)  $(FLAGS) $(INCS)  testdir/FTLMtest.cpp -o FTLMtest  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(TESTLIBS) $(ND)
+	$(CXX)  $(FLAGS) $(INCS)  testdir/FTLMtest.cpp -o FTLMtest  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(TESTLIBS) $(ND) $(OP)
 
 reddmtest: testdir/reddmtest.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h
-	$(IXX) $(FLAGS) $(INCS) testdir/reddmtest.cpp -o reddmtest  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(TESTLIBS)
+	$(IXX) $(FLAGS) $(INCS) testdir/reddmtest.cpp -o reddmtest  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(TESTLIBS) $(OP)
 reddm: examples/reddm.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h
 
-	$(CXX) $(FLAGS) $(INCS) examples/reddm.cpp -o reddm  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(ND)
+	$(CXX) $(FLAGS) $(INCS) examples/reddm.cpp -o reddm  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(ND) $(OP)
 
 holstFTexact: examples/holstFTexact.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h
-	$(CXX) $(FLAGS) $(INCS) examples/holstFTexact.cpp -o holstFTexact  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(ND)
+	$(CXX) $(FLAGS) $(INCS) examples/holstFTexact.cpp -o holstFTexact  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(ND) $(OP)
+
+holsttimeexact: examples/holsttimeexact.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h
+	$(CXX) $(FLAGS) $(INCS) examples/holsttimeexact.cpp -o holsttimeexact  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(ND) $(OP)
+
 holstLTLM: examples/holstLTLM.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h
-	$(CXX) $(FLAGS) $(INCS) examples/holstLTLM.cpp -o holstLTLM  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(ND)
+	$(CXX) $(FLAGS) $(INCS) examples/holstLTLM.cpp -o holstLTLM  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(ND) $(OP)
 holstFTLM: examples/holstFTLM.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h
-	$(CXX) $(FLAGS) $(INCS) examples/holstFTLM.cpp -o holstFTLM  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(ND)
+	$(CXX) $(FLAGS) $(INCS) examples/holstFTLM.cpp -o holstFTLM  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(ND) $(OP)
 
 
 holstFTLMpara: examples/holstFTLMpara.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h
-	$(IMPI) $(FLAGS) $(INCS) examples/holstFTLMpara.cpp -o holstFTLMpara  $(MPILINK32) $(LIBSLINK) $(LIBS32) $(ND) 
+	$(IMPI) $(FLAGS) $(INCS) examples/holstFTLMpara.cpp -o holstFTLMpara  $(MPILINK32) $(LIBSLINK) $(LIBS32) $(ND)  $(OP)
 
 
 exvalcompare: testdir/exvalcompare.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/timeev.hpp src/diag.h
-	$(IXX) $(FLAGS) $(INCS) testdir/exvalcompare.cpp -o exvalcompare  $(MKLLINK) $(LIBSLINK) $(LIBS32) $(TESTLIBS) -DMOM
+	$(IXX) $(FLAGS) $(INCS) testdir/exvalcompare.cpp -o exvalcompare  $(MKLLINK) $(LIBSLINK) $(LIBS32) $(TESTLIBS) -DMOM $(OP)
 #-static
 
 basisbenchmark: benchmarkdir/basisbenchmark.cpp src/basis.hpp src/accesfunctions.hpp src/numerics.hpp
-	$(IXX) $(FLAGS) $(INCS) benchmarkdir/basisbenchmark.cpp -o basisbenchmark  $(MKLLINK) $(LIBS)  $(ND) -g
+	$(IXX) $(FLAGS) $(INCS) benchmarkdir/basisbenchmark.cpp -o basisbenchmark  $(MKLLINK) $(LIBS)  $(ND) -g $(OP)
 clean:
 	rm *.o main $(EXEC)

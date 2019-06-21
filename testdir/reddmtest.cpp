@@ -19,13 +19,13 @@ BOOST_AUTO_TEST_CASE(timeev)
   double omega=1;
   double gamma=1;
   double t0=1;
-  double T=2;
+  double T=1;
    using HolsteinBasis= TensorProduct<ElectronBasis, PhononBasis>;
         PhononBasis g2{ 2, 1};
   ElectronBasis e( L, 1);
   //  std::cout<< e<<std::endl;
   
-  PhononBasis ph(L, 3);
+  PhononBasis ph(L, 6);
   //std::cout<< ph<<std::endl;
   HolsteinBasis TP(e, ph);
   std::cout<< TP.dim << std::endl;
@@ -39,16 +39,16 @@ BOOST_AUTO_TEST_CASE(timeev)
       Eigen::VectorXd eigenVals(TP.dim);
             Mat H=E1+Eph  +Ebdag + Eb;
           Eigen::MatrixXd HH=Eigen::MatrixXd(H);
-	  Eigen::VectorXd ev(TP.dim);
-	  auto optModes=makeThermalRDMTP(HH, ev, TP, T, false, 2);
-	  double sum=0;
-	  for(auto& l : optModes)
-	    { 
-	      std::cout<< l<<std::endl;
-	      sum+=l.sum();
-	    }
+  	  Eigen::VectorXd ev(TP.dim);
+  	  auto optModes=makeThermalRDMTP(HH, ev, TP, T, false, 0);
+  	  double sum=0;
+  	  for(auto& l : optModes)
+  	    { 
+  	      std::cout<< l<<std::endl;
+  	      sum+=l.sum();
+  	    }
 	  std::cout << "and the sum of all was "<< sum<<std::endl;
-  //   std::cout<< TP<< std::endl;
+  // //   std::cout<< TP<< std::endl;
   // Eigen::VectorXd v1=Eigen::VectorXd::Zero(TP.dim);
   // v1[1]=1/std::sqrt(2);
   // Eigen::VectorXd v2=Eigen::VectorXd::Zero(TP.dim);
@@ -63,28 +63,42 @@ BOOST_AUTO_TEST_CASE(timeev)
   // 	//	makeRedDM(g2, 0, M);
   // 	makeRedDMTP(TP, ph,  0, M);
 	
+	
  }
 BOOST_AUTO_TEST_CASE(vecred)
 {
-    using Mat= Operators::Mat;
-  int L=4;
-  double omega=1;
-  double gamma=1;
-  double t0=1;
-  double T=2;
-   using HolsteinBasis= TensorProduct<ElectronBasis, PhononBasis>;
-        PhononBasis g2{ 2, 1};
-  ElectronBasis e( L, 1);
-  //  std::cout<< e<<std::endl;
+   
+  // int L=4;
+  // double omega=1;
+  // double gamma=1;
+  // double t0=1;
+  // double T=2;
+  //  using HolsteinBasis= TensorProduct<ElectronBasis, PhononBasis>;
+  //       PhononBasis g2{ 2, 1};
+  // ElectronBasis e( L, 1);
+  // //  std::cout<< e<<std::endl;
   
-  PhononBasis ph(L, 3);
-  Eigen::VectorXcd psi=Eigen::VectorXcd::Random(ph.dim);
-  psi/=psi.norm();
-  MatrixXcd rho=psi*psi.adjoint();
-  makeRedDM(ph, 0,  rho);
-  std::cout<< std::endl;
-  std::cout<< std::endl;
-  makeRedDM(ph, 0,  psi);
+  // PhononBasis ph(L, 8);
+  // HolsteinBasis TP(e, ph);
+  //    std::cout<<TP.dim<<std::endl;
+  // Eigen::VectorXcd psi=Eigen::VectorXcd::Random(TP.dim);
+  // psi/=psi.norm();
+  // auto l=  makeRedDMTP(TP, ph, 0, psi);
+  // 	   double sum{0};
+  // 	   for(auto&  k : l)
+  // 	     {
+  // 	       //  std::cout<< k << std::endl;
+  // 	       std::cout<< std::endl;
+  // 	       std::cout<< "with trace "<< k.trace()<< std::endl;
+  // 	       std::cout<< std::endl;
+  // 	       //sum+=(k.trace());
+  // 	     }
+  // 	   std::cout<< sum << std::endl;
+  // MatrixXcd rho=psi*psi.adjoint();
+  // makeRedDM(ph, 0,  rho);
+  // std::cout<< std::endl;
+  // std::cout<< std::endl;
+  // makeRedDM(ph, 0,  psi);
   
 	
  }

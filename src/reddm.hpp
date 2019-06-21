@@ -16,6 +16,7 @@ namespace Many_Body{
   inline std::complex< T > conj(std::complex< T > a)
   { std::complex< T > b(real(a), -imag(a));
     return b;}
+  
   template<typename TotalBasis, typename Matrix, typename Vector>
   std::vector<Eigen::VectorXd> makeThermalRDMTP(Matrix& H, Vector& ev, TotalBasis& TP, double T, bool isDiag=false, int site=0)
 {
@@ -167,7 +168,7 @@ std::vector<MatrixD<T>> makeRedDMTP(const TotalBasis& totalBasis, const SubBasis
          auto it2L=totalBasis.lbasis.find(LeftId(*it2));
       auto it2R=totalBasis.rbasis.find(RightId(*it2));
       
-      //      std::cout<< " loop 1 "<<std::endl;
+      //      std::cout<< " loop 1 "<<std::endl; // re think this one
        auto currentID2L =Id(*it2L);
        auto currentID2R =Id(*it2R);
        auto p2L=totalBasis.lbasis.particlesAt(currentID2L, site);
@@ -184,6 +185,7 @@ std::vector<MatrixD<T>> makeRedDMTP(const TotalBasis& totalBasis, const SubBasis
        state2R.erase(state2R.begin()+site);
        if(state1L==state2L and state1R==state2R)
 	 {
+	   if(p2L!=p1L){std::cout << "here "<< std::endl;}
        mats[p2L](newPos, newPos2)+=rho(Position(*it), Position(*it2));
        mats[p2L](newPos2, newPos)+=rho(Position(*it2), Position(*it));
 	 }

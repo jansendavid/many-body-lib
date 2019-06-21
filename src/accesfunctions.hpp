@@ -52,8 +52,8 @@ auto GetLattice( const T& state)
    //std::cout<< " max nr "<<state.maxParNr<< std:endl;
    return std::get<toBasisType(BasisInfoField::state)>(state);
  }
-   template<class State, class T=double>
-   T Translate(const size_t translation, const State& state)     // translates to the left
+   template<class State>
+   inline size_t Translate(const size_t translation, const State& state)     // translates to the left
      {
        
        State newState(state);
