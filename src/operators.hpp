@@ -3,6 +3,7 @@
 //EIGEN_USE_MKL_ALL
 #include"basis.hpp"
 #include<cmath>
+
 #include <Eigen/Sparse>
 #ifdef MOM
 using ValType= std::complex<double>; 
@@ -19,7 +20,25 @@ namespace Operators{
   using Many_Body::LeftId;
   
   using Mat= Eigen::SparseMatrix<ValType,Eigen::RowMajor>;
+  template<typename T>
+    size_t CheckSign(const T& state, size_t i, size_t j)
+  {
+    size_t m=0;
+    if(i>j)
+      {
+  	for(size_t l=j+1; l<i; l++)
+  	  {
+  	    m+=size_t(state[l]);
+  	  }
 
+      }
+    else
+      	for(size_t l=i+1; l<j; l++)
+  	  {
+  	    m+=size_t(state[l]);
+  	  }
+    return m;
+  }
   size_t NextWithBC(size_t i, size_t sites, bool PB=true)
   {
     if(PB)
@@ -33,23 +52,23 @@ namespace Operators{
     else{return sites-1;}
   }
    
-  template<class TotalBasis, bool PB=true>
- Mat NumberOperator(const TotalBasis& totalBasis, const double omega=1.)
+  template<class TotalBasis>
+  Mat NumberOperator(const TotalBasis& totalBasis, const double omega=1., bool PB=0, int start=0, int stop=0)
  {
    
-
+ 
     size_t dim=totalBasis.dim;
     size_t sites=totalBasis.sites;
     Mat op(dim, dim);
       op.setZero();
-  
+ stop = (stop!=0) ? stop : Operators::Length( sites, PB);    
 
 
       for(const auto& tpState : totalBasis)
 	{
 
 	 
-	  for(size_t i=0; i<sites; i++)
+	  for(size_t i=start; i<=stop; i++)
 	    {
 
 	    op.coeffRef(Position(tpState), Position(tpState))+=ValType(omega*totalBasis.particlesAt(Id(tpState), i));
@@ -60,48 +79,119 @@ namespace Operators{
       return op;
       
        }
-  template<class TotalBasis, bool PB=true >
-     Mat EKinOperator(const TotalBasis& totalBasis, double var=1. , size_t m=0)
+  template<class TotalBasis>
+  Mat EKinOperator(const TotalBasis& totalBasis, double var=1. , bool PB=0, int start=0, int stop=0 )
      {
 	 using TpBasisIt= typename TotalBasis::BasisIt;
 using Lattice=typename TotalBasis::Lattice;     
-    
+
  
    size_t dim=totalBasis.dim;
     size_t sites=totalBasis.sites;
     Mat op(dim, dim);
       op.setZero();
-      
-      
-      // NOT DONE
-	  for( auto& tpState : totalBasis)
-	    {
-	      double currentID=Id(tpState);
-	      
-	     TpBasisIt it2=totalBasis.find(currentID);
-	     for(size_t i=0; i<Length(sites, PB); i++)
-                {
-	  	  size_t j=NextWithBC(i, sites, PB);
+      stop = (stop!=0) ? stop : Operators::Length( sites, PB);       
+      std::cout<< "stop "<< stop<<std::endl;
+   for( auto& tpState : totalBasis)
+	     {
 
-	  	    size_t P1=totalBasis.particlesAt(currentID, i);
-	  	    size_t P2=totalBasis.particlesAt(currentID, i);
-	  	    if(totalBasis.particlesAt(currentID, i)>0 && totalBasis.particlesAt(currentID, j)<totalBasis.maxParticles)
-	      	     {
-	     	       Lattice state=GetLattice(*it2);
-		       state.setPartNr(j, totalBasis.particlesAt(currentID, j) +1);
-		       		       state.setPartNr(i, totalBasis.particlesAt(currentID, i) -1);
-		       //		       std::vector<int> state=St.makeStateVec();
+	       	    for(size_t i=start; i<stop; i++)
+                 {
 
-	  	       //		       TD<state> a(state);
+	       
 
+		   Lattice state=GetLattice(tpState);
+                     size_t j=Operators::NextWithBC(i, sites, PB);
+	   	    		    if(state[i]==state[j])
+   	       	     {
+	  // 	     
+    		  
+   	   	     }
+   	   	    else{
+		      
 
-	  	       auto it3= totalBasis.find(state.id);
-	  	       size_t  newStateNr=Position(*(totalBasis.find(state.id)));
-      op.coeffRef(newStateNr, Position(tpState))-= 0.5*var*(std::sqrt(static_cast<double>(state[i]+1.)))*(std::sqrt(static_cast<double>(state[j])));
-	  	       op.coeffRef(Position(tpState), newStateNr )-= 0.5*var*(std::sqrt(static_cast<double>(state[i]+1.)))*(std::sqrt(static_cast<double>(state[j])));
+		      Lattice temp=state;
+		      
+		       state.setPartNr(j, temp[i]);
+		      state.setPartNr(i, temp[j]);
+		     		 
+	  	     size_t signControl=CheckSign(temp, i, j);
+		       
+		    auto it2 = totalBasis.find(state.GetId());
+		     
+	  	      
+		     
+		     size_t newStateNr= Position(*it2);
+		     
+	   	              if(signControl%2==0)
+   	   	    	 {
+	   		   op.coeffRef(newStateNr, Position(tpState))-= ValType{var};}
+   	   	       else
+   	   	    	 { op.coeffRef(newStateNr, Position(tpState))+= ValType{var};}
+		    }
 
-	  	     }
- 	     	     }
+	   	     }
+	   
+
+   	  }
+    
+  return op;
+  }
+   template<class TotalBasis>
+  Mat CurrOperator(const TotalBasis& totalBasis, double var=1. , bool PB=0, int start=0, int stop=0)
+     {
+	 using TpBasisIt= typename TotalBasis::BasisIt;
+using Lattice=typename TotalBasis::Lattice;     
+
+ 
+   size_t dim=totalBasis.dim;
+    size_t sites=totalBasis.sites;
+    Mat op(dim, dim);
+      op.setZero();
+      stop = (stop!=0) ? stop : Operators::Length( sites, PB);       
+      std::cout<< "stop "<< stop<<std::endl;
+   for( auto& tpState : totalBasis)
+	     {
+
+	       	    for(size_t i=start; i<stop; i++)
+                 {
+
+	       
+
+		   Lattice state=GetLattice(tpState);
+                     size_t j=Operators::NextWithBC(i, sites, PB);
+	   	    		    if(state[i]==state[j])
+   	       	     {
+	  // 	     
+    		  
+   	   	     }
+   	   	    else{
+		      
+
+		      Lattice temp=state;
+		      
+		       state.setPartNr(j, temp[i]);
+		      state.setPartNr(i, temp[j]);
+		     		 
+	  	     size_t signControl=CheckSign(temp, i, j);
+		       
+		    auto it2 = totalBasis.find(state.GetId());
+		     
+		    double otherSign=(state[j]==1)?+1:-1;
+
+		      
+		      
+		     
+		     size_t newStateNr= Position(*it2);
+		     
+	   	              if(signControl%2==0)
+   	   	    	 {
+	   		   op.coeffRef(newStateNr, Position(tpState))-= otherSign*ValType{var};}
+   	   	       else
+   	   	    	 { op.coeffRef(newStateNr, Position(tpState))+= otherSign*ValType{var};}
+		    }
+
+	   	     }
 	   
 
    	  }

@@ -6,6 +6,7 @@
 #include"files.hpp"
 #include"timeev.hpp"
 #include"ETH.hpp"
+#include <boost/program_options.hpp>
 int main(int argc, char *argv[])
 {
   using namespace Eigen;
@@ -14,45 +15,85 @@ using namespace Many_Body;
   using Fermi_HubbardBasis= TensorProduct<ElectronBasis, ElectronBasis>;
    using HolsteinBasis= TensorProduct<ElectronBasis, PhononBasis>;
   using Mat= Operators::Mat;
- //  const size_t L=10;
-
-   
- //  const double t1=std::stod(argv[1]);
- //  // const double t11=std::stoi(argv[2]);
- //  const double t2= std::stod(argv[2]);
- //  // const double t22= std::stod(argv[4]);
- //  const double u= std::stod(argv[3]);
- //  size_t electrons=int(L/2);
- // std::vector<int> ee(L, 0);
- //      ee[L-1]=1;
- //      ElectronState estate1(ee);
- //      ElectronBasis e(0, L);
-
-
- // ElectronBasis e2(electrons, L);
- // Fermi_HubbardBasis TP(e, e2);
- // // std::cout<< e<< std::endl;
- // // std::cout<< e2 << std::endl;
- 
- //   Mat E1=Operators::EKinOperatorL(TP, e, t1);
- //     Mat E2=Operators::EKinOperatorR(TP, e2, t2);
- // // //   //   Mat E11=Operators::EKinOperatorLNNN(TP, e1, t11);
- // // //   // Mat E22=Operators::EKinOperatorRNNN(TP, e2, t22);
- //     Mat C=Operators::CalculateCouplungOperator(TP, e2, u);
- //    Mat H=E1+E2+C;
-   const size_t L=4;
-
+  using boost::program_options::value;
+   size_t M{};
+  size_t L{};
+  double t0{};
+  double omega{};
+  double gamma{};
+  double dt{};
+  double tot{};
+  bool PB{};
+  try
+  {
+    boost::program_options::options_description desc{"Options"};
+    desc.add_options()
+      ("help,h", "Help screen")
+      ("L", value(&L)->default_value(4), "L")
+      ("M,m", value(&M)->default_value(2), "M")
+      ("t", value(&t0)->default_value(1.), "t0")
+      ("gam", value(&gamma)->default_value(1.), "gamma")
+      ("omg", value(&omega)->default_value(1.), "omega")
+    ("dt", value(&dt)->default_value(0.1), "dt")
+      ("tot", value(&tot)->default_value(1.), "tot")
+    ("pb", value(&PB)->default_value(true), "PB");
   
-  const double t1=std::stod(argv[1]);
-  const double omg=std::stod(argv[2]);
-  const double gamma=std::stod(argv[3]);
+
+
+    boost::program_options::variables_map vm;
+    boost::program_options::store(parse_command_line(argc, argv, desc), vm);
+    boost::program_options::notify(vm);
+
+    if (vm.count("help"))
+      {std::cout << desc << '\n'; return 0;}
+    else{
+      if (vm.count("L"))
+      {      std::cout << "L: " << vm["L"].as<size_t>() << '\n';
+	
+      }
+     if (vm.count("M"))
+      {
+	std::cout << "M: " << vm["M"].as<size_t>() << '\n';
+	
+      }
+      if (vm.count("t"))
+      {
+	std::cout << "t0: " << vm["t"].as<double>() << '\n';	
+      }
+       if (vm.count("omg"))
+      {
+	std::cout << "omega: " << vm["omg"].as<double>() << '\n';
+      }
+       if (vm.count("gam"))
+      {
+	std::cout << "gamma: " << vm["gam"].as<double>() << '\n';
+      }
+       if (vm.count("dt"))
+      {
+	std::cout << "dt: " << vm["dt"].as<double>() << '\n';
+      }
+       if (vm.count("tot"))
+      {
+	std::cout << "total time: " << vm["tot"].as<double>() << '\n';
+      }
+       if (vm.count("pb"))
+      {
+	std::cout << "PB: " << vm["pb"].as<bool>() << '\n';
+      }
+    }
+  }
+  catch (const boost::program_options::error &ex)
+  {
+    std::cerr << ex.what() << '\n';
+    return 0;
+  }
+
   //std::vector<int> ee(L, 0);
   // ee[L-1]=1;
-  double dt=0.0001;
-  double ttot=0.1;
+
   ElectronState estate1(L, 1);
   ElectronBasis e( L, 1);
-  size_t M=3;
+  
   //std::cout<< e<<std::endl;
 std::vector<size_t> es(L, 0);
       es[0]=1;
@@ -70,10 +111,10 @@ std::vector<size_t> es(L, 0);
      //        std::cout<< TP << std::endl;
      //    std::cout<< b2.GetId()<<std::endl;
      // 	std::cout<< b2.GetId()<<std::endl;
-     // std::cout<<"state nr "<< StateNr<<std::endl;               
+     // std::cout<<"state nr "<< StateNr<<std::endl;                
          Eigen::VectorXcd inistate(TP.dim);
 
- 	 Mat O=Operators::NumberOperator(TP, ph, 1,  false);
+ 	 Mat O=Operators::NumberOperator(TP, ph, 1,  PB);
    inistate.setZero();
 
    inistate[StateNr]=1;
@@ -81,10 +122,10 @@ std::vector<size_t> es(L, 0);
       //   std::cout<< e << std::endl;
 		  
            std::cout<< TP.dim << std::endl;     
-      Mat E1=Operators::EKinOperatorL(TP, e, t1, false);
-      Mat Ebdag=Operators::BosonCOperator(TP, ph, gamma, false);
-      Mat Eb=Operators::BosonDOperator(TP, ph, gamma, false);
-      Mat Eph=Operators::NumberOperator(TP, ph, omg,  false);
+      Mat E1=Operators::EKinOperatorL(TP, e, t0, PB);
+      Mat Ebdag=Operators::NBosonCOperator(TP, ph, gamma, PB);
+      Mat Eb=Operators::NBosonDOperator(TP, ph, gamma, PB);
+      Mat Eph=Operators::NumberOperator(TP, ph, omega,  PB);
       
       //Mat E=Operators::NumberOperatore(TP, e, 1, false);
       //    std::cout<< HH << std::xbendl;
@@ -106,8 +147,9 @@ std::vector<size_t> es(L, 0);
    Eigen::MatrixXcd cEVec=HH.cast<std::complex<double>>();
     Eigen::VectorXcd newIn=inistate;
    int i=0;
+
    // O=H;
-        while(i*dt<ttot)
+        while(i*dt<tot)
        {
 
        	 TimeEv::timeev_exact(newIn, cEVec, evExp);
@@ -120,7 +162,7 @@ std::vector<size_t> es(L, 0);
    			// 	outputVals(i)=real(c);
    			// 	outputVals2(i)=real(c2);
         		// outputTime(i)=i*dt;
-   	 std::cout<< real(c)<< " dt "<< i*dt<< std::endl;
+   	 std::cout<< std::setprecision(8)<<real(c)<< " dt "<< i*dt<< std::endl;
 	 //	  	 BOOST_CHECK(std::abs(real(c2)-real(c))<Many_Body::err);
 	     	             }
 

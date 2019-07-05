@@ -13,15 +13,73 @@ using namespace Many_Body;
 namespace mpi = boost::mpi;
 int main(int argc, char *argv[])
 {
+    size_t M{};
+  size_t L{};
+  double t0{};
+  double omega{};
+  double gamma{};
+    bool PB{};
+  try
+  {
+    options_description desc{"Options"};
+    desc.add_options()
+      ("help,h", "Help screen")
+      ("L", value(&L)->default_value(4), "L")
+      ("M", value(&M)->default_value(2), "M")
+      ("t", value(&t0)->default_value(1.), "t0")
+      ("gam", value(&gamma)->default_value(1.), "gamma")
+      ("omg", value(&omega)->default_value(1.), "omega");
+    ("pb", value(&PB)->default_value(true), "PB");
+  
+
+
+    variables_map vm;
+    store(parse_command_line(argc, argv, desc), vm);
+    notify(vm);
+
+    if (vm.count("help"))
+      {std::cout << desc << '\n'; return 0;}
+    else{
+      if (vm.count("L"))
+      {      std::cout << "L: " << vm["L"].as<size_t>() << '\n';
+	
+      }
+     if (vm.count("M,m"))
+      {
+	std::cout << "M: " << vm["M"].as<size_t>() << '\n';
+	
+      }
+      if (vm.count("t"))
+      {
+	std::cout << "t0: " << vm["t"].as<double>() << '\n';	
+      }
+       if (vm.count("omg"))
+      {
+	std::cout << "omega: " << vm["omg"].as<double>() << '\n';
+      }
+       if (vm.count("gam"))
+      {
+	std::cout << "gamma: " << vm["gam"].as<double>() << '\n';
+      }
+                     if (vm.count("pb"))
+      {
+	std::cout << "PB: " << vm["pb"].as<bool>() << '\n';
+      }
+    }
+  }
+  catch (const error &ex)
+  {
+    std::cerr << ex.what() << '\n';
+    return 0;
+  }
+
      using HolsteinBasis= TensorProduct<ElectronBasis, PhononBasis>;
-  const double t1=std::stod(argv[1]);
-  const double omg=std::stod(argv[2]);
-  const double gamma=std::stod(argv[3]);
+
    bool PB=true;
-  const size_t L=5;
+ 
   double beta=1;
   int Ldim=20;
-    int M=2;
+ 
     Mat H;
     Mat N;
   std::vector<Mat> obs;

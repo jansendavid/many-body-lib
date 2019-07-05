@@ -49,25 +49,7 @@ namespace Operators{
       return op;
       
        }
-  template<typename T>
-    size_t CheckSign(const T& state, size_t i, size_t j)
-  {
-    size_t m=0;
-    if(i>j)
-      {
-  	for(size_t l=j+1; l<i; l++)
-  	  {
-  	    m+=size_t(state[l]);
-  	  }
 
-      }
-    else
-      	for(size_t l=i+1; l<j; l++)
-  	  {
-  	    m+=size_t(state[l]);
-  	  }
-    return m;
-  }
   template<class TotalBasis, class SubBasis >
   Mat EKinOperatorL(const TotalBasis& totalBasis, const SubBasis& subBasis, double var=1. , const bool& PB=true)
      {
@@ -344,7 +326,7 @@ auto it21=totalBasis.lbasis.find(LeftId(tpState));
        }
   // Holstein model obc, for now this is n_0(n)
    template<typename TotalBasis, typename Basis>
-  Mat BosonCOperator(const TotalBasis& totalBasis, Basis& subBasis, double var=1. , const bool& PB=true)
+  Mat NBosonCOperator(const TotalBasis& totalBasis, Basis& subBasis, double var=1. , const bool& PB=true)
   {
 
 
@@ -405,7 +387,7 @@ auto it21=totalBasis.lbasis.find(LeftId(tpState));
   }
 
  template<typename TotalBasis, typename Basis>
- Mat BosonDOperator(const TotalBasis& totalBasis, Basis& subBasis,   double var=1. ,  const bool& PB=true)
+ Mat NBosonDOperator(const TotalBasis& totalBasis, Basis& subBasis,   double var=1. ,  const bool& PB=true)
   {
      
 
@@ -461,9 +443,351 @@ auto it21=totalBasis.lbasis.find(LeftId(tpState));
   	  }
 	  }
   		return op;
-   }  
+   }
+  
+   template<class TotalBasis, class SubBasis >
+  Mat EKinOperatorR(const TotalBasis& totalBasis, const SubBasis& subBasis, double var=1. , const bool& PB=true)
+     {
 
-    // template<class TotalBasis, class SubBasis>
+
+	      using LeftBasisIt= typename TotalBasis::LeftBasisIt;     
+     using RightBasisIt= typename TotalBasis::RightBasisIt;
+
+
+using Lattice=typename SubBasis::Lattice;     
+    
+ 
+   size_t dim=totalBasis.dim;
+    size_t sites=totalBasis.sites;
+    Mat op(dim, dim);
+      op.setZero();
+      
+      
+      
+	   for( auto& tpState : totalBasis)
+	     {
+
+	       	    for(size_t i=0; i<Operators::Length( sites, PB); i++)
+                 {
+
+	       RightBasisIt it2=subBasis.find(RightId(tpState));	     
+	       LeftBasisIt iL=totalBasis.lbasis.find(LeftId(tpState));
+	       Lattice state=GetLattice(*it2);
+                     size_t j=Operators::NextWithBC(i, sites, PB);
+		     //		   std::cout<< i << "  " << j <<std::endl;
+	   	    		    if(state[i]== 0 or state[j]== totalBasis.rbasis.maxParticles)
+   	       	     {
+	  // 	     
+    		  
+   	   	     }
+    	   	    else{
+		      
+
+		      Lattice temp=state;
+		      
+		       state.setPartNr(j, temp[j]+1);
+		      state.setPartNr(i, temp[i]-1);
+		     		 
+// 		      //	  	     size_t signControl=CheckSign(temp, i, j);
+		       
+		     it2= subBasis.find(state.GetId());
+		     
+	  	       RightBasisIt it3=totalBasis.rbasis.find(state.id);
+		     
+	  	       size_t newStateNr= Position(*it3)*totalBasis.lbasis.dim +Position(*iL);
+		     
+
+		       op.coeffRef(newStateNr, Position(tpState))-= ValType{var}*std::sqrt(temp[j]+1)*std::sqrt(temp[i]);
+// 		
+		    }
+				    	     it2=subBasis.find(RightId(tpState));	     
+ iL=totalBasis.lbasis.find(LeftId(tpState));
+	 state=GetLattice(*it2);
+				    	   	    		    if(state[j]== 0 or state[i]== totalBasis.rbasis.maxParticles)
+   	       	     {
+	  // 	     
+    		  
+   	   	     }
+    	   	    else{
+		      
+
+		      Lattice temp=state;
+		      
+		       state.setPartNr(j, temp[j]-1);
+		      state.setPartNr(i, temp[i]+1);
+		     		 
+// 		      //	  	     size_t signControl=CheckSign(temp, i, j);
+		       
+		     it2= subBasis.find(state.GetId());
+		     
+	  	       RightBasisIt it3=totalBasis.rbasis.find(state.id);
+		     
+	  	       size_t newStateNr= Position(*it3)*totalBasis.lbasis.dim +Position(*iL);
+		     
+
+		       op.coeffRef(newStateNr, Position(tpState))-= ValType{var}*std::sqrt(temp[j])*std::sqrt(temp[i]+1);
+// 		
+		    }
+	   	     }
+ 	      	     }
+	   
+
+   	  
+    
+  return op;
+  }
+     template<class TotalBasis, class SubBasis >
+  Mat EKinOperatorRNN(const TotalBasis& totalBasis, const SubBasis& subBasis, double var=1. , const bool& PB=true)
+     {
+
+
+	      using LeftBasisIt= typename TotalBasis::LeftBasisIt;     
+     using RightBasisIt= typename TotalBasis::RightBasisIt;
+
+
+using Lattice=typename SubBasis::Lattice;     
+    
+ 
+   size_t dim=totalBasis.dim;
+    size_t sites=totalBasis.sites;
+    Mat op(dim, dim);
+      op.setZero();
+      
+      
+      
+	   for( auto& tpState : totalBasis)
+	     {
+
+	       	    for(size_t i=0; i<Operators::Length( sites, PB); i++)
+                 {
+
+	       RightBasisIt it2=subBasis.find(RightId(tpState));	     
+	       LeftBasisIt iL=totalBasis.lbasis.find(LeftId(tpState));
+	       Lattice state=GetLattice(*it2);
+	       size_t j=(i+2)%sites;
+	       //Operators::NextWithBC(i, sites, PB);
+		     //		   std::cout<< i << "  " << j <<std::endl;
+	   	    		    if(state[i]== 0 or state[j]== totalBasis.rbasis.maxParticles)
+   	       	     {
+	  // 	     
+    		  
+   	   	     }
+    	   	    else{
+		      
+
+		      Lattice temp=state;
+		      
+		       state.setPartNr(j, temp[j]+1);
+		      state.setPartNr(i, temp[i]-1);
+		     		 
+// 		      //	  	     size_t signControl=CheckSign(temp, i, j);
+		       
+		     it2= subBasis.find(state.GetId());
+		     
+	  	       RightBasisIt it3=totalBasis.rbasis.find(state.id);
+		     
+	  	       size_t newStateNr= Position(*it3)*totalBasis.lbasis.dim +Position(*iL);
+		     
+
+		       op.coeffRef(newStateNr, Position(tpState))-= ValType{var}*std::sqrt(temp[j]+1)*std::sqrt(temp[i]);
+// 		
+		    }
+				    	     it2=subBasis.find(RightId(tpState));	     
+ iL=totalBasis.lbasis.find(LeftId(tpState));
+	 state=GetLattice(*it2);
+				    	   	    		    if(state[j]== 0 or state[i]== totalBasis.rbasis.maxParticles)
+   	       	     {
+	  // 	     
+    		  
+   	   	     }
+    	   	    else{
+		      
+
+		      Lattice temp=state;
+		      
+		       state.setPartNr(j, temp[j]-1);
+		      state.setPartNr(i, temp[i]+1);
+		     		 
+// 		      //	  	     size_t signControl=CheckSign(temp, i, j);
+		       
+		     it2= subBasis.find(state.GetId());
+		     
+	  	       RightBasisIt it3=totalBasis.rbasis.find(state.id);
+		     
+	  	       size_t newStateNr= Position(*it3)*totalBasis.lbasis.dim +Position(*iL);
+		     
+
+		       op.coeffRef(newStateNr, Position(tpState))-= ValType{var}*std::sqrt(temp[j])*std::sqrt(temp[i]+1);
+// 		
+		    }
+	   	     }
+ 	      	     }
+	   
+
+   	  
+    
+  return op;
+  }
+   template<class TotalBasis, class SubBasis >
+   Mat eMOMOperator(const TotalBasis& totalBasis, const SubBasis& subBasis, double var=1. , int k=0, const bool& PB=true)
+     {
+  using Many_Body::pi;
+  using Many_Body::im;
+
+	      using LeftBasisIt= typename TotalBasis::LeftBasisIt;     
+     using RightBasisIt= typename TotalBasis::RightBasisIt;
+
+
+using Lattice=typename SubBasis::Lattice;     
+
+ 
+   size_t dim=totalBasis.dim;
+    size_t sites=totalBasis.sites;
+    Mat op(dim, dim);
+      op.setZero();
+ auto K=2*pi/sites;      
+      
+      
+	   for( auto& tpState : totalBasis)
+	     {
+
+	       	    for(size_t i=0; i<sites; i++)
+                 {
+
+	   
+                       for(size_t j=0; j<sites; j++)
+                 {
+		       RightBasisIt it2=totalBasis.rbasis.find(RightId(tpState));	     
+	       LeftBasisIt iL=totalBasis.lbasis.find(LeftId(tpState));
+	       Lattice state=GetLattice(*iL);
+	       if(j==i)
+		 {
+		   	      Lattice temp=state;
+		     if(state[i]!= 0)
+		       {
+		       op.coeffRef(Position(tpState), Position(tpState))+= ValType{var}/sites;
+		       }
+		 }
+	       else{
+		     //		   std::cout<< i << "  " << j <<std::endl;
+	   	    		    if(state[i]== 0)
+   	       	     {
+	  // 	     
+    		  
+   	   	     }
+     	   	    else{
+		      
+
+		      Lattice temp=state;
+		      
+		       state.setPartNr(j, 1);
+		      state.setPartNr(i, 0);
+		     		 
+// 		      //	  	     size_t signControl=CheckSign(temp, i, j);
+		       
+		      //iL= subBasis.find(state.GetId());
+		     
+	  	       LeftBasisIt it3=totalBasis.lbasis.find(state.id);
+		     
+	  	       size_t newStateNr= Position(*it2)*totalBasis.lbasis.dim +Position(*it3);
+		     
+		       std::complex<double> value=exp(-im*static_cast<std::complex<double>>(K*(j-i)));
+		       op.coeffRef(newStateNr, Position(tpState))+= ValType{var}/sites;
+		       //*std::sqrt(temp[j]+1)*std::sqrt(temp[i]);
+// 		
+ 		    }
+	       }	    	    
+	 
+
+ 	   	     }
+  	      	     }
+	   
+	     }
+   	  
+    
+  return op;
+  }
+
+     template<class TotalBasis, class SubBasis >
+   Mat phMOMOperator(const TotalBasis& totalBasis, const SubBasis& subBasis, double var=1. , int k=0, const bool& PB=true)
+     {
+
+
+	      using LeftBasisIt= typename TotalBasis::LeftBasisIt;     
+     using RightBasisIt= typename TotalBasis::RightBasisIt;
+
+
+using Lattice=typename SubBasis::Lattice;     
+    
+ 
+   size_t dim=totalBasis.dim;
+    size_t sites=totalBasis.sites;
+    Mat op(dim, dim);
+      op.setZero();
+      
+      
+      
+	   for( auto& tpState : totalBasis)
+	     {
+
+	       	    for(size_t i=0; i<sites; i++)
+                 {
+
+	   
+                       for(size_t j=0; j<sites; j++)
+                 {
+		       RightBasisIt it2=totalBasis.rbasis.find(RightId(tpState));	     
+	       LeftBasisIt iL=totalBasis.lbasis.find(LeftId(tpState));
+	       Lattice state=GetLattice(*it2);
+	       if(j==i)
+		 {
+		   	      Lattice temp=state;
+		     if(state[i]!= 0)
+		       {
+		       op.coeffRef(Position(tpState), Position(tpState))+=state[i]*ValType{var}/sites;
+		       }
+		 }
+	       else{
+		     //		   std::cout<< i << "  " << j <<std::endl;
+	   	    		    if(state[i]== 0 or state[j]== totalBasis.rbasis.maxParticles)
+   	       	     {
+	  // 	     
+    		  
+   	   	     }
+     	   	    else{
+		      
+
+		      Lattice temp=state;
+		      
+		       state.setPartNr(j, temp[j]+1);
+		       state.setPartNr(i, temp[i]-1);
+		     		 
+// 		      //	  	     size_t signControl=CheckSign(temp, i, j);
+		       
+		      //iL= subBasis.find(state.GetId());
+		     
+	  	       RightBasisIt it3=totalBasis.rbasis.find(state.id);
+		     
+	  	       size_t newStateNr= Position(*it3)*totalBasis.lbasis.dim +Position(*iL);
+		     
+
+		       op.coeffRef(newStateNr, Position(tpState))+= std::sqrt(temp[j]+1)*std::sqrt(temp[i])*ValType{var}/sites;
+		       //*std::sqrt(temp[j]+1)*std::sqrt(temp[i]);
+// 		
+ 		    }
+	       }	    	    
+	 
+
+ 	   	     }
+  	      	     }
+	   
+	     }
+   	  
+    
+  return op;
+  }
+
+  // template<class TotalBasis, class SubBasis>
  //  Mat NumberOperatore(const TotalBasis& totalBasis, const SubBasis& subBasis, const double omega=1., const bool& PB=true)
  // {    using BasisIt= typename TotalBasis::BasisIt;
  //    using Const_BasisIt= typename TotalBasis::Const_BasisIt;
@@ -486,7 +810,7 @@ auto it21=totalBasis.lbasis.find(LeftId(tpState));
 	   
  // 	  }
  // 	}
- //      return op;
+      // return op;
       
- //       }
+      //  }
 }

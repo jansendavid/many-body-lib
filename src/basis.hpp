@@ -98,7 +98,7 @@ struct CompareState{
      return sum;
      
               }
-           void setPartNr(size_t site, size_t nr)
+          inline void setPartNr(size_t site, size_t nr)
     {
       assert(nr<=maxParNr && nr>=0);
       std::vector<size_t> state=makeStateVec();
@@ -107,7 +107,7 @@ struct CompareState{
 	id=makeId(state);
 
     }
-        size_t Count() const
+       inline size_t Count() const
    {
      std::vector<size_t> state=makeStateVec();
      size_t sum = std::accumulate(state.begin(), state.end(), 0);

@@ -34,6 +34,7 @@ namespace Many_Body{
       rho(i, i)=std::exp(-beta*ev(i));
       Z+=std::exp(-beta*ev(i));
     }
+  std::cout<< "Z "<<std::setprecision(9)<< Z << std::endl;
   rho/=Z;
   //  std::cout<< rho<< std::endl;
   
@@ -41,14 +42,22 @@ namespace Many_Body{
   rho=H*rho;
   std::vector<Eigen::VectorXd> evs;
   auto RDM= makeRedDMTP(TP, TP.rbasis, site, rho);
-  for(auto& i : RDM){
+  Eigen::MatrixXd S=Eigen::MatrixXd::Zero(RDM[0].rows(), RDM[0].rows());
+  for(auto& M : RDM){
 
-  Eigen::VectorXd evRDM(i.rows());
-  diagMat(i, evRDM);
+  Eigen::VectorXd evRDM=Eigen::VectorXd::Zero(M.rows());
+  std::cout<< "matri x"<< std::endl;
+  std::cout<< M<< std::endl;
+  S+=M;
+  std::cout<< std::endl;
+  diagMat(M, evRDM);
   evs.push_back(evRDM);
   
   }
-  
+    std::cout<< "SUM OF all"<< std::endl;
+  std::cout<< S<< std::endl;
+    std::cout<< ""<< std::endl;
+
   return evs;
 }
 template<typename Basis, typename T>
@@ -159,10 +168,10 @@ std::vector<MatrixD<T>> makeRedDMTP(const TotalBasis& totalBasis, const SubBasis
        // unsafe way to determine the position in the matrix
        // upper first fix electron then iterate boson
        size_t newPos= p1R;
-       mats[p1L](newPos, newPos)+=rho(Position(*it), Position(*it));
+       
        //       if(std::abs(rho(Position(*it), Position(*it)))>0.001){std::cout<< " her "<< p1L<< "  " << p1R << std::endl;}
        auto itx=it;
-       itx++;
+       // itx++;
        for(auto it2= itx; it2!=totalBasis.end(); ++it2)
      {
          auto it2L=totalBasis.lbasis.find(LeftId(*it2));
@@ -185,9 +194,14 @@ std::vector<MatrixD<T>> makeRedDMTP(const TotalBasis& totalBasis, const SubBasis
        state2R.erase(state2R.begin()+site);
        if(state1L==state2L and state1R==state2R)
 	 {
-	   if(p2L!=p1L){std::cout << "here "<< std::endl;}
+	   //if(p2L!=p1L){std::cout << "here "<< std::endl;}
+	   if(newPos!=newPos2){
        mats[p2L](newPos, newPos2)+=rho(Position(*it), Position(*it2));
        mats[p2L](newPos2, newPos)+=rho(Position(*it2), Position(*it));
+	   }
+	   else{
+	     mats[p1L](newPos, newPos)+=rho(Position(*it), Position(*it2));
+	   }
 	 }
          }
 }
