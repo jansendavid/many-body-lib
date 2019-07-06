@@ -30,8 +30,8 @@ OBJECTS= main.cpp
 # OTHER LIBS
 LIBSLINK+=-L${MANYBODY}/libs
 LIBSLINK+=-L${ELIBS}
-LIBS32+=-leigenmkl32
-LIBS64+=-leigenmkl64
+LIBS32+=-leigenmkl32 -lboost_program_options
+LIBS64+=-leigenmkl64 -lboost_program_options
 TESTLIBS+= -lboost_unit_test_framework
 #  DEBUG
 ND+= -DNDEBUG
@@ -76,8 +76,16 @@ reddm: examples/reddm.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp
 
 	$(CXX) $(FLAGS) $(INCS) examples/reddm.cpp -o reddm  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(ND) $(OP)
 
+holstexDi: examples/holstexDi.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp  src/diag.h
+
+	$(CXX) $(FLAGS) $(INCS) examples/holstexDi.cpp -o holstexDi  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(ND) $(OP)
+
 holstFTexact: examples/holstFTexact.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h
 	$(CXX) $(FLAGS) $(INCS) examples/holstFTexact.cpp -o holstFTexact  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(ND) $(OP)
+hetFerex: examples/hetFerex.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h
+	$(CXX) $(FLAGS) $(INCS) examples/hetFerex.cpp -o hetFerex  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(ND) $(OP)
+hetFerexSP: examples/hetFerexSP.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h
+	$(CXX) $(FLAGS) $(INCS) examples/hetFerexSP.cpp -o hetFerexSP  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(ND) $(OP)
 
 holsttimeexact: examples/holsttimeexact.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h
 	$(CXX) $(FLAGS) $(INCS) examples/holsttimeexact.cpp -o holsttimeexact  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(ND) $(OP)
