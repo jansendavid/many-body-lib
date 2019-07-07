@@ -118,28 +118,32 @@ using namespace Many_Body;
 		filename+=".bin";
             std::cout<< e.dim << std::endl;  
 	   
-  Mat E1=Operators::EKinOperator(e, tl, PB, 0, Llead-1);
+  // Mat E1=Operators::EKinOperator(e, tl, PB, 0, Llead-1);
   	   
-   Mat E2=Operators::EKinOperator(e, tl, PB, Llead+Lchain, Ltot-1);
-  Mat EI1=Operators::EKinOperator(e, tint, PB, Llead-1, Llead);
-  Mat EI2=Operators::EKinOperator(e, tint, PB, Llead+Lchain-1, Llead+Lchain);
-    Mat NI1=Operators::NumberOperator(e, -V/2, PB,  0, Llead-1);
-  Mat NI2=Operators::NumberOperator(e, V/2, PB, Llead+Lchain, Ltot-1);
-  // // Mat E4=Operators::EKinOperator(e, tl, PB, Llead+Lchain, Ltot-1);
-   Mat E3=Operators::EKinOperator(e, t0, PB, Llead, Llead+Lchain-1);
-   Mat C1=Operators::CurrOperator(e, tint, PB, Llead-1, Llead);
-   Mat C2=Operators::CurrOperator(e, tint, PB, Llead+Lchain-1, Llead+Lchain);
+  //  Mat E2=Operators::EKinOperator(e, tl, PB, Llead+Lchain, Ltot-1);
+  // Mat EI1=Operators::EKinOperator(e, tint, PB, Llead-1, Llead);
+  // Mat EI2=Operators::EKinOperator(e, tint, PB, Llead+Lchain-1, Llead+Lchain);
+  //   Mat NI1=Operators::NumberOperator(e, -V/2, PB,  0, Llead-1);
+  // Mat NI2=Operators::NumberOperator(e, V/2, PB, Llead+Lchain, Ltot-1);
 
-       Eigen::VectorXd eigenVals1(e.dim);
-       Eigen::VectorXd eigenVals2(e.dim);
-       Mat H1=E1+E2+E3+ EI1+ EI2;
-       Mat H2=E1+E2+E3+ EI1+ EI2 +NI2 +NI1;
+  //  Mat E3=Operators::EKinOperator(e, t0, PB, Llead, Llead+Lchain-1);
+  //  Mat C1=Operators::CurrOperator(e, tint, PB, Llead-1, Llead);
+  //  Mat C2=Operators::CurrOperator(e, tint, PB, Llead+Lchain-1, Llead+Lchain);
+  //  	      auto O=C1+C2;
+  // 	        Mat H1=E1+E2+E3+ EI1+ EI2;
+  //      Mat H2=E1+E2+E3+ EI1+ EI2 +NI2 +NI1;
+       
+ auto O=Operators::totCurrOperator(e, tint,  Llead,Lchain);    
+         Mat H1=Operators::totalHetOperator(e,  tint, t0, tl, 0,  Lchain, Llead );
+             Mat H2=Operators::totalHetOperator(e,  tint, t0, tl, V/2,  Lchain, Llead );
        //;
       //    
  
+       Eigen::VectorXd eigenVals1(e.dim);
+       Eigen::VectorXd eigenVals2(e.dim);
     Eigen::MatrixXd HH2=Eigen::MatrixXd(H2);
        Eigen::MatrixXd HH1=Eigen::MatrixXd(H1);
-    //std::cout<< HH<<std::endl;
+       //  std::cout<< HH2<<std::endl;
    //      Eigen::MatrixXd N=Eigen::MatrixXd(Eph);
       Many_Body::diagMat(HH1, eigenVals1);
       Many_Body::diagMat(HH2, eigenVals2);
@@ -156,7 +160,7 @@ using namespace Many_Body;
 
       }
  int i=0;
- auto O=C1+C2;
+
     std::vector<double> obstebd;
   std::vector<double> time;
         while(i*dt<tot)
