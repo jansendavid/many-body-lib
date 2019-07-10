@@ -50,6 +50,7 @@ struct CompareState{
          id=makeId(state);
    };
     stateBase(size_t sites, size_t maxParNr): sites(sites), maxParNr(maxParNr), id(0) {};
+        stateBase(size_t sites): sites(sites), maxParNr(0), id(0) {};
 
 
     size_t sites{0};
@@ -58,7 +59,7 @@ struct CompareState{
 
     
     // member functions
-    std::vector<size_t> makeStateVec() const
+    virtual std::vector<size_t> makeStateVec() const
    {
      std::vector<size_t> state(sites, 0);
           std::vector<size_t>::reverse_iterator rit = state.rbegin();
@@ -80,7 +81,7 @@ struct CompareState{
 
      return id;
               }
-       inline size_t makeId(std::vector<size_t>& state)
+      virtual inline size_t makeId(std::vector<size_t>& state)
    {
      size_t sum=0;
      size_t mult=1;
@@ -160,7 +161,72 @@ struct CompareState{
 
 
  };
+  struct OneElectronState: public stateBase
+ {
+ using LatticeIt=typename std::vector<size_t>::iterator;
+ using Const_LatticeIt=typename std::vector<size_t>::const_iterator;
+// using stateBase::Count;
+   //    using stateBase::setPartNr;
+   OneElectronState(): stateBase()  {};
+   OneElectronState(std::vector<size_t> state): stateBase(state.size())  {
+     maxParNr=1;
 
+     if(std::accumulate(state.begin(), state.end(),0)>1)
+       {std::cout<< "error"<<'\n';}
+     for(int i=0; i<state.size(); i++)
+       {
+	 if(state[i]==1){
+	   id=i;
+	 }
+
+       }
+   };
+
+   OneElectronState( size_t sites, size_t stateInt): stateBase(sites) {
+    id=stateInt;
+    maxParNr=1;
+
+    }
+    
+std::vector<size_t> makeStateVec() const override
+   {
+     std::vector<size_t> state(sites, 0);
+          
+
+	  state[id]=1;
+	  return state;
+
+   }
+ 
+       inline size_t makeId(std::vector<size_t>& state) override
+   {
+
+     size_t sum=0;
+          if(std::accumulate(state.begin(), state.end(),0)>1)
+       {std::cout<< "error"<<'\n';}
+     for(int i=0; i<state.size(); i++)
+       {
+	 if(state[i]==1){
+	   sum=i;
+	 }
+       }
+     return sum;
+     
+              }
+
+   void flip(size_t i)
+   {
+     std::vector<size_t> state=makeStateVec();
+
+     state[i]=(state[i]+1)%2;
+
+
+     id=makeId(state);
+
+   }
+
+
+ };
 
   struct BosonState: public stateBase
   {
@@ -187,7 +253,6 @@ struct CompareState{
    }
 
   };
-
 
 struct ElectronBasis
 {
@@ -235,6 +300,91 @@ struct ElectronBasis
    }
    ElectronBasis(const ElectronBasis& e)= default;
    friend std::ostream& operator<<(std::ostream& os,  const ElectronBasis& electronBasis)
+    {
+      assert(electronBasis.dim==electronBasis.basis.size());
+      Const_BasisIt it1= electronBasis.begin();
+   
+     while( it1!=electronBasis.basis.end())
+       {
+	 os<< "id"<< '\t' << std::get<toBasisType(BasisInfoField::id)>(*it1) << '\t'<<"position"<< '\t'<<std::get<toBasisType(BasisInfoField::position)>(*it1)<<  '\t'<< "state"<< '\t' << std::get<toBasisType(BasisInfoField::state)>(*it1);
+     it1++;
+	  }
+
+     return os;
+   }
+    const BasisType operator[] (size_t id) {
+      Lattice aLattice(sites, maxParticles);
+    BasisType aState(id, 0, aLattice);
+    return *basis.find(aState);
+  }
+    
+   size_t particlesAt(size_t id, size_t site) const
+  {
+    Lattice aLattice(sites, maxParticles);
+    BasisType aState=*basis.find({id, 0, aLattice});
+    return std::get<toBasisType(BasisInfoField::state)>(aState)[site];
+    
+  }
+     void flip(size_t id, size_t site) const
+  {
+    Lattice aLattice(sites, maxParticles);
+    BasisType aState=*basis.find({id, 0, aLattice});
+    return std::get<toBasisType(BasisInfoField::state)>(aState).flip(site);
+    
+  }
+  BasisIt begin() {return basis.begin();}
+  BasisIt end() {return basis.end();}
+  Const_BasisIt begin() const {return basis.begin();}
+  Const_BasisIt end() const {return basis.end();}
+  BasisIt find(size_t id)
+  {
+    Lattice aLattice;
+    BasisType aState(id, 0, aLattice);
+    return basis.find(aState);
+  }
+    Const_BasisIt find(size_t id) const
+  {
+    Lattice aLattice;
+    BasisType aState(id, 0, aLattice);
+    return basis.find(aState);
+  }
+   Basis basis;
+  const size_t maxParticles=1;
+   size_t sites;
+   size_t dim;
+//   //  const size_t numberofparticles;
+  
+ };
+
+struct OneElectronBasis
+{
+  using Lattice=OneElectronState;
+  using BasisType= std::tuple< size_t, size_t, Lattice>;
+  using LatticeIt=typename Lattice::LatticeIt;
+  using Const_LatticeIt=typename Lattice::Const_LatticeIt;
+  using Basis=std::set<BasisType, CompareState<BasisType>>;
+  using BasisIt= typename  Basis::iterator;
+  using Const_BasisIt= typename  Basis::const_iterator;
+   OneElectronBasis(size_t sites ):   sites(sites), dim(0){
+
+      for(size_t i=0; i<sites; i++)
+        {
+
+	  std::vector<size_t> v(sites, 0);
+	  v[i]=1;
+
+   	  OneElectronState newState(v);
+            
+	  std::cout<< "new "<<newState.GetId()<<std::endl;
+   	     
+	  basis.insert({i, i, newState});
+	       dim++;    
+             }
+        
+    }
+
+   OneElectronBasis(const OneElectronBasis& e)= default;
+   friend std::ostream& operator<<(std::ostream& os,  const OneElectronBasis& electronBasis)
     {
       assert(electronBasis.dim==electronBasis.basis.size());
       Const_BasisIt it1= electronBasis.begin();
