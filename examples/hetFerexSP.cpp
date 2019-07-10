@@ -113,10 +113,10 @@ using namespace Many_Body;
   }
 
   int Ltot=2*Llead+Lchain;
-  ElectronBasis e( Ltot, 1);
+  OneElectronBasis e( Ltot);
  
 		filename+=".bin";
-            std::cout<< e.dim << std::endl;  
+            std::cout<< e << std::endl;  
 	   
   // Mat E1=Operators::EKinOperator(e, tl, PB, 0, Llead-1);
   	   
