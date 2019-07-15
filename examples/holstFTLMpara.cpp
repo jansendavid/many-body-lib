@@ -8,79 +8,93 @@
 #include<boost/mpi.hpp>
 #include<boost/mpi/communicator.hpp>
 #include<boost/mpi/environment.hpp>
+#include <boost/program_options.hpp>
 using namespace Many_Body;
-    using Mat= Operators::Mat;
+using Mat= Operators::Mat;
 namespace mpi = boost::mpi;
+using namespace boost::program_options;
 int main(int argc, char *argv[])
 {
-    size_t M{5};
-  size_t L{6};
-  double t0{1};
-  double omega{1};
-  double gamma{1};
+
+
+  size_t M{};
+  size_t L{};
+  double t0{};
+  double omega{};
+  double gamma{};
     bool PB{0};
-    double T=1;
-  // try
-  // {
-  //   options_description desc{"Options"};
-  //   desc.add_options()
-  //     ("help,h", "Help screen")
-  //     ("L", value(&L)->default_value(4), "L")
-  //     ("M", value(&M)->default_value(2), "M")
-  //     ("t", value(&t0)->default_value(1.), "t0")
-  //     ("gam", value(&gamma)->default_value(1.), "gamma")
-  //     ("omg", value(&omega)->default_value(1.), "omega");
-  //   ("pb", value(&PB)->default_value(true), "PB");
-  
+   size_t Ldim={};
+    size_t runs={};
+    double T{};
 
-
-  //   variables_map vm;
-  //   store(parse_command_line(argc, argv, desc), vm);
-  //   notify(vm);
-
-  //   if (vm.count("help"))
-  //     {std::cout << desc << '\n'; return 0;}
-  //   else{
-  //     if (vm.count("L"))
-  //     {      std::cout << "L: " << vm["L"].as<size_t>() << '\n';
+  try
+  {
+    options_description desc{"Options"};
+    desc.add_options()
+      ("help,h", "Help screen")
+      ("L", value(&L)->default_value(4), "L")
+      ("M", value(&M)->default_value(2), "M")
+      ("r", value(&runs)->default_value(20), "r")
+      ("Ld", value(&Ldim)->default_value(20), "Ld")
+      ("t", value(&t0)->default_value(1.), "t0")
+      ("gam", value(&gamma)->default_value(1.), "gamma")
+      ("omg", value(&omega)->default_value(1.), "omega")
+      ("T", value(&T)->default_value(1.), "T")
+      ("pb", value(&PB)->default_value(true), "PB");
+          boost::program_options::variables_map vm;
+    boost::program_options::store(parse_command_line(argc, argv, desc), vm);
+    boost::program_options::notify(vm);
+ if (vm.count("help"))
+      {std::cout << desc << '\n'; return 0;}
+    else{
+     if (vm.count("M,m"))
+      {
+  	std::cout << "M: " << vm["M"].as<size_t>() << '\n';
 	
-  //     }
-  //    if (vm.count("M,m"))
-  //     {
-  // 	std::cout << "M: " << vm["M"].as<size_t>() << '\n';
+      }
+     if (vm.count("r"))
+      {
+  	std::cout << "runs: " << vm["r"].as<size_t>() << '\n';
 	
-  //     }
-  //     if (vm.count("t"))
-  //     {
-  // 	std::cout << "t0: " << vm["t"].as<double>() << '\n';	
-  //     }
-  //      if (vm.count("omg"))
-  //     {
-  // 	std::cout << "omega: " << vm["omg"].as<double>() << '\n';
-  //     }
-  //      if (vm.count("gam"))
-  //     {
-  // 	std::cout << "gamma: " << vm["gam"].as<double>() << '\n';
-  //     }
-  //                    if (vm.count("pb"))
-  //     {
-  // 	std::cout << "PB: " << vm["pb"].as<bool>() << '\n';
-  //     }
-  //   }
-  // }
-  // catch (const error &ex)
-  // {
-  //   std::cerr << ex.what() << '\n';
-  //   return 0;
-  // }
+      }
+if (vm.count("Ld"))
+      {
+  	std::cout << "lanczos dim: " << vm["Ld"].as<size_t>() << '\n';
+	
+      }
+      if (vm.count("t"))
+      {
+  	std::cout << "t0: " << vm["t"].as<double>() << '\n';	
+      }
+       if (vm.count("omg"))
+      {
+  	std::cout << "omega: " << vm["omg"].as<double>() << '\n';
+      }
+       if (vm.count("gam"))
+      {
+  	std::cout << "gamma: " << vm["gam"].as<double>() << '\n';
+      }
+       if (vm.count("T"))
+      {
+  	std::cout << "T: " << vm["T"].as<double>() << '\n';
+      }
+                     if (vm.count("pb"))
+      {
+  	std::cout << "PB: " << vm["pb"].as<bool>() << '\n';
+      }
+    }
+  }
+  catch (const error &ex)
+  {
+    std::cerr << ex.what() << '\n';
+    return 0;
+  }
 
      using HolsteinBasis= TensorProduct<ElectronBasis, PhononBasis>;
+ 
 
 
- 
-  double beta=1/T;
-  int Ldim=300;
- 
+     double beta=1./(L*T); 
     Mat H;
     Mat N;
   std::vector<Mat> obs;
@@ -101,13 +115,13 @@ int main(int argc, char *argv[])
        obs.push_back(H);
        obs.push_back(N);
   }
-  int runs=100;
+
 
   mpi::environment env;
   mpi::communicator world;
   std::vector<double> As(obs.size(), 0);
 
-  double Z{1.};
+  double Z{0.};
   if(world.rank()==0)
     {
       std::vector<double> Astot(obs.size(), 0);
@@ -136,7 +150,7 @@ int main(int argc, char *argv[])
   
 
       for(auto l: Astot)
-	{	std::cout<<"at T " << T << " total is "<< l/Ztot<< std::endl;}
+	{	std::cout<<"at T " << T << " total is / L"<< (l/(Ztot*L))<< std::endl;}
 	
     }
   else{
@@ -161,6 +175,8 @@ int main(int argc, char *argv[])
   	   {
   	     reduce(world, As[k], std::plus<double>(), 0);
   	   }
+
+
   }
 
 
