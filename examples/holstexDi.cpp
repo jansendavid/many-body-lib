@@ -105,7 +105,7 @@ using HolsteinBasis= TensorProduct<ElectronBasis, PhononBasis>;
       //+ phKNN phK+;
       
           Eigen::MatrixXcd HH=Eigen::MatrixXcd(H);
-	   std::cout<< HH << std::endl;
+	  // std::cout<< HH << std::endl;
 	  // for(int i=0; i<HH.rows(); i++)
 	  //   {
 	  //    for(int j=0; j<HH.rows(); j++)

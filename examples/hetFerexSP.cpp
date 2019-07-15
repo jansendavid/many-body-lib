@@ -116,7 +116,7 @@ using namespace Many_Body;
   OneElectronBasis e( Ltot);
  
 		filename+=".bin";
-            std::cout<< e << std::endl;  
+		// std::cout<< e << std::endl;  
 	   
   // Mat E1=Operators::EKinOperator(e, tl, PB, 0, Llead-1);
   	   
@@ -156,7 +156,7 @@ using namespace Many_Body;
     for(int i=0; i<int(Ltot/2); i++)
       {
 
-	statesVec[i]=HH1.col(i);
+ 	statesVec[i]=HH1.col(i);
 
       }
  int i=0;
@@ -165,18 +165,18 @@ using namespace Many_Body;
   std::vector<double> time;
         while(i*dt<tot)
        {
-	 double sum1{0};
-	 double sum2{0};
-	   	 i++;
-	 for(auto& state : statesVec)
-	   {
+ 	 double sum1{0};
+ 	 double sum2{0};
+ 	   	 i++;
+ 	 for(auto& state : statesVec)
+ 	   {
        	 TimeEv::timeev_exact(state, cEVec, evExp);
   	 
        	  	 std::complex<double> c=im*(state.adjoint()*(O*state))(0);
-		 std::complex<double> c2=(state.adjoint()*(H1*state))(0);
-		 sum1+=real(c);
-		 sum2+=real(c2);
-	   }
+ 		 std::complex<double> c2=(state.adjoint()*(H1*state))(0);
+ 		 sum1+=real(c);
+ 		 sum2+=real(c2);
+ 	   }
   		  time.push_back(i*dt);
   		  obstebd.push_back(sum1);
      

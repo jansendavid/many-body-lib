@@ -109,13 +109,13 @@ using namespace Many_Body;
 	   
   Mat E1=Operators::EKinOperator(e, tl, PB, 0, Llead-1);
   	   
-   Mat E2=Operators::EKinOperator(e, tl, PB, Llead+Lchain, Ltot-1);
-  Mat EI1=Operators::EKinOperator(e, tint, PB, Llead-1, Llead);
-  Mat EI2=Operators::EKinOperator(e, tint, PB, Llead+Lchain-1, Llead+Lchain);
-    Mat NI1=Operators::NumberOperator(e, -V/2, PB,  0, Llead-1);
-  Mat NI2=Operators::NumberOperator(e, V/2, PB, Llead+Lchain, Ltot-1);
-  // // Mat E4=Operators::EKinOperator(e, tl, PB, Llead+Lchain, Ltot-1);
-   Mat E3=Operators::EKinOperator(e, t0, PB, Llead, Llead+Lchain-1);
+  //  Mat E2=Operators::EKinOperator(e, tl, PB, Llead+Lchain, Ltot-1);
+  // Mat EI1=Operators::EKinOperator(e, tint, PB, Llead-1, Llead);
+  // Mat EI2=Operators::EKinOperator(e, tint, PB, Llead+Lchain-1, Llead+Lchain);
+  //   Mat NI1=Operators::NumberOperator(e, -V/2, PB,  0, Llead-1);
+  // Mat NI2=Operators::NumberOperator(e, V/2, PB, Llead+Lchain, Ltot-1);
+  // // // Mat E4=Operators::EKinOperator(e, tl, PB, Llead+Lchain, Ltot-1);
+  //  Mat E3=Operators::EKinOperator(e, t0, PB, Llead, Llead+Lchain-1);
    Mat C1=Operators::CurrOperator(e, tint, PB, Llead-1, Llead);
    Mat C2=Operators::CurrOperator(e, tint, PB, Llead+Lchain-1, Llead+Lchain);
 
