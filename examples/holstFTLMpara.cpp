@@ -94,7 +94,7 @@ if (vm.count("Ld"))
  
 
 
-     double beta=1./(L*T); 
+     double beta=1./(T); 
     Mat H;
     Mat N;
   std::vector<Mat> obs;
@@ -147,10 +147,11 @@ if (vm.count("Ld"))
 
     	   }
     std::cout<< " process # " << world.rank() << " got A " << As[0] << std::endl;
+std::cout<< " process # " << world.rank() << " got Z " << Z << std::endl;
   
 
       for(auto l: Astot)
-	{	std::cout<<"at T " << T << " total is / L"<< (l/(Ztot*L))<< std::endl;}
+	{	std::cout<<"at T " << T << " total is "<< (l/(Ztot))<< std::endl;}
 	
     }
   else{
@@ -170,6 +171,7 @@ if (vm.count("Ld"))
         Z+=Zt;  
       }
         std::cout<< " process # " << world.rank() << " got A " << As[0] << std::endl;
+std::cout<< " process # " << world.rank() << " got Z " << Z << std::endl;
     reduce(world, Z, std::plus<double>(), 0);
     for(int k=0; k<obs.size(); k++)
   	   {

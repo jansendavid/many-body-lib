@@ -202,8 +202,8 @@ std::vector<size_t> makeStateVec() const override
    {
 
      size_t sum=0;
-          if(std::accumulate(state.begin(), state.end(),0)>1)
-       {std::cout<< "error"<<'\n';}
+        //   if(std::accumulate(state.begin(), state.end(),0)>1)
+       // {std::cout<< "x error"<<'\n';}
      for(int i=0; i<state.size(); i++)
        {
 	 if(state[i]==1){
@@ -298,6 +298,20 @@ struct ElectronBasis
 	       dim++;    
             
    }
+  void insert(Lattice& newState) 
+   	      {
+		size_t i=newState.GetId();
+		if (basis.count({i, dim, newState}) > 0)
+	{
+		std::cout << "'already exist" << std::endl;
+		return;
+	}
+	else
+	{
+ basis.insert({i, dim, newState});
+	      dim++;
+	      return;}
+	      }
    ElectronBasis(const ElectronBasis& e)= default;
    friend std::ostream& operator<<(std::ostream& os,  const ElectronBasis& electronBasis)
     {
@@ -657,6 +671,37 @@ template<class LeftBasis, class RightBasis>
 
 
 
-
+template<typename TotalBasis>
+auto generateMomBasis(TotalBasis& totalBasis, int k)->TotalBasis
+{
+  TotalBasis newBasis;
+  int sites=totalBasis.sites;
+  using Lattice=typename TotalBasis::Lattice;     
+  for(auto tpState : totalBasis)
+    {
+      //      const Lattice state=GetLattice(tpState);
+      for(size_t i=0; i<sites; i++)
+	{
+	  		   
+			   // Lattice state2=state;
+			   // size_t newStateId=Many_Body::Translate(i, state2);
+			   // if(newStateId ==tpState.id)
+			   //   {
+			   //    if(newBasis.find(newStateId)!=newBasis.end())
+			   //   {
+			   //     // auto it2= totalBasis.find(newStateId);
+			   //     // const Lattice newState=GetLattice(*it2);
+			   //     // int max=			       
+			   //   } 
+			   //   }
+			   
+			   
+			   
+			   
+			   
+			   
+	}
+    }
+}
 
 }

@@ -82,6 +82,8 @@ holstexDi: examples/holstexDi.cpp src/basis.hpp src/operators.hpp src/accesfunct
 
 holstFTexact: examples/holstFTexact.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h
 	$(CXX) $(FLAGS) $(INCS) examples/holstFTexact.cpp -o holstFTexact  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(ND) $(OP)
+holstSpekfTex: examples/holstSpekfTex.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h
+	$(CXX) $(FLAGS) $(INCS) examples/holstSpekfTex.cpp -o holstSpekfTex  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(ND) $(OP)
 hetFerex: examples/hetFerex.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h
 	$(CXX) $(FLAGS) $(INCS) examples/hetFerex.cpp -o hetFerex  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(ND) $(OP)
 hetFerexSP: examples/hetFerexSP.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h

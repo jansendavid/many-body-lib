@@ -1,6 +1,5 @@
 # pragma once
-//#define
-//EIGEN_USE_MKL_ALL
+//#define EIGEN_USE_MKL_ALL
 #include"basis.hpp"
 #include<cmath>
 
@@ -313,10 +312,10 @@ using Lattice=typename TotalBasis::Lattice;
 		      
 
 		      Lattice temp=state;
-		      
+
 		       temp.setPartNr(j, state[i]);
 		      temp.setPartNr(i, state[j]);
-		     		 
+
 	  	     size_t signControl=CheckSign(state, i, j);
 		       
 		    auto it2 = totalBasis.find(temp.GetId());
@@ -337,7 +336,7 @@ using Lattice=typename TotalBasis::Lattice;
 	 i=Lchain+Llead-1;
 	        j=i+1;
 
-	   	    		    if(state[i]==state[j])
+		if(state[i]==state[j])
    	       	     {
 	  // 	     
     		  
