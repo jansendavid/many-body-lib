@@ -52,10 +52,16 @@ std::uniform_real_distribution<float> dis(-1.0, 1.0);
 template<typename Matrix, typename Container>
 auto  calculate_lanczLT(Matrix& hamiltonian, Container& observable, double beta, size_t lanczosDim=20)->std::tuple<std::vector<double>, double>
 {
+   std::random_device rd;
+std::mt19937 gen(rd());  //here you could set the seed, but std::random_device already does that
+std::uniform_real_distribution<float> dis(-1.0, 1.0);
+
+ 
+   Eigen::VectorXcd iniState=Eigen::VectorXcd::NullaryExpr(hamiltonian.rows(),[&](){return dis(gen);});
   auto Z=std::complex<double>{0, 0};
  
     auto A=std::complex<double>{0, 0};
-       Eigen::VectorXcd iniState=Eigen::VectorXcd::Random(hamiltonian.rows());
+      
 
    iniState/=iniState.norm();
     Eigen::MatrixXcd Q(hamiltonian.rows(), lanczosDim);

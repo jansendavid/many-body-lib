@@ -113,11 +113,17 @@ using namespace Many_Body;
   }
 
   int Ltot=2*Llead+Lchain;
+
   OneElectronBasis e( Ltot);
  
 		filename+=".bin";
-            std::cout<< e << std::endl;  
+		//            std::cout<< e << std::endl;  
 	   
+
+
+		std::cout<< "dim "<< e.dim << std::endl;  
+
+
   // Mat E1=Operators::EKinOperator(e, tl, PB, 0, Llead-1);
   	   
   //  Mat E2=Operators::EKinOperator(e, tl, PB, Llead+Lchain, Ltot-1);
@@ -133,11 +139,11 @@ using namespace Many_Body;
   // 	        Mat H1=E1+E2+E3+ EI1+ EI2;
   //      Mat H2=E1+E2+E3+ EI1+ EI2 +NI2 +NI1;
        
- auto O=Operators::totCurrOperator(e, tint,  Llead,Lchain);    
+	     auto O=Operators::totCurrOperator(e, tint,  Llead,Lchain);    
          Mat H1=Operators::totalHetOperator(e,  tint, t0, tl, 0,  Lchain, Llead );
              Mat H2=Operators::totalHetOperator(e,  tint, t0, tl, V/2,  Lchain, Llead );
-       //;
-      //    
+ //       //;
+ //      //    
  
        Eigen::VectorXd eigenVals1(e.dim);
        Eigen::VectorXd eigenVals2(e.dim);
@@ -148,7 +154,10 @@ using namespace Many_Body;
       Many_Body::diagMat(HH1, eigenVals1);
       Many_Body::diagMat(HH2, eigenVals2);
       std::cout << "done diag"<<std::endl;
-
+    std::cout<< eigenVals2(0)<<std::endl;
+    std::cout<< eigenVals2(eigenVals2.rows()-1)<<std::endl;
+    std::cout<< std::exp(eigenVals2(0))<<std::endl;
+			 std::cout<< std::exp(eigenVals2(eigenVals2.rows()-1))<<std::endl;
       Eigen::MatrixXcd evExp=TimeEv::EigenvalExponent(eigenVals2, dt);
     Eigen::MatrixXcd cEVec=HH2.cast<std::complex<double>>();
     Eigen::VectorXcd newIn=HH1.col(0);
@@ -156,27 +165,40 @@ using namespace Many_Body;
     for(int i=0; i<int(Ltot/2); i++)
       {
 
-	statesVec[i]=HH1.col(i);
+ 	statesVec[i]=HH1.col(i);
 
       }
  int i=0;
-
+ 
     std::vector<double> obstebd;
   std::vector<double> time;
+  Eigen::MatrixXd O1=Eigen::MatrixXd(O);
+  for(int b=0; b<e.dim; b++)
+    {
+      for(int v=0; v<e.dim; v++)
+	{
+	  if(std::abs(O1(b, v)>0.000001)){
+	      std::cout << O1(b, v)<< std::endl;
+	      std::cout<< " at "<< b <<"x "<< v <<std::endl; 
+
+}
+    }
+    }
         while(i*dt<tot)
        {
-	 double sum1{0};
-	 double sum2{0};
-	   	 i++;
-	 for(auto& state : statesVec)
-	   {
+ 	 double sum1{0};
+ 	 double sum2{0};
+ 	   	 i++;
+ 	 for(auto& state : statesVec)
+ 	   {
        	 TimeEv::timeev_exact(state, cEVec, evExp);
   	 
        	  	 std::complex<double> c=im*(state.adjoint()*(O*state))(0);
-		 std::complex<double> c2=(state.adjoint()*(H1*state))(0);
-		 sum1+=real(c);
-		 sum2+=real(c2);
-	   }
+ 		 std::complex<double> c2=(state.adjoint()*(H1*state))(0);
+		 //		 std::cout<< c << std::endl;
+ 		 sum1+=real(c);
+ 		 sum2+=real(c2);
+ 	   }
   		  time.push_back(i*dt);
   		  obstebd.push_back(sum1);
      
@@ -190,6 +212,7 @@ using namespace Many_Body;
 
        Many_Body::bin_write("SPextimeFermi"+filename, time);
     Many_Body::bin_write("SPexJFermi"+filename, obstebd);
+
   return 0;
 }
  

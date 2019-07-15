@@ -7,7 +7,7 @@ IMPI=mpic++ -std=c++17
 IXX=g++
 
 # PATHS
-MPILINK32= -DMKL_Complex16="std::complex<double>" -m64 -I${MKLROOT}/include -L${MKLROOT}/lib/intel64 -Wl,--no-as-needed -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lm -ldl -lboost_serialization -lboost_mpi  -I$MPI_INCLUDE -L$MPI_LIB -lmpi_cxx
+MPILINK32= -DMKL_Complex16="std::complex<double>" -m64 -I${MKLROOT}/include -L${MKLROOT}/lib/intel64 -Wl,--no-as-needed -lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl -lboost_serialization -lboost_mpi  -I$MPI_INCLUDE -L$MPI_LIB -lmpi_cxx
 #BOOST_INCLUDE_LINE=-I/usr/include/boost/mpi
 
 
@@ -23,9 +23,9 @@ INCS+=-I${EINC}
 #FLAGS= -std=c++17
 FLAGS+= -Wall -std=c++17
 #MKLLINGING
-MKLLINK32+=-DMKL_Complex16="std::complex<double>" -m64 -I${MKLROOT}/include -L${MKLROOT}/lib/intel64 -Wl,--no-as-needed -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lm -ldl
+MKLLINK32+=-DMKL_Complex16="std::complex<double>" -m64 -I${MKLROOT}/include -L${MKLROOT}/lib/intel64 -Wl,--no-as-needed -lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl
 
-MKLLINK64+= -DMKL_Complex16="std::complex<double>"  -DMKL_ILP64 -m64 -I${MKLROOT}/include -L${MKLROOT}/lib/intel64 -Wl,--no-as-needed -lmkl_intel_ilp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lm -ldl
+MKLLINK64+= -DMKL_Complex16="std::complex<double>"  -DMKL_ILP64 -m64 -I${MKLROOT}/include -L${MKLROOT}/lib/intel64 -Wl,--no-as-needed -lmkl_intel_ilp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl
 OBJECTS= main.cpp
 # OTHER LIBS
 LIBSLINK+=-L${MANYBODY}/libs
@@ -95,9 +95,15 @@ holstLTLM: examples/holstLTLM.cpp src/basis.hpp src/operators.hpp src/accesfunct
 holstFTLM: examples/holstFTLM.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h
 	$(CXX) $(FLAGS) $(INCS) examples/holstFTLM.cpp -o holstFTLM  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(ND) $(OP)
 
+holstexDi: examples/holstexDi.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h
+	$(CXX) $(FLAGS) $(INCS) examples/holstexDi.cpp -o holstexDi  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(ND) $(OP)
+
 
 holstFTLMpara: examples/holstFTLMpara.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h
-	$(IMPI) $(FLAGS) $(INCS) examples/holstFTLMpara.cpp -o holstFTLMpara  $(MPILINK32) $(LIBSLINK) $(LIBS32) $(ND)  $(OP)
+	$(IMPI) $(FLAGS) $(INCS) examples/holstFTLMpara.cpp -o holstFTLMpara  $(LIBSLINK) $(MPILINK32)  $(LIBS32) $(ND)  $(OP)
+
+holstLTLMpara: examples/holstLTLMpara.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h
+	$(IMPI) $(FLAGS) $(INCS) examples/holstLTLMpara.cpp -o holstLTLMpara  $(LIBSLINK) $(MPILINK32)  $(LIBS32) $(ND)  $(OP)
 
 
 exvalcompare: testdir/exvalcompare.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/timeev.hpp src/diag.h

@@ -13,13 +13,13 @@ using namespace Many_Body;
 namespace mpi = boost::mpi;
 int main(int argc, char *argv[])
 {
-    size_t M{5};
-  size_t L{6};
+    size_t M{4};
+  size_t L{4};
   double t0{1};
   double omega{1};
   double gamma{1};
     bool PB{0};
-    double T=1;
+    double T=0.2;
   // try
   // {
   //   options_description desc{"Options"};
@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
 
  
   double beta=1/T;
-  int Ldim=300;
+  int Ldim=50;
  
     Mat H;
     Mat N;
@@ -107,14 +107,14 @@ int main(int argc, char *argv[])
   mpi::communicator world;
   std::vector<double> As(obs.size(), 0);
 
-  double Z{1.};
+  double Z{0.};
   if(world.rank()==0)
     {
       std::vector<double> Astot(obs.size(), 0);
       double Ztot{0.};
        for(int i=0; i<runs/world.size(); i++)
       {
-  	    auto tup=calculate_lanczFT(obs[0], obs, beta, Ldim);
+  	    auto tup=calculate_lanczLT(obs[0], obs, beta, Ldim);
   auto obs=std::get<0>(tup);
          auto Zt=std::get<1>(tup);
   	
@@ -144,7 +144,7 @@ int main(int argc, char *argv[])
    
     for(int i=0; i<runs/world.size(); i++)
       {
-  	    auto tup=calculate_lanczFT(obs[0], obs, beta, Ldim);
+  	    auto tup=calculate_lanczLT(obs[0], obs, beta, Ldim);
   auto obs=std::get<0>(tup);
          auto Zt=std::get<1>(tup);
   	 //	std::transform(obstot.begin(), obstot.end(), obs.begin(), obs.end(), std::plus<double>());
