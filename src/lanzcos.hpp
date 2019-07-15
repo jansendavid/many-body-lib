@@ -27,8 +27,61 @@ namespace Many_Body{
 
 
    }
+  template<typename Vector, typename Matrix>
+  struct threeLVec
+  {
+    threeLVec(size_t dim, const Matrix& A): A(A), beta(1), alpha(0) {
+      Vector vecOne=Eigen::VectorXcd::Zero(dim);
+    Vector vecTwo=Eigen::VectorXcd::Zero(dim);
+    Vector vecThree=Eigen::VectorXcd::Zero(dim);
+    }
+    double alpha{};
+    double beta{1};
+void iterate()
+    {
+      	vecThree=A*vecTwo;	
+	//	std::complex<double> c=qk.adjoint()*qMiddle;
+	std::complex<double> c=(vecTwo).adjoint()*vecThree;
+
+      	alpha=real(c);
+
+	//	Eigen::VectorXcd  rk=qMiddle - alpha*qk -beta*qkmin;
+
+	Eigen::VectorXcd  rk=vecThree - alpha*vecTwo -beta*vecOne;
+	
+     	beta=rk.norm();		
+	vecOne=vecTwo;
+
+	//qk=rk/rk.norm();
+	vecTwo=rk/rk.norm();
+    }
+    void lastIterate()
+    {
+      	vecThree=A*vecTwo;	
+
+	std::complex<double> c=(vecTwo).adjoint()*vecThree;
+
+      	alpha=real(c);
+
+
+    }
+    // void setVecOne(Vector& newOne){
+    //   vecOne=newOne;
+    // }
+    //     void setVecTwo(Vector& newTwo){
+    //   vecOne=newOne;
+    // }
+    //     void setVecTwo(Vector& newTwo){
+    //   vecOne=newTwo;
+    // }
+    Vector vecOne;
+    Vector vecTwo;
+    Vector vecThree;
+    const Matrix& A;
+ 
+  };
   template<typename Matrix>
-  TriDiagMat Lanczos(Matrix& A, Eigen::VectorXcd& state, const size_t iterations, Eigen::MatrixXcd& Q)
+  TriDiagMat Lanczos(Matrix& A, Eigen::VectorXcd& state, const size_t iterations)
   {
     using namespace Eigen::internal;
     using namespace Eigen;
@@ -36,11 +89,8 @@ namespace Many_Body{
 
 
 
-
-     
-     Q.setZero();
-     Q.col(0)=state;
-
+	threeLVec< Eigen::VectorXcd, Matrix>  threeLanczVec(A.rows(), A);
+	threeLanczVec.vecTwo=state;
         long double beta=1;
 
     double alpha(0);
@@ -52,36 +102,49 @@ namespace Many_Body{
     Eigen::VectorXcd qk=state;
     Eigen::VectorXcd qkmin(A.rows());
     qkmin.setZero();
+    threeLanczVec.vecOne=qkmin;
     size_t dim=0;
 
      for (size_t k = 1; k < iterations; ++k)
        {
-     	Eigen::VectorXcd qMiddle=A*qk;
-		
-     	std::complex<double> c=qk.adjoint()*qMiddle;
+	 threeLanczVec.iterate();
+	 //	Eigen::VectorXcd qMiddle=A*qk;
+	 //threeLanczVec.vecThree=A*threeLanczVec.vecTwo;	
+	//	std::complex<double> c=qk.adjoint()*qMiddle;
+	//std::complex<double> c=(threeLanczVec.vecTwo).adjoint()*threeLanczVec.vecThree;
 
-      	alpha=real(c);
+      	alpha=threeLanczVec.alpha;
 
-      	Eigen::VectorXcd  rk=qMiddle - alpha*qk -beta*qkmin;
-     	beta=rk.norm();
+	//	Eigen::VectorXcd  rk=qMiddle - alpha*qk -beta*qkmin;
+
+	//Eigen::VectorXcd  rk=threeLanczVec.vecThree - alpha*threeLanczVec.vecTwo -beta*threeLanczVec.vecOne;
+	
+     	beta=threeLanczVec.beta;
 
 	bandTdiag(k-1)=alpha;
      	bandTOff(k-1)=beta;
 
-      	qkmin=qk;
-	qk=rk/rk.norm();
-	     Q.col(k)=qk;
+      	//qkmin=qk;
+		
+	//threeLanczVec.vecOne=threeLanczVec.vecTwo;
+
+	//qk=rk/rk.norm();
+			
+	//	threeLanczVec.vecTwo=rk/rk.norm();
+		//   Q.col(k)=qk;
+	
+	//	     Q.col(k)=	threeLanczVec.vecTwo;
      	 
 	  	 if( std::abs(beta)<0.00001)
      	   {
-	     std::cout<< "happend "<<std::endl;
-	     Eigen::MatrixXcd W=Q;
-	           Q.resize(A.rows(), k);
-		 for (size_t i = 0; i < k; ++i)
-		   {
-		     Q.col(i)=W.col(i);
+	     // std::cout<< "happend "<<std::endl;
+	     // Eigen::MatrixXcd W=Q;
+	     //       Q.resize(A.rows(), k);
+	     // 	 for (size_t i = 0; i < k; ++i)
+	     // 	   {
+	     // 	     Q.col(i)=W.col(i);
 		     
-		   }
+	     // 	   }
 
 		 
     		  bandTdiag.resize( k);
@@ -97,15 +160,20 @@ namespace Many_Body{
     	 
 
              }
+     
+     
     
 
     
      {
-       Eigen::VectorXcd qMiddle=A*qk;
-       	std::complex<double> c=qk.adjoint()*qMiddle;
-     	alpha=real(c);
+       //Eigen::VectorXcd qMiddle=A*qk;
+       threeLanczVec.lastIterate();
+       //       	threeLanczVec.vecThree=A*threeLanczVec.vecTwo;
 
-       		        bandTdiag(dim)=(alpha);
+	//	std::complex<double> c=qk.adjoint()*qMiddle;
+	//std::complex<double> c=(threeLanczVec.vecTwo).adjoint()*threeLanczVec.vecThree;
+     	//alpha=real(c);
+       bandTdiag(dim)=threeLanczVec.alpha;
 
     }
 
@@ -120,7 +188,25 @@ namespace Many_Body{
 
   
   
-
+  template<typename Vector, typename Vector2, typename Matrix>
+  auto lanczTrafo(const  Vector & state, const Vector2 & iniState, size_t iteration, const Matrix& A)
+    ->Eigen::VectorXcd
+  {
+    Many_Body::threeLVec< Eigen::VectorXcd, Matrix>  threeLanczVec(A.rows(), A);
+    Eigen::VectorXcd newVec=Eigen::VectorXcd::Zero(A.rows());
+    threeLanczVec.vecTwo=iniState;
+    Eigen::VectorXcd qkmin(A.rows());
+    qkmin.setZero();
+    threeLanczVec.vecOne=qkmin;
+    for(int i=0; i<iteration; i++)
+      {
+	newVec+=threeLanczVec.vecTwo*state(i);
+	threeLanczVec.iterate();
+	
+      }
+    
+    return newVec;
+  }
   
        
 

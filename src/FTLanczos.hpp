@@ -20,27 +20,25 @@ std::uniform_real_distribution<float> dis(-1.0, 1.0);
    iniState/=iniState.norm();
    auto Z=std::complex<double>{0, 0};
     auto A=std::complex<double>{0, 0};
-    Eigen::MatrixXcd Q(hamiltonian.rows(), lanczosDim);
 
-
-    Many_Body::TriDiagMat tri=Many_Body::Lanczos(hamiltonian, iniState, lanczosDim, Q);
-    Eigen::MatrixXd S(Q.cols(), Q.cols());
-    Eigen::VectorXd eigenVals(Q.cols());
+    Many_Body::TriDiagMat tri=Many_Body::Lanczos(hamiltonian, iniState, lanczosDim);
+    Eigen::MatrixXd S(lanczosDim, lanczosDim);
+    Eigen::VectorXd eigenVals(lanczosDim);
     
      Many_Body::diag(tri, S, eigenVals);
-
-    Q=Q*S;
-    
     std::vector<double> obs(observable.size(), 0);
    		  for(int j=0; j<lanczosDim; j++)
    		    {
 		       auto exp=std::exp(-beta*(eigenVals[j]));
-		       auto link=iniState.adjoint()*Q.col(j);
+		       auto qvec=Many_Body::lanczTrafo(S.col(j), iniState, lanczosDim, hamiltonian);
+		       //		       auto link=iniState.adjoint()*Q.col(j);
+		       auto link=iniState.adjoint()*qvec;
 		       Z+=std::abs(link(0, 0))*std::abs(link(0, 0))*exp;
 		      
 		       for(int i=0; i<obs.size(); i++)
 		       	{
-   		       auto expval=Q.col(j).adjoint()*observable[i]*iniState;
+			  
+   		       auto expval=qvec.adjoint()*observable[i]*iniState;
 		       obs[i]+=real((link(0, 0)*expval(0, 0)))*exp;
 			}
 
@@ -58,16 +56,16 @@ auto  calculate_lanczLT(Matrix& hamiltonian, Container& observable, double beta,
        Eigen::VectorXcd iniState=Eigen::VectorXcd::Random(hamiltonian.rows());
 
    iniState/=iniState.norm();
-    Eigen::MatrixXcd Q(hamiltonian.rows(), lanczosDim);
+   //Eigen::MatrixXcd Q(hamiltonian.rows(), lanczosDim);
 
 
-    Many_Body::TriDiagMat tri=Many_Body::Lanczos(hamiltonian, iniState, lanczosDim, Q);
-    Eigen::MatrixXd S(Q.cols(), Q.cols());
-    Eigen::VectorXd eigenVals(Q.cols());
+    Many_Body::TriDiagMat tri=Many_Body::Lanczos(hamiltonian, iniState, lanczosDim);
+    Eigen::MatrixXd S(lanczosDim, lanczosDim);
+    Eigen::VectorXd eigenVals(lanczosDim);
     
      Many_Body::diag(tri, S, eigenVals);
 
-    Q=Q*S;
+     //    Q=Q*S;
     
     std::vector<double> obs(observable.size(), 0);
    		  for(int j=0; j<lanczosDim; j++)
@@ -75,8 +73,13 @@ auto  calculate_lanczLT(Matrix& hamiltonian, Container& observable, double beta,
 		      for(int l=0; l<lanczosDim; l++)
 		    {
 		      auto exp=std::exp(-beta*(eigenVals[j]+eigenVals[l])/2);
-		       auto link=iniState.adjoint()*Q.col(j);
-		       auto right=(Q.col(l)).adjoint()*iniState;
+		      
+		      // auto link=iniState.adjoint()*Q.col(j);
+		      auto qvecj=Many_Body::lanczTrafo(S.col(j), iniState, lanczosDim, hamiltonian);
+		      auto link=iniState.adjoint()*qvecj;
+		      auto qvecl=Many_Body::lanczTrafo(S.col(l), iniState, lanczosDim, hamiltonian);
+		      //		       auto right=(Q.col(l)).adjoint()*iniState;
+		      auto right=(qvecl).adjoint()*iniState;
 		      if(l==j)
 			{
 			  Z+=real(right(0, 0)*link(0, 0))*exp;
@@ -84,7 +87,7 @@ auto  calculate_lanczLT(Matrix& hamiltonian, Container& observable, double beta,
 		      
 		       for(int i=0; i<obs.size(); i++)
 		       	{
-			  auto expval=((Q.col(j)).adjoint())*observable[i]*Q.col(l);
+			  auto expval=((qvecj).adjoint())*observable[i]*qvecl;
 
 			  obs[i]+=real((link(0, 0)*right(0,0)*expval(0, 0)))*exp;
 			}
