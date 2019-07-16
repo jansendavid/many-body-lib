@@ -169,7 +169,7 @@ using namespace Many_Body;
    	    	   std::vector<double> Evec;
    	    	   //		   std::vector<double> Tr={0.01, 0.05, 0.1, 0.15, 0.2, 0.25};
    	    	   		   std::vector<double> Tr;
-   	    	   for(int i=1; i<110; i++)
+   	    	   for(int i=1; i<11; i++)
    	    	     {
    	    	       Tr.push_back(i*0.1);
 		       
@@ -182,7 +182,7 @@ using namespace Many_Body;
    	         // bin_write(filename, l);
    	    	 // n++;
    	    		    std::cout<< " at T "<< t<<std::endl;
-   	    		    std::cout<<std::setprecision(15)<<expvalCan(ensvec, ensvec,  t)/L<<std::endl;
+   	    		    std::cout<<std::setprecision(15)<<expvalCan(ensvec, ensvec,  t)<<std::endl;
    	    	      Ovec.push_back(expvalCan(ensvec, obs,  t));
    	    	      Evec.push_back(expvalCan(ensvec, ensvec,  t)); 
 

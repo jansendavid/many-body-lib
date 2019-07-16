@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
   int M=2;
   double mean=0.5*omega*L*M;;
   
-  double beta=0.5/mean;
+  double beta=1;
   
   double T=1./beta;
    using HolsteinBasis= TensorProduct<ElectronBasis, PhononBasis>;
@@ -32,9 +32,9 @@ int main(int argc, char *argv[])
 
 
         Mat E1=Operators::EKinOperatorL(TP, e, t0, true);
-       Mat Ebdag=Operators::BosonCOperator(TP, ph, gamma, true);
+       Mat Ebdag=Operators::NBosonCOperator(TP, ph, gamma, true);
        std::cout<< "dim "<< TP.dim<< std::endl;
-       Mat Eb=Operators::BosonDOperator(TP, ph, gamma, true);
+       Mat Eb=Operators::NBosonDOperator(TP, ph, gamma, true);
        Mat Eph=Operators::NumberOperator(TP, ph, omega,  true);
       
       Mat N=Operators::NumberOperator(TP, ph, 1,  true);
@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
 
        std::cout<< "for beta/mean = " << beta << std::endl;
        for(auto& l: o)
-   	{std::cout<< l/mean <<std::endl; }
+   	{std::cout<< l<<std::endl; }
   
   return 0;
 }
