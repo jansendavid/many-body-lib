@@ -53,15 +53,9 @@ using namespace Many_Body;
       ("gam", value(&gamma)->default_value(1.), "gamma")
       ("omg", value(&omega)->default_value(1.), "omega")
       ("pb", value(&PB)->default_value(0), "pb");
-
-      
-
-  
-
-
-    boost::program_options::variables_map vm;
-    boost::program_options::store(parse_command_line(argc, argv, desc), vm);
-    boost::program_options::notify(vm);
+  boost::program_options::variables_map vm;
+  boost::program_options::store(parse_command_line(argc, argv, desc), vm);
+  boost::program_options::notify(vm);
 
   if (vm.count("help"))
       {std::cout << desc << '\n'; return 0;}
@@ -148,11 +142,17 @@ using namespace Many_Body;
          Eigen::VectorXd energy(TP.dim);
     	   std::vector<double> obs(TP.dim);
     	   std::vector<double> obs2(TP.dim);
+	   std::vector<double> obs3(TP.dim);
+	   std::vector<double> obs4(TP.dim);
     	   std::vector<double> ensvec(TP.dim);
 	     
 	   Eigen::MatrixXd PHD2=HH.transpose()*N*HH;
+	   Eigen::MatrixXd EKIN=HH.transpose()*E1*HH;
+	   Eigen::MatrixXd EC=HH.transpose()*(Ebdag+Eb)*HH;
 	    
 	    Eigen::VectorXd v=PHD2.diagonal();
+	    Eigen::VectorXd v2=EKIN.diagonal();
+	    Eigen::VectorXd v3=EC.diagonal();
 	    std::cout<< "GS "<<eigenVals(0)<<std::endl;
     	   for(int i=0; i<energy.size(); i++)
     {
@@ -160,11 +160,15 @@ using namespace Many_Body;
       
       ensvec[i]=eigenVals(i);
       obs[i]=v(i);
+      obs2[i]=v2(i);
+      obs3[i]=v3(i)/gamma;
 
       //std::cout<< ensvec[i]<<'\n';
     }// 	   	    std::cout<< "gS "<<   eigenVals[0] <<std::endl;
     		    std::cout<< "mean "<<   eigenVals.mean() <<std::endl;
     	   std::vector<double> Ovec;
+	    std::vector<double> Ovec2;
+	     std::vector<double> Ovec3;
 
    	    	   std::vector<double> Evec;
    	    	   //		   std::vector<double> Tr={0.01, 0.05, 0.1, 0.15, 0.2, 0.25};
@@ -181,21 +185,29 @@ using namespace Many_Body;
    	    	 // //	      std::cout<< l<<std::endl;
    	         // bin_write(filename, l);
    	    	 // n++;
+			    double e1=expvalCan(ensvec, ensvec,  t);
+			    double o=expvalCan(ensvec, obs,  t);
+			    double o2=expvalCan(ensvec, obs2,  t);
+			    double o3=expvalCan(ensvec, obs3,  t);
    	    		    std::cout<< " at T "<< t<<std::endl;
-   	    		    std::cout<<std::setprecision(15)<<expvalCan(ensvec, ensvec,  t)<<std::endl;
-   	    	      Ovec.push_back(expvalCan(ensvec, obs,  t));
-   	    	      Evec.push_back(expvalCan(ensvec, ensvec,  t)); 
+   	    		    std::cout<<std::setprecision(15)<<e1 <<"  "<< o+o2+o3*gamma <<std::endl;
+			    Ovec.push_back(o);
+			    Ovec2.push_back(o2);
+			    Ovec3.push_back(o3);
+			    Evec.push_back(e1);
 
    	    }
  
    			  int pb=PB;
-   		  	  std::string Hs="xH";
-   		  	  	  std::string Ts="xT";
+   		  	  std::string Hs="H";
+   		  	  	  std::string Ts="T";
    		  		  std::string phds="PHD";
 	  
-		      bin_write("H"+filename, Evec);
-   		   	         bin_write("Nph"+filename, Ovec);
-   		   		 	         bin_write("temp"+filename, Tr);
+		      bin_write("E"+filename, Evec);
+		      bin_write("Nph"+filename, Ovec);
+		      bin_write("EK"+filename, Ovec2);
+		      bin_write("nX"+filename, Ovec3);
+		      bin_write("temp"+filename, Tr);
   return 0;
 }
  
