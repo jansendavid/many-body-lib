@@ -21,7 +21,7 @@ double temp( Container& Energies, double Einput, double Tmin, double Tmax, int T
     for(auto&  en: Energies)
       {
 	
-	double ex=std::exp(-en/T);
+	double ex=std::exp(-(en-Energies[0])/T);
 	Z+=ex;
 	sum+=ex*en;
       }
@@ -65,11 +65,13 @@ double temp( Container& Energies, double Einput, double Tmin, double Tmax, int T
 {
     double expval{0};
     double Z{0};
-    double sum{0};  
+    double sum{0};
+    double beta=1./T;
     for(int i=0; i< Energies.size(); i++)
       {
-	
-	double ex=std::exp(-Energies[i]/T);
+	double exponent=-(Energies[i]-Energies[0]);
+	exponent*=beta;
+	double ex=std::exp(exponent);
 	Z+=ex;
 	sum+=ex*Observabel[i];
       }
