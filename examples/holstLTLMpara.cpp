@@ -10,14 +10,12 @@
 #include<boost/mpi/environment.hpp>
 #include <boost/program_options.hpp>
 using namespace Many_Body;
-using Mat= Operators::Mat;
+    using Mat= Operators::Mat;
 namespace mpi = boost::mpi;
 using namespace boost::program_options;
 int main(int argc, char *argv[])
 {
-
-
-  size_t M{};
+ size_t M{};
   size_t L{};
   double t0{};
   double omega{};
@@ -94,7 +92,7 @@ if (vm.count("Ld"))
  
 
 
-     double beta=1./(T); 
+    double beta=1./T;
     Mat H;
     Mat N;
   std::vector<Mat> obs;
@@ -115,7 +113,7 @@ if (vm.count("Ld"))
        obs.push_back(H);
        obs.push_back(N);
   }
-
+  
 
   mpi::environment env;
   mpi::communicator world;
@@ -128,7 +126,7 @@ if (vm.count("Ld"))
       double Ztot{0.};
        for(int i=0; i<runs/world.size(); i++)
       {
-  	    auto tup=calculate_lanczFT(obs[0], obs, beta, Ldim);
+  	    auto tup=calculate_lanczLT(obs[0], obs, beta, Ldim);
   auto obs=std::get<0>(tup);
          auto Zt=std::get<1>(tup);
   	
@@ -147,11 +145,10 @@ if (vm.count("Ld"))
 
     	   }
     std::cout<< " process # " << world.rank() << " got A " << As[0] << std::endl;
-std::cout<< " process # " << world.rank() << " got Z " << Z << std::endl;
   
 
       for(auto l: Astot)
-	{	std::cout<<"at T " << T << " total is "<< (l/(Ztot))<< std::endl;}
+	{	std::cout<<"at T " << T << " total is "<< l/Ztot<< std::endl;}
 	
     }
   else{
@@ -159,7 +156,7 @@ std::cout<< " process # " << world.rank() << " got Z " << Z << std::endl;
    
     for(int i=0; i<runs/world.size(); i++)
       {
-  	    auto tup=calculate_lanczFT(obs[0], obs, beta, Ldim);
+  	    auto tup=calculate_lanczLT(obs[0], obs, beta, Ldim);
   auto obs=std::get<0>(tup);
          auto Zt=std::get<1>(tup);
   	 //	std::transform(obstot.begin(), obstot.end(), obs.begin(), obs.end(), std::plus<double>());
@@ -171,14 +168,11 @@ std::cout<< " process # " << world.rank() << " got Z " << Z << std::endl;
         Z+=Zt;  
       }
         std::cout<< " process # " << world.rank() << " got A " << As[0] << std::endl;
-std::cout<< " process # " << world.rank() << " got Z " << Z << std::endl;
     reduce(world, Z, std::plus<double>(), 0);
     for(int k=0; k<obs.size(); k++)
   	   {
   	     reduce(world, As[k], std::plus<double>(), 0);
   	   }
-
-
   }
 
 

@@ -12,28 +12,67 @@ template<typename Matrix, typename Container>
 auto  calculate_lanczFT(Matrix& hamiltonian, Container& observable, double beta, size_t lanczosDim=20)->std::tuple<std::vector<double>, double>
 {
    std::random_device rd;
-std::mt19937 gen(rd());  //here you could set the seed, but std::random_device already does that
-std::uniform_real_distribution<float> dis(-1.0, 1.0);
-
- 
-   Eigen::VectorXcd iniState=Eigen::VectorXcd::NullaryExpr(hamiltonian.rows(),[&](){return dis(gen);});
-   iniState/=iniState.norm();
-   auto Z=std::complex<double>{0, 0};
+5Bstd::mt19937 gen(rd());  //here you could set the seed, but std::random_device already does that
+ std::uniform_real_distribution<double> dis(-1.0, 1.0);
+auto Z=std::complex<double>{0, 0};
     auto A=std::complex<double>{0, 0};
+ 
+ Eigen::VectorXcd iniState=Eigen::VectorXcd::NullaryExpr(hamiltonian.rows(),[&](){return std::complex<double>(dis(gen), dis(gen));});
 
-    Many_Body::TriDiagMat tri=Many_Body::Lanczos(hamiltonian, iniState, lanczosDim);
-    Eigen::MatrixXd S(lanczosDim, lanczosDim);
+iniState/=iniState.norm();
+
+ Eigen::VectorXcd iniState2=Eigen::VectorXcd::NullaryExpr(hamiltonian.rows(),[&](){return std::complex<double> (dis(gen), dis(gen));});
+   iniState2/=iniState2.norm();
+
+   
+
+
+  
+    size_t lanczosDim2=lanczosDim;
+double ler=1e-13;
+   double diss=1000;
+   double Eold=100;
+Eigen::MatrixXd S(lanczosDim, lanczosDim);
     Eigen::VectorXd eigenVals(lanczosDim);
+double diss2=1000;
+   double Eold2=100;
+Eigen::MatrixXd S2(lanczosDim2, lanczosDim2);
+    Eigen::VectorXd eigenVals2(lanczosDim2);
+   while(diss>ler)
+     {
+       lanczosDim+=1;
+ S= Eigen::MatrixXd(lanczosDim, lanczosDim);
+     eigenVals=Eigen::VectorXd(lanczosDim);
     
+    Many_Body::TriDiagMat tri=Many_Body::Lanczos(hamiltonian, iniState, lanczosDim);
+   
      Many_Body::diag(tri, S, eigenVals);
+     diss=std::abs(Eold-eigenVals(0));
+     Eold=eigenVals(0);
+     }    
+ while(diss2>ler)
+     {
+       lanczosDim2+=1;
+ S2= Eigen::MatrixXd(lanczosDim2, lanczosDim2);
+     eigenVals2=Eigen::VectorXd(lanczosDim2);
+    
+    Many_Body::TriDiagMat tri=Many_Body::Lanczos(hamiltonian, iniState2, lanczosDim2);
+   
+     Many_Body::diag(tri, S2, eigenVals2);
+     diss2=std::abs(Eold2-eigenVals2(0));
+     Eold2=eigenVals2(0);
+     }    
+    
+ std::cout<< "lancos vectors vas "<< lanczosDim << " and " << lanczosDim2<<std::endl;
     std::vector<double> obs(observable.size(), 0);
    		  for(int j=0; j<lanczosDim; j++)
    		    {
-		       auto exp=std::exp(-beta*(eigenVals[j]));
+		      double exponent=-(beta*(eigenVals[j]-eigenVals[0]));
+		       auto exp=std::exp(exponent);
 		       auto qvec=Many_Body::lanczTrafo(S.col(j), iniState, lanczosDim, hamiltonian);
 		       //		       auto link=iniState.adjoint()*Q.col(j);
 		       auto link=iniState.adjoint()*qvec;
-		       Z+=std::abs(link(0, 0))*std::abs(link(0, 0))*exp;
+		     
 		      
 		       for(int i=0; i<obs.size(); i++)
 		       	{
@@ -45,38 +84,71 @@ std::uniform_real_distribution<float> dis(-1.0, 1.0);
 		      
    			      //		
    		    }
+for(int j=0; j<lanczosDim2; j++)
+   		    {
+		      double exponent=-(beta*(eigenVals2[j]-eigenVals2[0]));
+		       auto exp=std::exp(exponent);
+		       auto qvec=Many_Body::lanczTrafo(S2.col(j), iniState2, lanczosDim2, hamiltonian);
+		       //		       auto link=iniState.adjoint()*Q.col(j);
+		       auto link=iniState2.adjoint()*qvec;
+		       Z+=std::abs(link(0, 0))*std::abs(link(0, 0))*exp;
+		      
+		     	      
+   			      //		
+   		    }
 		  return {obs, real(Z)};
 }
 template<typename Matrix, typename Container>
 auto  calculate_lanczLT(Matrix& hamiltonian, Container& observable, double beta, size_t lanczosDim=20)->std::tuple<std::vector<double>, double>
 {
+   std::random_device rd;
+std::mt19937 gen(rd());  //here you could set the seed, but std::random_device already does that
+std::uniform_real_distribution<float> dis(-1.0, 1.0);
+
+ 
+ Eigen::VectorXcd iniState=Eigen::VectorXcd::NullaryExpr(hamiltonian.rows(),[&](){return std::complex<double>(dis(gen), dis(gen));});
   auto Z=std::complex<double>{0, 0};
  
     auto A=std::complex<double>{0, 0};
-       Eigen::VectorXcd iniState=Eigen::VectorXcd::Random(hamiltonian.rows());
+      
 
    iniState/=iniState.norm();
    //Eigen::MatrixXcd Q(hamiltonian.rows(), lanczosDim);
-
-
-    Many_Body::TriDiagMat tri=Many_Body::Lanczos(hamiltonian, iniState, lanczosDim);
-    Eigen::MatrixXd S(lanczosDim, lanczosDim);
+   double ler=1e-13;
+   double diss=1000;
+   double Eold=100;
+   Eigen::MatrixXd S(lanczosDim, lanczosDim);
     Eigen::VectorXd eigenVals(lanczosDim);
-    
-     Many_Body::diag(tri, S, eigenVals);
+   while(diss>ler)
+     {
 
+       lanczosDim+=1;
+ S=Eigen::MatrixXd(lanczosDim, lanczosDim);
+    eigenVals=Eigen::VectorXd(lanczosDim);
+    Many_Body::TriDiagMat tri=Many_Body::Lanczos(hamiltonian, iniState, lanczosDim);
+    
+   
+     Many_Body::diag(tri, S, eigenVals);
+     diss=std::abs(Eold-eigenVals(0));
+     Eold=eigenVals(0);
+     }
+   std::cout<< "lancos vectors vas "<< lanczosDim<<std::endl;
      //    Q=Q*S;
     
     std::vector<double> obs(observable.size(), 0);
    		  for(int j=0; j<lanczosDim; j++)
    		    {
+ 
 		      for(int l=0; l<lanczosDim; l++)
 		    {
-		      auto exp=std::exp(-beta*(eigenVals[j]+eigenVals[l])/2);
+auto qvecj=Many_Body::lanczTrafo(S.col(j), iniState, lanczosDim, hamiltonian);
+ auto link=iniState.adjoint()*qvecj;
+		      double exponent=(eigenVals[j]+eigenVals[l])/2-eigenVals[0];
+		      exponent*=-beta;
+		      auto exp=std::exp(exponent);
 		      
 		      // auto link=iniState.adjoint()*Q.col(j);
-		      auto qvecj=Many_Body::lanczTrafo(S.col(j), iniState, lanczosDim, hamiltonian);
-		      auto link=iniState.adjoint()*qvecj;
+		     
 		      auto qvecl=Many_Body::lanczTrafo(S.col(l), iniState, lanczosDim, hamiltonian);
 		      //		       auto right=(Q.col(l)).adjoint()*iniState;
 		      auto right=(qvecl).adjoint()*iniState;
