@@ -41,3 +41,4 @@ main
 massif*
 diagtest32
 diagtest64
+*.bin
