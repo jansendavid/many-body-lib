@@ -12,21 +12,24 @@ template<typename Matrix, typename Container>
 auto  calculate_lanczFT(Matrix& hamiltonian, Container& observable, double beta, size_t lanczosDim=20)->std::tuple<std::vector<double>, double>
 {
    std::random_device rd;
-std::mt19937 gen(rd());  //here you could set the seed, but std::random_device already does that
-std::uniform_real_distribution<float> dis(-1.0, 1.0);
-
- 
-   Eigen::VectorXcd iniState=Eigen::VectorXcd::NullaryExpr(hamiltonian.rows(),[&](){return dis(gen);});
-   iniState/=iniState.norm();
-Eigen::VectorXcd iniState2=Eigen::VectorXcd::NullaryExpr(hamiltonian.rows(),[&](){return dis(gen);});
-   iniState2/=iniState2.norm();
-   auto Z=std::complex<double>{0, 0};
+5Bstd::mt19937 gen(rd());  //here you could set the seed, but std::random_device already does that
+ std::uniform_real_distribution<double> dis(-1.0, 1.0);
+auto Z=std::complex<double>{0, 0};
     auto A=std::complex<double>{0, 0};
+ 
+ Eigen::VectorXcd iniState=Eigen::VectorXcd::NullaryExpr(hamiltonian.rows(),[&](){return std::complex<double>(dis(gen), dis(gen));});
+
+iniState/=iniState.norm();
+
+ Eigen::VectorXcd iniState2=Eigen::VectorXcd::NullaryExpr(hamiltonian.rows(),[&](){return std::complex<double> (dis(gen), dis(gen));});
+   iniState2/=iniState2.norm();
+
+   
 
 
   
     size_t lanczosDim2=lanczosDim;
-double ler=1e-10;
+double ler=1e-13;
    double diss=1000;
    double Eold=100;
 Eigen::MatrixXd S(lanczosDim, lanczosDim);
@@ -103,7 +106,7 @@ std::mt19937 gen(rd());  //here you could set the seed, but std::random_device a
 std::uniform_real_distribution<float> dis(-1.0, 1.0);
 
  
-   Eigen::VectorXcd iniState=Eigen::VectorXcd::NullaryExpr(hamiltonian.rows(),[&](){return dis(gen);});
+ Eigen::VectorXcd iniState=Eigen::VectorXcd::NullaryExpr(hamiltonian.rows(),[&](){return std::complex<double>(dis(gen), dis(gen));});
   auto Z=std::complex<double>{0, 0};
  
     auto A=std::complex<double>{0, 0};
@@ -111,7 +114,7 @@ std::uniform_real_distribution<float> dis(-1.0, 1.0);
 
    iniState/=iniState.norm();
    //Eigen::MatrixXcd Q(hamiltonian.rows(), lanczosDim);
-   double ler=1e-10;
+   double ler=1e-13;
    double diss=1000;
    double Eold=100;
    Eigen::MatrixXd S(lanczosDim, lanczosDim);
