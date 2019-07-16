@@ -200,8 +200,8 @@ using namespace Many_Body;
  
    			  int pb=PB;
    		  	  std::string Hs="H";
-   		  	  	  std::string Ts="T";
-   		  		  std::string phds="PHD";
+			  std::string Ts="T";
+			  std::string phds="PHD";
 	  
 		      bin_write("E"+filename, Evec);
 		      bin_write("Nph"+filename, Ovec);
