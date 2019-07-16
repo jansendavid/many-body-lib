@@ -68,10 +68,10 @@ std::string sPB{};
 	filename+=sL;
 	
       }
-     if (vm.count("M,m"))
+     if (vm.count("M"))
       {
   	std::cout << "M: " << vm["M"].as<int>() << '\n';
-	sM="M"+std::to_string(vm["L"].as<int>());
+	sM="M"+std::to_string(vm["M"].as<int>());
 	filename+=sM;
 	
       }
@@ -132,13 +132,16 @@ if (vm.count("Ld"))
 
      using HolsteinBasis= TensorProduct<ElectronBasis, PhononBasis>;
  
-
-
+  filename+=".bin";
+     std::vector<double> Tem;
      std::vector<double> beta;
      for(int i=1; i<11; i++)
        {
-	 beta.push_back(0.1*i);
+	 	  Tem.push_back((0.1*i));
+	  beta.push_back(1./(0.1*i));
        }
+     
+     
     Mat H;
     Mat N;
     Mat EK;
@@ -163,7 +166,6 @@ if (vm.count("Ld"))
        obs.push_back(H);
        obs.push_back(N);
        obs.push_back(E1);
-       obs.push_back(N);
        obs.push_back(X);
   }
 
@@ -171,82 +173,75 @@ if (vm.count("Ld"))
   mpi::environment env;
   mpi::communicator world;
   //  std::vector<double> As(obs.size(), 0);
-  Eigen::MatrixXd As(beta.size(), obs.size());
-    Eigen::VectorXd Zs(beta.size());
+  Eigen::MatrixXd As=Eigen::MatrixXd::Zero(beta.size(), obs.size());
+    Eigen::VectorXd Zs=Eigen::VectorXd::Zero(beta.size());
 
     //  double Z{0.};
   if(world.rank()==0)
     {
-      // std::vector<double> Astot(obs.size(), 0);
-      // double Ztot{0.};
-      Eigen::MatrixXd Astot=Eigen::MatrixXd::Zero(beta.size(), obs.size());
-      Eigen::VectorXd Zstot=Eigen::VectorXd::Zero(beta.size());
+
+     Eigen::MatrixXd Astot=Eigen::MatrixXd::Zero(beta.size(), obs.size());
+Eigen::VectorXd Zstot=Eigen::VectorXd::Zero(beta.size());
        for(int i=0; i<runs/world.size(); i++)
       {
-	auto [Observables, SUMs]=calculate_lanczFT(obs[0], obs, beta, Ldim, err);
-  // auto obs=std::get<0>(tup);
-  //        auto Zt=std::get<1>(tup);
-  	
-  // 	 for(int k=0; k<obs.size(); k++)
-  // 	   {
-  // 	     As[k]+=obs[k];
-  // 	   }
+   	auto [Observables, SUMs]=calculate_lanczFT(obs[0], obs, beta, Ldim, err);
 
-  //       Z+=Zt;
-	As+=Observables;
-	Zs+=SUMs;
-	
+  	As+=Observables;
+  	Zs+=SUMs;
       }
+       std::cout<< " process # " << world.rank() << " got meanZ "<< Zs.mean() << std::endl;
        for(int i=0; i<beta.size(); i++)
-	 {
-             reduce(world, Zs[i], Zstot[i], std::plus<double>(), 0);
+    	 {
+	   reduce(world, Zs(i), Zstot(i), std::plus<double>(), 0);
 
     for(int k=0; k<obs.size(); k++)
     	   {
-	     reduce(world, As(i, k), Astot(i, k), std::plus<double>(), 0);
+    	     reduce(world, As(i, k), Astot(i, k), std::plus<double>(), 0);
 
     	   }
-	 }
-	std::cout<< " process # " << world.rank() << " got meanZ "<< Zs.mean() << std::endl;
+    	 }
+
       for(int i=0; i<beta.size(); i++)
-	 {
-	   Astot.row(i)/=Zstot(i);
-	 }
+  	 {
+  	   Astot.row(i)/=Zstot(i);
+  	 }
       std::cout<< "Astot  "<<std::endl<< Astot<< std::endl;
+            for(int i=0; i<beta.size(); i++)
+  	 {
+	   std::cout<<" T "<< 1./beta[i] << "  "<<Astot(i, 0)<<" SUM "<< Astot(i, 1)+Astot(i, 2)+Astot(i, 3)*gamma<<std::endl;
+  	 }
+	    	    bin_write("E"+filename, Eigen::VectorXd(Astot.row(0)));
+	    bin_write("Nph"+filename,  Eigen::VectorXd(Astot.row(1)));
+	    bin_write("EK"+filename, Eigen::VectorXd(Astot.row(3)));
+	    bin_write("nX"+filename, Eigen::VectorXd(Astot.row(3)));
+	    bin_write("temp"+filename, Tem);
+      
     }
   else{
 
    
     for(int i=0; i<runs/world.size(); i++)
       {
-		auto [Observables, SUMs]=calculate_lanczFT(obs[0], obs, beta, Ldim, err);
-  // auto obs=std::get<0>(tup);
-  //        auto Zt=std::get<1>(tup);
-  	
-  // 	 for(int k=0; k<obs.size(); k++)
-  // 	   {
-  // 	     As[k]+=obs[k];
-  // 	   }
-
-  //       Z+=Zt;
-	As+=Observables;
-	Zs+=SUMs;
+   		auto [Observables, SUMs]=calculate_lanczFT(obs[0], obs, beta, Ldim, err);
+  	As+=Observables;
+  	Zs+=SUMs;
 	
       }
+    	std::cout<< " process # " << world.rank() << " got meanZ "<< Zs.mean() << std::endl;
        for(int i=0; i<beta.size(); i++)
-	 {
-	   reduce(world, Zs[i], std::plus<double>(), 0);
+    	 {
+    	   reduce(world, Zs[i], std::plus<double>(), 0);
 
     for(int k=0; k<obs.size(); k++)
     	   {
-	     reduce(world, As(i, k), std::plus<double>(), 0);
+    	     reduce(world, As(i, k), std::plus<double>(), 0);
 
     	   }
 
-	std::cout<< " process # " << world.rank() << " got meanZ "<< Zs.mean() << std::endl;
+    
 
 
-  }
+	}
   }
 
 

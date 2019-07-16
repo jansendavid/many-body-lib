@@ -91,8 +91,7 @@ auto  calculate_lanczFT(Matrix& hamiltonian, Container& observable, std::vector<
    std::random_device rd;
 std::mt19937 gen(rd());  //here you could set the seed, but std::random_device already does that
  std::uniform_real_distribution<double> dis(-1.0, 1.0);
-auto Z=std::complex<double>{0, 0};
-    auto A=std::complex<double>{0, 0};
+
  
  Eigen::VectorXcd iniState=Eigen::VectorXcd::NullaryExpr(hamiltonian.rows(),[&](){return std::complex<double>(dis(gen), dis(gen));});
 
@@ -104,24 +103,26 @@ iniState/=iniState.norm();
    auto [S, eigenVals]=estimateLD(lanczosDim, hamiltonian, iniState, err);
    auto [S2, eigenVals2]=estimateLD(lanczosDim2, hamiltonian, iniState2, err);
     
- std::cout<< "lancos vectors vas "<< lanczosDim << " and " << lanczosDim2<<std::endl;
- Eigen::MatrixXd obs( beta.size(),observable.size());
- Eigen::VectorXd z(beta.size());
+  std::cout<< "lancos vectors vas "<< lanczosDim << " and " << lanczosDim2<<std::endl;
+   Eigen::MatrixXd obs=Eigen::MatrixXd::Zero( beta.size(),observable.size());
+   Eigen::VectorXd z=Eigen::VectorXd::Zero(beta.size());
  for(int i=0; i<beta.size(); i++)
    {
+   
    		  for(int j=0; j<lanczosDim; j++)
    		    {
 		      double exponent=-(beta[i]*(eigenVals[j]-eigenVals[0]));
 		       auto exp=std::exp(exponent);
-		       auto qvec=Many_Body::lanczTrafo(S.col(j), iniState, lanczosDim, hamiltonian);
-		       auto link=iniState.adjoint()*qvec;	      
-		       for(int m=0; m<obs.size(); m++)
+		        auto qvec=Many_Body::lanczTrafo(S.col(j), iniState, lanczosDim, hamiltonian);
+		        auto link=iniState.adjoint()*qvec;
+		       
+		       for(int m=0; m<observable.size(); m++)
 		       	{
-   		       auto expval=qvec.adjoint()*observable[m]*iniState;
-		       obs(i, m)+=real((link(0, 0)*expval(0, 0)))*exp;
+   		        auto expval=qvec.adjoint()*observable[m]*iniState;
+		        obs(i, m)+=real((link(0, 0)*expval(0, 0)))*exp;
 		       
 			}		
-   		    }
+    		    }
 for(int j=0; j<lanczosDim2; j++)
    		    {
 		      double exponent=-(beta[i]*(eigenVals2[j]-eigenVals2[0]));
@@ -129,12 +130,11 @@ for(int j=0; j<lanczosDim2; j++)
 		       auto qvec=Many_Body::lanczTrafo(S2.col(j), iniState2, lanczosDim2, hamiltonian);
 		       //		       auto link=iniState.adjoint()*Q.col(j);
 		       auto link=iniState2.adjoint()*qvec;
-		       Z+=std::abs(link(0, 0))*std::abs(link(0, 0))*exp;
-		       z(i)+=real(Z);
+		       z(i)+=std::abs(link(0, 0))*std::abs(link(0, 0))*exp;
 		      
 		     	      
    			      //		
-   		    }
+        }
    }
 		  return {obs, z};
 }
@@ -193,6 +193,62 @@ auto qvecj=Many_Body::lanczTrafo(S.col(j), iniState, lanczosDim, hamiltonian);
    			      //		
    		    
 		  return {obs, real(Z)};
+}
+template<typename Matrix, typename Container>
+auto  calculate_lanczLT(Matrix& hamiltonian, Container& observable, std::vector<double> beta, int lanczosDim=20, double err=1E-10)->std::tuple<Eigen::MatrixXd, Eigen::VectorXd>
+{
+   std::random_device rd;
+std::mt19937 gen(rd());  //here you could set the seed, but std::random_device already does that
+std::uniform_real_distribution<double> dis(-1.0, 1.0);
+
+ 
+ Eigen::VectorXcd iniState=Eigen::VectorXcd::NullaryExpr(hamiltonian.rows(),[&](){return std::complex<double>(dis(gen), dis(gen));});
+
+    
+   iniState/=iniState.norm();
+   //Eigen::MatrixXcd Q(hamiltonian.rows(), lanczosDim);
+   auto [S, eigenVals]=estimateLD(lanczosDim, hamiltonian, iniState, err);
+   std::cout<< "lancos vectors vas "<< lanczosDim<<std::endl;
+  
+   Eigen::MatrixXd obs=Eigen::MatrixXd::Zero( beta.size(),observable.size());
+   Eigen::VectorXd z=Eigen::VectorXd::Zero(beta.size());
+ for(int i=0; i<beta.size(); i++)
+   {    
+    
+   		  for(int j=0; j<lanczosDim; j++)
+   		    {
+ 
+		      for(int l=0; l<lanczosDim; l++)
+		    {
+auto qvecj=Many_Body::lanczTrafo(S.col(j), iniState, lanczosDim, hamiltonian);
+ auto link=iniState.adjoint()*qvecj;
+		      double exponent=(eigenVals[j]+eigenVals[l])/2-eigenVals[0];
+		      exponent*=-beta[i];
+		      auto exp=std::exp(exponent);
+		      
+		      // auto link=iniState.adjoint()*Q.col(j);
+		     
+		      auto qvecl=Many_Body::lanczTrafo(S.col(l), iniState, lanczosDim, hamiltonian);
+		      //		       auto right=(Q.col(l)).adjoint()*iniState;
+		      auto right=(qvecl).adjoint()*iniState;
+		      if(l==j)
+			{
+			  z(i)+=real(right(0, 0)*link(0, 0))*exp;
+			}
+		      
+		       for(int m=0; m<observable.size(); m++)
+		       	{
+			  auto expval=((qvecj).adjoint())*observable[m]*qvecl;
+
+			  obs(i, m)+=real((link(0, 0)*right(0,0)*expval(0, 0)))*exp;
+			}
+			}
+		    }
+   }
+		      
+   			      //		
+   		    
+		  return {obs, z};
 }
 template<typename Matrix, typename Container>
 std::vector<double> FTLM(Matrix& hamiltonian, Container& observable, double T, int runs,     size_t lanczosDim=20)
