@@ -10,7 +10,7 @@ IXX=g++
 MPILINK32= -DMKL_Complex16="std::complex<double>" -m64 -I${MKLROOT}/include -L${MKLROOT}/lib/intel64 -Wl,--no-as-needed -lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl -lboost_serialization -lboost_mpi  -I$MPI_INCLUDE -L$MPI_LIB -lmpi_cxx
 #BOOST_INCLUDE_LINE=-I/usr/include/boost/mpi
 
-
+OMPF=-fopenmp 
 
 MKLPATH=${MKLROOT}/lib/intel64_lin
 MKLINCLUDE=${MKLROOT}/include
@@ -77,7 +77,6 @@ reddm: examples/reddm.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp
 	$(CXX) $(FLAGS) $(INCS) examples/reddm.cpp -o reddm  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(ND) $(OP)
 
 holstexDi: examples/holstexDi.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp  src/diag.h
-
 	$(CXX) $(FLAGS) $(INCS) examples/holstexDi.cpp -o holstexDi  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(ND) $(OP)
 
 holstFTexact: examples/holstFTexact.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h
@@ -97,12 +96,14 @@ holstLTLM: examples/holstLTLM.cpp src/basis.hpp src/operators.hpp src/accesfunct
 holstFTLM: examples/holstFTLM.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h
 	$(CXX) $(FLAGS) $(INCS) examples/holstFTLM.cpp -o holstFTLM  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(ND) $(OP)
 
-holstexDi: examples/holstexDi.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h
-	$(CXX) $(FLAGS) $(INCS) examples/holstexDi.cpp -o holstexDi  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(ND) $(OP)
-
 
 holstFTLMpara: examples/holstFTLMpara.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h
 	$(IMPI) $(FLAGS) $(INCS) examples/holstFTLMpara.cpp -o holstFTLMpara  $(LIBSLINK) $(MPILINK32)  $(LIBS32) $(ND)  $(OP)
+holstFTLMparaOMP: examples/holstFTLMparaOMP.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h
+	$(CXX) $(FLAGS) $(INCS) examples/holstFTLMparaOMP.cpp -o holstFTLMparaOMP $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(ND) $(OP) $(OMPF)
+
+holstLTLMparaOMP: examples/holstLTLMparaOMP.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h
+	$(CXX) $(FLAGS) $(INCS) examples/holstLTLMparaOMP.cpp -o holstLTLMparaOMP $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(ND) $(OP) $(OMPF) 
 
 holstLTLMpara: examples/holstLTLMpara.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h
 	$(IMPI) $(FLAGS) $(INCS) examples/holstLTLMpara.cpp -o holstLTLMpara  $(LIBSLINK) $(MPILINK32)  $(LIBS32) $(ND)  $(OP)
