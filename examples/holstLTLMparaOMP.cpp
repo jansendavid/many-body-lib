@@ -189,6 +189,7 @@ Eigen::VectorXd Zstot=Eigen::VectorXd::Zero(beta.size());
   std::cout<< "Astot  "<<std::endl<< Astot<< std::endl;
   for(int i=0; i<beta.size(); i++)
     {
+      Astot.row(i)/=Zstot(i);
   	   std::cout<<" T "<< 1./beta[i] << "  "<<Astot(i, 0)<<" SUM "<< Astot(i, 1)+Astot(i, 2)+Astot(i, 3)*gamma<<std::endl;
     }
   bin_write("E"+filename, Eigen::VectorXd(Astot.row(0)));
