@@ -175,7 +175,7 @@ Eigen::VectorXd Zstot=Eigen::VectorXd::Zero(beta.size());
 #pragma omp for 
  for(int i=0; i<runs; i++)
    {
-  	auto [Observables, SUMs]=calculate_lanczFT(obs[0], obs, beta, Ldim, err);
+  	auto [Observables, SUMs]=calculate_lanczLT(obs[0], obs, beta, Ldim, err);
 
 	#pragma omp critical
 	{
@@ -192,10 +192,10 @@ Eigen::VectorXd Zstot=Eigen::VectorXd::Zero(beta.size());
       Astot.row(i)/=Zstot(i);
   	   std::cout<<" T "<< 1./beta[i] << "  "<<Astot(i, 0)<<" SUM "<< Astot(i, 1)+Astot(i, 2)+Astot(i, 3)*gamma<<std::endl;
     }
-  bin_write("E"+filename, Eigen::VectorXd(Astot.row(0)));
-  bin_write("Nph"+filename,  Eigen::VectorXd(Astot.row(1)));
-  bin_write("EK"+filename, Eigen::VectorXd(Astot.row(3)));
-  bin_write("nX"+filename, Eigen::VectorXd(Astot.row(3)));
+  bin_write("E"+filename, Eigen::VectorXd(Astot.col(0)));
+  bin_write("Nph"+filename,  Eigen::VectorXd(Astot.col(1)));
+  bin_write("EK"+filename, Eigen::VectorXd(Astot.col(2)));
+  bin_write("nX"+filename, Eigen::VectorXd(Astot.col(3)));
   bin_write("temp"+filename, Tem);
 	    
 
