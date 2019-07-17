@@ -85,7 +85,7 @@ using namespace Many_Body;
       }
       		 if (vm.count("V"))
       {      std::cout << "V: " << vm["V"].as<double>() << '\n';
-      	sV="V"+std::to_string(vm["V"].as<double>()).substr(0, 3);
+      	sV="V"+std::to_string(vm["V"].as<double>()).substr(0, 6);
       		filename+=sV;
       }
       		 if (vm.count("tot"))
