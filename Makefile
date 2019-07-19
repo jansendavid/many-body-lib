@@ -7,7 +7,8 @@ IMPI=mpic++ -std=c++17
 IXX=g++
 
 # PATHS
-MPILINK32= -DMKL_Complex16="std::complex<double>" -m64 -I${MKLROOT}/include -L${MKLROOT}/lib/intel64 -Wl,--no-as-needed -lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl -lboost_serialization -lboost_mpi  -I$MPI_INCLUDE -L$MPI_LIB -lmpi_cxx
+MPILINK32= -DMKL_Complex16="std::complex<double>" -m64 -I${MKLROOT}/include -L${MKLROOT}/lib/intel64 -Wl,--no-as-needed -lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl -lboost_serialization -lboost_mpi 
+# -I$MPI_INCLUDE -L$MPI_LIB -lmpi_cxx
 #BOOST_INCLUDE_LINE=-I/usr/include/boost/mpi
 
 OMPF=-fopenmp 
