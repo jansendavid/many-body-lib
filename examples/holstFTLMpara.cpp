@@ -78,7 +78,7 @@ std::string sPB{};
      if (vm.count("r"))
       {
   	std::cout << "runs: " << vm["r"].as<int>() << '\n';
-	sL="r"+std::to_string(vm["r"].as<int>());
+	sruns="r"+std::to_string(vm["r"].as<int>());
 	filename+=sruns;
 	
       }

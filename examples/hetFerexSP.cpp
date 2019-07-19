@@ -15,7 +15,8 @@ using namespace Many_Body;
    using HolsteinBasis= TensorProduct<ElectronBasis, PhononBasis>;
   using Mat= Operators::Mat;
   using boost::program_options::value;
-   int Llead{};
+   int Llead1{};
+   int Llead2{};
   int Lchain{};
   double tint{};
   double t0{};
@@ -24,7 +25,8 @@ using namespace Many_Body;
   double dt{};
   double tot{};
   bool PB{};
-  std::string sLlead{};
+  std::string sLlead1{};
+  std::string sLlead2{};
   std::string sLchain{};
   std::string stint{};
  std::string st0{};
@@ -39,7 +41,8 @@ using namespace Many_Body;
     boost::program_options::options_description desc{"Options"};
     desc.add_options()
       ("help,h", "Help screen")
-      ("Ll", value(&Llead)->default_value(4), "Ll")
+      ("Ll1", value(&Llead1)->default_value(4), "Ll1")
+      ("Ll2", value(&Llead2)->default_value(4), "Ll2")
       ("Lc", value(&Lchain)->default_value(2), "Lc")
       ("t0", value(&t0)->default_value(1.), "t0")
       ("tl", value(&tl)->default_value(1.), "tl")
@@ -58,10 +61,15 @@ using namespace Many_Body;
   if (vm.count("help"))
       {std::cout << desc << '\n'; return 0;}
     else{
-      if (vm.count("Ll"))
-      {      std::cout << "Llead: " << vm["Ll"].as<int>() << '\n';
-      	sLlead="Ll"+std::to_string(vm["Ll"].as<int>());
-  	filename+=sLlead;
+      if (vm.count("Ll1"))
+      {      std::cout << "Llead1: " << vm["Ll1"].as<int>() << '\n';
+      	sLlead1="Ll1"+std::to_string(vm["Ll1"].as<int>());
+  	filename+=sLlead1;
+      }
+        if (vm.count("Ll2"))
+      {      std::cout << "Llead2: " << vm["Ll2"].as<int>() << '\n';
+      	sLlead2="Ll2"+std::to_string(vm["Ll2"].as<int>());
+  	filename+=sLlead2;
       }
          if (vm.count("Lc"))
       {      std::cout << "Lchain: " << vm["Lc"].as<int>() << '\n';
@@ -112,7 +120,7 @@ using namespace Many_Body;
     return 0;
   }
 
-  int Ltot=2*Llead+Lchain;
+  int Ltot=Llead1+Llead2+Lchain;
 
   OneElectronBasis e( Ltot);
  
@@ -138,9 +146,9 @@ using namespace Many_Body;
   // 	        Mat H1=E1+E2+E3+ EI1+ EI2;
   //      Mat H2=E1+E2+E3+ EI1+ EI2 +NI2 +NI1;
        
-	     auto O=Operators::totCurrOperator(e, tint,  Llead,Lchain);    
-         Mat H1=Operators::totalHetOperator(e,  tint, t0, tl, 0,  Lchain, Llead );
-             Mat H2=Operators::totalHetOperator(e,  tint, t0, tl, V/2,  Lchain, Llead );
+		auto O=Operators::totCurrOperator(e, tint,  Llead1, Llead2, Lchain);    
+		Mat H1=Operators::totalHetOperator(e,  tint, t0, tl, 0,  Llead1,  Llead2, Lchain );
+	 Mat H2=Operators::totalHetOperator(e,  tint, t0, tl, V/2, Llead1, Llead2,   Lchain );
  //       //;
  //      //    
  
