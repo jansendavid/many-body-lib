@@ -78,7 +78,7 @@ std::string sPB{};
      if (vm.count("r"))
       {
   	std::cout << "runs: " << vm["r"].as<int>() << '\n';
-	sL="r"+std::to_string(vm["r"].as<int>());
+	sruns="r"+std::to_string(vm["r"].as<int>());
 	filename+=sruns;
 	
       }
@@ -214,7 +214,7 @@ Eigen::VectorXd Zstot=Eigen::VectorXd::Zero(beta.size());
 	    
 	    bin_write("E"+filename, Eigen::VectorXd(Astot.col(0)));
 	    bin_write("Nph"+filename,  Eigen::VectorXd(Astot.col(1)));
-	    bin_write("EK"+filename, Eigen::VectorXd(Astot.col(3)));
+	    bin_write("EK"+filename, Eigen::VectorXd(Astot.col(2)));
 	    bin_write("nX"+filename, Eigen::VectorXd(Astot.col(3)));
 	    bin_write("temp"+filename, Tem);
   return 0;
