@@ -226,7 +226,7 @@ using Lattice=typename TotalBasis::Lattice;
 		    }
   }
     template<class TotalBasis>
-    Mat totalHetOperator(const TotalBasis& totalBasis, double tint, double t0, double tl, double V, int Lchain, int Llead )
+    Mat totalHetOperator(const TotalBasis& totalBasis, double tint, double t0, double tl, double V, int Llead1,  int Llead2,  int Lchain )
      {
        bool PB=0;
 	 using TpBasisIt= typename TotalBasis::BasisIt;
@@ -241,71 +241,76 @@ using Lattice=typename TotalBasis::Lattice;
    for( auto& tpState : totalBasis)
 	     {
 const Lattice state=GetLattice(tpState);
-	       	    for(size_t i=0; i<Llead-1; i++)
+	       	    for(size_t i=0; i<Llead1-1; i++)
                  {
 	
 		   if(state[i]==1)
 		     {
-		       op.coeffRef(Position(tpState), Position(tpState))-= ValType{V};}
-		   		   if(state[i+Llead+Lchain]==1)
-		     {
-		       op.coeffRef(Position(tpState), Position(tpState))+= ValType{V};}
-				   size_t j=Operators::NextWithBC(i, sites, PB);
+		       op.coeffRef(Position(tpState), Position(tpState))-= ValType{V};
+		     }
+		   size_t j=Operators::NextWithBC(i, sites, PB);
 		     // first lead
 
 		     Act(i, j, totalBasis, tpState, state, op, tl);
-		     // second lead
-		     j=Operators::NextWithBC(i+Llead+Lchain, sites, PB);
-
-		     Act(i+Llead+Lchain, j, totalBasis, tpState, state, op, tl);
-	   	     }
-		    	   if(state[2*Llead+Lchain-1]==1)
+		 }
+		     for(size_t i=Llead1+Lchain; i<Llead1+Lchain+Llead2-1; i++)
+                 {
+		   if(state[i]==1)
 		     {
 		       op.coeffRef(Position(tpState), Position(tpState))+= ValType{V};
 		     }
-			   if(state[Llead-1]==1)
+		   		  
+				   size_t j=Operators::NextWithBC(i, sites, PB);
+		     // second lead
+
+		     Act(i, j, totalBasis, tpState, state, op, tl);
+
+	   	     }
+		    	   if(state[Llead1+Llead2+Lchain-1]==1)
+		     {
+		       op.coeffRef(Position(tpState), Position(tpState))+= ValType{V};
+		     }
+			   if(state[Llead1-1]==1)
 		     {
 		       op.coeffRef(Position(tpState), Position(tpState))-= ValType{V};
 		     }
 		    // chain
-		    	       	    for(size_t i=Llead; i<Llead+Lchain-1; i++)
+		    	       	    for(size_t i=Llead1; i<Llead2+Llead1+Lchain-1; i++)
                  {
- Lattice state=GetLattice(tpState);
+		   Lattice state=GetLattice(tpState);
 		  
                      size_t j=Operators::NextWithBC(i, sites, PB);
 		     // first lead
 		     Act(i, j, totalBasis, tpState, state, op, t0);
 	   	     }
-				    Act(Llead-1, Llead, totalBasis, tpState, state, op, tint);
-				    Act(Llead+Lchain-1, Llead+Lchain, totalBasis, tpState, state, op, tint);
-	   
-
-   	  }
+				    Act(Llead1-1, Llead1, totalBasis, tpState, state, op, tint);
+				    Act(Llead1+Lchain-1, Llead1+Lchain, totalBasis, tpState, state, op, tint);	  }
     
   return op;
   }
 template<class TotalBasis>
-  Mat totCurrOperator(const TotalBasis& totalBasis, double var ,  int Llead, int Lchain)
+Mat totCurrOperator(const TotalBasis& totalBasis, double var ,  int Llead1, int Llead2, int Lchain)
      {
-	 using TpBasisIt= typename TotalBasis::BasisIt;
-using Lattice=typename TotalBasis::Lattice;     
+       using TpBasisIt= typename TotalBasis::BasisIt;
+       using Lattice=typename TotalBasis::Lattice;     
 
  
    size_t dim=totalBasis.dim;
-    size_t sites=totalBasis.sites;
+   size_t sites=totalBasis.sites;
     Mat op(dim, dim);
       op.setZero();
    for( auto& tpState : totalBasis)
 	     {
 
-	       int i=Llead-1;
+	       int i=Llead1-1;
 	       int j=i+1;
+	       
 
 		   const Lattice state=GetLattice(tpState);
           
 	   	    		    if(state[i]==state[j])
    	       	     {
-	  // 	     
+
     		  
    	   	     }
    	   	    else{
@@ -333,7 +338,7 @@ using Lattice=typename TotalBasis::Lattice;
    	   	       else
    	   	    	 { op.coeffRef(newStateNr, Position(tpState))+= otherSign*ValType{var};}
 		    }
-	 i=Lchain+Llead-1;
+	 i=Lchain+Llead1-1;
 	        j=i+1;
 
 		if(state[i]==state[j])

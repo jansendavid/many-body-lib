@@ -24,11 +24,13 @@ int main(int argc, char *argv[])
   double gamma{};
   bool PB{0};
    int runs={};
+      int rep={};
    int Ldim={};
     double T{};
     double err{};
   std::string sLdim={};
   std::string sruns={};
+    std::string srep={};
 std::string sT{};
 std::string sM{};
 std::string sL{};
@@ -37,7 +39,7 @@ std::string somega{};
 std::string sgamma{};
 std::string sPB{};
  std::string serr{};
- std::string filename="FTLM";
+ std::string filename="LTLM";
    
 
   try
@@ -48,6 +50,7 @@ std::string sPB{};
       ("L", value(&L)->default_value(4), "L")
       ("M", value(&M)->default_value(2), "M")
       ("r", value(&runs)->default_value(20), "r")
+      ("rep", value(&rep)->default_value(1), "rep")
       ("Ld", value(&Ldim)->default_value(20), "Ld")
       ("t0", value(&t0)->default_value(1.), "t0")
       ("gam", value(&gamma)->default_value(1.), "gamma")
@@ -80,6 +83,13 @@ std::string sPB{};
   	std::cout << "runs: " << vm["r"].as<int>() << '\n';
 	sruns="r"+std::to_string(vm["r"].as<int>());
 	filename+=sruns;
+	
+      }
+     if (vm.count("rep"))
+      {
+  	std::cout << "rep: " << vm["rep"].as<int>() << '\n';
+	srep="rep"+std::to_string(vm["rep"].as<int>());
+	filename+=srep;
 	
       }
 if (vm.count("Ld"))
@@ -129,16 +139,17 @@ if (vm.count("Ld"))
     std::cerr << ex.what() << '\n';
     return 0;
   }
-
+  filename+=".bin";
      using HolsteinBasis= TensorProduct<ElectronBasis, PhononBasis>;
  
-  filename+=".bin";
-     std::vector<double> Tem;
+
+
      std::vector<double> beta;
+     std::vector<double> Tem;
      for(int i=1; i<11; i++)
        {
-	 	  Tem.push_back((0.1*i));
 	  beta.push_back(1./(0.1*i));
+	  Tem.push_back((0.1*i));
        }
      
      
@@ -169,7 +180,10 @@ if (vm.count("Ld"))
        obs.push_back(X);
   }
 
-
+  for(int l=0; l<rep; l++)
+    {
+      
+      auto sl=std::to_string(l);
   mpi::environment env;
   mpi::communicator world;
   //  std::vector<double> As(obs.size(), 0);
@@ -184,7 +198,7 @@ if (vm.count("Ld"))
 Eigen::VectorXd Zstot=Eigen::VectorXd::Zero(beta.size());
        for(int i=0; i<runs/world.size(); i++)
       {
-   	auto [Observables, SUMs]=calculate_lanczFT(obs[0], obs, beta, Ldim, err);
+   	auto [Observables, SUMs]=calculate_lanczLT(obs[0], obs, beta, Ldim, err);
 
   	As+=Observables;
   	Zs+=SUMs;
@@ -210,11 +224,14 @@ Eigen::VectorXd Zstot=Eigen::VectorXd::Zero(beta.size());
   	 {
 	   std::cout<<" T "<< 1./beta[i] << "  "<<Astot(i, 0)<<" SUM "<< Astot(i, 1)+Astot(i, 2)+Astot(i, 3)*gamma<<std::endl;
   	 }
-	    	    bin_write("E"+filename, Eigen::VectorXd(Astot.col(0)));
-	    bin_write("Nph"+filename,  Eigen::VectorXd(Astot.col(1)));
-	    bin_write("EK"+filename, Eigen::VectorXd(Astot.col(2)));
-	    bin_write("nX"+filename, Eigen::VectorXd(Astot.col(3)));
-	    bin_write("temp"+filename, Tem);
+	    
+	    bin_write("Er"+sl+filename, Eigen::VectorXd(Astot.col(0)));
+	    bin_write("Nphr"+sl+filename,  Eigen::VectorXd(Astot.col(1)));
+	    bin_write("EKr"+sl+filename, Eigen::VectorXd(Astot.col(2)));
+	    bin_write("nXr"+sl+filename, Eigen::VectorXd(Astot.col(3)));
+	    bin_write("tempr"+sl+filename, Tem);
+
+	    
       
     }
   else{
@@ -222,7 +239,7 @@ Eigen::VectorXd Zstot=Eigen::VectorXd::Zero(beta.size());
    
     for(int i=0; i<runs/world.size(); i++)
       {
-   		auto [Observables, SUMs]=calculate_lanczFT(obs[0], obs, beta, Ldim, err);
+   		auto [Observables, SUMs]=calculate_lanczLT(obs[0], obs, beta, Ldim, err);
   	As+=Observables;
   	Zs+=SUMs;
 	
@@ -244,6 +261,6 @@ Eigen::VectorXd Zstot=Eigen::VectorXd::Zero(beta.size());
 	}
   }
 
-
+    }
   return 0;
 }

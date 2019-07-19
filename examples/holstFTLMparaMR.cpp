@@ -24,10 +24,12 @@ int main(int argc, char *argv[])
   double gamma{};
   bool PB{0};
    int runs={};
+   int rep={};
    int Ldim={};
     double T{};
     double err{};
   std::string sLdim={};
+    std::string srep={};
   std::string sruns={};
 std::string sT{};
 std::string sM{};
@@ -48,6 +50,7 @@ std::string sPB{};
       ("L", value(&L)->default_value(4), "L")
       ("M", value(&M)->default_value(2), "M")
       ("r", value(&runs)->default_value(20), "r")
+      ("rep", value(&rep)->default_value(1), "rep")
       ("Ld", value(&Ldim)->default_value(20), "Ld")
       ("t0", value(&t0)->default_value(1.), "t0")
       ("gam", value(&gamma)->default_value(1.), "gamma")
@@ -64,7 +67,7 @@ std::string sPB{};
       if (vm.count("L"))
       {
   	std::cout << "L: " << vm["L"].as<int>() << '\n';
-	sL="L"+std::to_string(vm["L"].as<int>());
+	auto sL="L"+std::to_string(vm["L"].as<int>());
 	filename+=sL;
 	
       }
@@ -73,6 +76,13 @@ std::string sPB{};
   	std::cout << "M: " << vm["M"].as<int>() << '\n';
 	sM="M"+std::to_string(vm["M"].as<int>());
 	filename+=sM;
+	
+      }
+          if (vm.count("rep"))
+      {
+  	std::cout << "rep: " << vm["rep"].as<int>() << '\n';
+	srep="rep"+std::to_string(vm["rep"].as<int>());
+	filename+=srep;
 	
       }
      if (vm.count("r"))
@@ -140,7 +150,7 @@ if (vm.count("Ld"))
 	 	  Tem.push_back((0.1*i));
 	  beta.push_back(1./(0.1*i));
        }
-     
+
      
     Mat H;
     Mat N;
@@ -169,12 +179,15 @@ if (vm.count("Ld"))
        obs.push_back(X);
   }
 
-
+    for(int l=0; l<rep; l++)
+      {
   mpi::environment env;
   mpi::communicator world;
   //  std::vector<double> As(obs.size(), 0);
   Eigen::MatrixXd As=Eigen::MatrixXd::Zero(beta.size(), obs.size());
     Eigen::VectorXd Zs=Eigen::VectorXd::Zero(beta.size());
+
+	auto sl=std::to_string(l);
 
     //  double Z{0.};
   if(world.rank()==0)
@@ -210,11 +223,11 @@ Eigen::VectorXd Zstot=Eigen::VectorXd::Zero(beta.size());
   	 {
 	   std::cout<<" T "<< 1./beta[i] << "  "<<Astot(i, 0)<<" SUM "<< Astot(i, 1)+Astot(i, 2)+Astot(i, 3)*gamma<<std::endl;
   	 }
-	    	    bin_write("E"+filename, Eigen::VectorXd(Astot.col(0)));
-	    bin_write("Nph"+filename,  Eigen::VectorXd(Astot.col(1)));
-	    bin_write("EK"+filename, Eigen::VectorXd(Astot.col(2)));
-	    bin_write("nX"+filename, Eigen::VectorXd(Astot.col(3)));
-	    bin_write("temp"+filename, Tem);
+	    bin_write("Er"+sl+filename, Eigen::VectorXd(Astot.col(0)));
+	    bin_write("Nphr"+sl+filename,  Eigen::VectorXd(Astot.col(1)));
+	    bin_write("EKr"+sl+filename, Eigen::VectorXd(Astot.col(2)));
+	    bin_write("nXr"+sl+filename, Eigen::VectorXd(Astot.col(3)));
+	    bin_write("tempr"+sl+filename, Tem);
       
     }
   else{
@@ -244,6 +257,6 @@ Eigen::VectorXd Zstot=Eigen::VectorXd::Zero(beta.size());
 	}
   }
 
-
+      }
   return 0;
 }

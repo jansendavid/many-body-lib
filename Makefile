@@ -100,6 +100,8 @@ holstFTLM: examples/holstFTLM.cpp src/basis.hpp src/operators.hpp src/accesfunct
 
 holstFTLMpara: examples/holstFTLMpara.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h
 	$(IMPI) $(FLAGS) $(INCS) examples/holstFTLMpara.cpp -o holstFTLMpara  $(LIBSLINK) $(MPILINK32)  $(LIBS32) $(ND)  $(OP)
+holstFTLMparaMR: examples/holstFTLMparaMR.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h
+	$(IMPI) $(FLAGS) $(INCS) examples/holstFTLMparaMR.cpp -o holstFTLMparaMR  $(LIBSLINK) $(MPILINK32)  $(LIBS32) $(ND)  $(OP)
 holstFTLMparaOMP: examples/holstFTLMparaOMP.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h
 	$(CXX) $(FLAGS) $(INCS) examples/holstFTLMparaOMP.cpp -o holstFTLMparaOMP $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(ND) $(OP) $(OMPF)
 
@@ -108,6 +110,8 @@ holstLTLMparaOMP: examples/holstLTLMparaOMP.cpp src/basis.hpp src/operators.hpp 
 
 holstLTLMpara: examples/holstLTLMpara.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h
 	$(IMPI) $(FLAGS) $(INCS) examples/holstLTLMpara.cpp -o holstLTLMpara  $(LIBSLINK) $(MPILINK32)  $(LIBS32) $(ND)  $(OP)
+holstLTLMparaMR: examples/holstLTLMparaMR.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h
+	$(IMPI) $(FLAGS) $(INCS) examples/holstLTLMparaMR.cpp -o holstLTLMparaMR  $(LIBSLINK) $(MPILINK32)  $(LIBS32) $(ND)  $(OP)
 
 
 exvalcompare: testdir/exvalcompare.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/timeev.hpp src/diag.h
