@@ -275,7 +275,7 @@ const Lattice state=GetLattice(tpState);
 		       op.coeffRef(Position(tpState), Position(tpState))-= ValType{V};
 		     }
 		    // chain
-		    	       	    for(size_t i=Llead1; i<Llead2+Llead1+Lchain-1; i++)
+		    	       	    for(size_t i=Llead1; i<Llead1+Lchain-1; i++)
                  {
 		   Lattice state=GetLattice(tpState);
 		  
