@@ -9,6 +9,7 @@
 #include<boost/mpi/communicator.hpp>
 #include<boost/mpi/environment.hpp>
 #include <boost/program_options.hpp>
+#include <omp.h>
 using namespace Many_Body;
 using Mat= Operators::Mat;
 namespace mpi = boost::mpi;
@@ -178,85 +179,51 @@ if (vm.count("Ld"))
        obs.push_back(E1);
        obs.push_back(X);
   }
+  mpi::environment env;
+  mpi::communicator world;
 
     for(int l=0; l<rep; l++)
       {
-  mpi::environment env;
-  mpi::communicator world;
-  //  std::vector<double> As(obs.size(), 0);
-  Eigen::MatrixXd As=Eigen::MatrixXd::Zero(beta.size(), obs.size());
-    Eigen::VectorXd Zs=Eigen::VectorXd::Zero(beta.size());
-
-	auto sl=std::to_string(l);
-
-    //  double Z{0.};
-  if(world.rank()==0)
-    {
-
+	if(l%world.size()!=world.rank())
+	  {
+	    continue;
+	  }
+	else{
+	  std::string sl=std::to_string(l);
      Eigen::MatrixXd Astot=Eigen::MatrixXd::Zero(beta.size(), obs.size());
 Eigen::VectorXd Zstot=Eigen::VectorXd::Zero(beta.size());
-       for(int i=0; i<runs/world.size(); i++)
-      {
-   	auto [Observables, SUMs]=calculate_lanczFT(obs[0], obs, beta, Ldim, err);
+#pragma omp parallel
+  {
 
-  	As+=Observables;
-  	Zs+=SUMs;
-      }
-       std::cout<< " process # " << world.rank() << " got meanZ "<< Zs.mean() << std::endl;
-       for(int i=0; i<beta.size(); i++)
-    	 {
-	   reduce(world, Zs(i), Zstot(i), std::plus<double>(), 0);
+#pragma omp for 
+ for(int i=0; i<runs; i++)
+   {
+     std::cout<< " om num thread " <<omp_get_thread_num()<<" from process " << world.rank() <<std::endl;
+     auto [Observables, SUMs]=calculate_lanczFT(obs[0], obs, beta, Ldim, err);
 
-    for(int k=0; k<obs.size(); k++)
-    	   {
-    	     reduce(world, As(i, k), Astot(i, k), std::plus<double>(), 0);
-
-    	   }
-    	 }
-
-      for(int i=0; i<beta.size(); i++)
-  	 {
-  	   Astot.row(i)/=Zstot(i);
-  	 }
-      std::cout<< "Astot  "<<std::endl<< Astot<< std::endl;
-            for(int i=0; i<beta.size(); i++)
-  	 {
-	   std::cout<<" T "<< 1./beta[i] << "  "<<Astot(i, 0)<<" SUM "<< Astot(i, 1)+Astot(i, 2)+Astot(i, 3)*gamma<<std::endl;
-  	 }
-	    bin_write("Er"+sl+filename, Eigen::VectorXd(Astot.col(0)));
-	    bin_write("Nphr"+sl+filename,  Eigen::VectorXd(Astot.col(1)));
-	    bin_write("EKr"+sl+filename, Eigen::VectorXd(Astot.col(2)));
-	    bin_write("nXr"+sl+filename, Eigen::VectorXd(Astot.col(3)));
-	    bin_write("tempr"+sl+filename, Tem);
-      
-    }
-  else{
-
-   
-    for(int i=0; i<runs/world.size(); i++)
-      {
-   		auto [Observables, SUMs]=calculate_lanczFT(obs[0], obs, beta, Ldim, err);
-  	As+=Observables;
-  	Zs+=SUMs;
-	
-      }
-    	std::cout<< " process # " << world.rank() << " got meanZ "<< Zs.mean() << std::endl;
-       for(int i=0; i<beta.size(); i++)
-    	 {
-    	   reduce(world, Zs[i], std::plus<double>(), 0);
-
-    for(int k=0; k<obs.size(); k++)
-    	   {
-    	     reduce(world, As(i, k), std::plus<double>(), 0);
-
-    	   }
-
-    
-
-
+	#pragma omp critical
+	{
+	  Astot+=Observables;
+	  Zstot+=SUMs;
 	}
+	//	std::cout << " got meanZ "<< SUMs.mean() << std::endl;
+    
+   }
   }
 
+  std::cout<< "Astot  "<<std::endl<< Astot<< std::endl;
+  for(int i=0; i<beta.size(); i++)
+    {
+      Astot.row(i)/=Zstot(i);
+  	   std::cout<<" T "<< 1./beta[i] << "  "<<Astot(i, 0)<<" SUM "<< Astot(i, 1)+Astot(i, 2)+Astot(i, 3)*gamma<<std::endl;
+    }
+  bin_write("ER"+sl+filename, Eigen::VectorXd(Astot.col(0)));
+  bin_write("NphR"+sl+filename,  Eigen::VectorXd(Astot.col(1)));
+  bin_write("EKR"+sl+filename, Eigen::VectorXd(Astot.col(2)));
+  bin_write("nXR"+sl+filename, Eigen::VectorXd(Astot.col(3)));
+  bin_write("tempR"+sl+filename, Tem);
+
+      }
       }
   return 0;
 }

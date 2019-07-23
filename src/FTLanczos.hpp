@@ -88,54 +88,54 @@ for(int j=0; j<lanczosDim2; j++)
 template<typename Matrix, typename Container>
 auto  calculate_lanczFT(Matrix& hamiltonian, Container& observable, std::vector<double> beta, int lanczosDim=20, double err=1E-10)->std::tuple<Eigen::MatrixXd, Eigen::VectorXd>
 {
-   std::random_device rd;
+    std::random_device rd;
 std::mt19937 gen(rd());  //here you could set the seed, but std::random_device already does that
- std::uniform_real_distribution<double> dis(-1.0, 1.0);
+  std::uniform_real_distribution<double> dis(-1.0, 1.0);
 
  
- Eigen::VectorXcd iniState=Eigen::VectorXcd::NullaryExpr(hamiltonian.rows(),[&](){return std::complex<double>(dis(gen), dis(gen));});
+  Eigen::VectorXcd iniState=Eigen::VectorXcd::NullaryExpr(hamiltonian.rows(),[&](){return std::complex<double>(dis(gen), dis(gen));});
 
-iniState/=iniState.norm();
+ iniState/=iniState.norm();
 
- Eigen::VectorXcd iniState2=Eigen::VectorXcd::NullaryExpr(hamiltonian.rows(),[&](){return std::complex<double> (dis(gen), dis(gen));});
-   iniState2/=iniState2.norm();
-  int lanczosDim2=lanczosDim;
-   auto [S, eigenVals]=estimateLD(lanczosDim, hamiltonian, iniState, err);
-   auto [S2, eigenVals2]=estimateLD(lanczosDim2, hamiltonian, iniState2, err);
+  Eigen::VectorXcd iniState2=Eigen::VectorXcd::NullaryExpr(hamiltonian.rows(),[&](){return std::complex<double> (dis(gen), dis(gen));});
+    iniState2/=iniState2.norm();
+   int lanczosDim2=lanczosDim;
+    auto [S, eigenVals]=estimateLD(lanczosDim, hamiltonian, iniState, err);
+    auto [S2, eigenVals2]=estimateLD(lanczosDim2, hamiltonian, iniState2, err);
     
-  std::cout<< "lancos vectors vas "<< lanczosDim << " and " << lanczosDim2<<std::endl;
-   Eigen::MatrixXd obs=Eigen::MatrixXd::Zero( beta.size(),observable.size());
-   Eigen::VectorXd z=Eigen::VectorXd::Zero(beta.size());
- for(int i=0; i<beta.size(); i++)
-   {
+   std::cout<< "lancos vectors vas "<< lanczosDim << " and " << lanczosDim2<<std::endl;
+    Eigen::MatrixXd obs=Eigen::MatrixXd::Zero( beta.size(),observable.size());
+    Eigen::VectorXd z=Eigen::VectorXd::Zero(beta.size());
+   for(int i=0; i<beta.size(); i++)
+     {
    
-   		  for(int j=0; j<lanczosDim; j++)
-   		    {
-		      double exponent=-(beta[i]*(eigenVals[j]-eigenVals[0]));
-		       auto exp=std::exp(exponent);
-		        auto qvec=Many_Body::lanczTrafo(S.col(j), iniState, lanczosDim, hamiltonian);
-		        auto link=iniState.adjoint()*qvec;
+    		  for(int j=0; j<lanczosDim; j++)
+    		    {
+ 		      double exponent=-(beta[i]*(eigenVals[j]-eigenVals[0]));
+ 		       auto exp=std::exp(exponent);
+ 		        auto qvec=Many_Body::lanczTrafo(S.col(j), iniState, lanczosDim, hamiltonian);
+ 		        auto link=iniState.adjoint()*qvec;
 		       
-		       for(int m=0; m<observable.size(); m++)
-		       	{
-   		        auto expval=qvec.adjoint()*observable[m]*iniState;
-		        obs(i, m)+=real((link(0, 0)*expval(0, 0)))*exp;
+ 		       for(int m=0; m<observable.size(); m++)
+ 		       	{
+    		        auto expval=qvec.adjoint()*observable[m]*iniState;
+ 		        obs(i, m)+=real((link(0, 0)*expval(0, 0)))*exp;
 		       
-			}		
-    		    }
-for(int j=0; j<lanczosDim2; j++)
-   		    {
-		      double exponent=-(beta[i]*(eigenVals2[j]-eigenVals2[0]));
-		       auto exp=std::exp(exponent);
-		       auto qvec=Many_Body::lanczTrafo(S2.col(j), iniState2, lanczosDim2, hamiltonian);
-		       //		       auto link=iniState.adjoint()*Q.col(j);
-		       auto link=iniState2.adjoint()*qvec;
-		       z(i)+=std::abs(link(0, 0))*std::abs(link(0, 0))*exp;
+ 			}		
+     		    }
+ for(int j=0; j<lanczosDim2; j++)
+    		    {
+ 		      double exponent=-(beta[i]*(eigenVals2[j]-eigenVals2[0]));
+ 		       auto exp=std::exp(exponent);
+ 		       auto qvec=Many_Body::lanczTrafo(S2.col(j), iniState2, lanczosDim2, hamiltonian);
+ 		       //		       auto link=iniState.adjoint()*Q.col(j);
+ 		       auto link=iniState2.adjoint()*qvec;
+ 		       z(i)+=std::abs(link(0, 0))*std::abs(link(0, 0))*exp;
 		      
 		     	      
-   			      //		
-        }
-   }
+//    			      //		
+         }
+    }
 		  return {obs, z};
 }
 template<typename Matrix, typename Container>
