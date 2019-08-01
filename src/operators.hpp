@@ -81,7 +81,7 @@ namespace Operators{
   template<class TotalBasis>
   Mat EKinOperator(const TotalBasis& totalBasis, double var=1. , bool PB=0, int start=0, int stop=0 )
      {
-	 using TpBasisIt= typename TotalBasis::BasisIt;
+
 using Lattice=typename TotalBasis::Lattice;     
 
  
@@ -139,7 +139,7 @@ using Lattice=typename TotalBasis::Lattice;
    template<class TotalBasis>
   Mat CurrOperator(const TotalBasis& totalBasis, double var=1. , bool PB=0, int start=0, int stop=0)
      {
-	 using TpBasisIt= typename TotalBasis::BasisIt;
+
 using Lattice=typename TotalBasis::Lattice;     
 
  
@@ -229,7 +229,7 @@ using Lattice=typename TotalBasis::Lattice;
     Mat totalHetOperator(const TotalBasis& totalBasis, double tint, double t0, double tl, double V, int Llead1,  int Llead2,  int Lchain )
      {
        bool PB=0;
-	 using TpBasisIt= typename TotalBasis::BasisIt;
+
 using Lattice=typename TotalBasis::Lattice;     
 
  
@@ -291,7 +291,7 @@ const Lattice state=GetLattice(tpState);
 template<class TotalBasis>
 Mat totCurrOperator(const TotalBasis& totalBasis, double var ,  int Llead1, int Llead2, int Lchain)
      {
-       using TpBasisIt= typename TotalBasis::BasisIt;
+
        using Lattice=typename TotalBasis::Lattice;     
 
  

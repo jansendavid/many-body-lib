@@ -89,33 +89,26 @@ using namespace Many_Body;
     return 0;
   }
 
-  //std::vector<int> ee(L, 0);
+
   // ee[L-1]=1;
 
   int Ltot=2*Llead+Lchain;
   ElectronBasis e( Ltot, int(Ltot/2));
   
-  //std::cout<< e<<std::endl;
 
-
-
-   // inistate.setZero();
-
-   // inistate[StateNr]=1;
-   // 	          Eigen::VectorXcd i0=inistate;
-   //    //   std::cout<< e << std::endl;
+      //   std::cout<< e << std::endl;
 		  
             std::cout<< e.dim << std::endl;  
 	   
   Mat E1=Operators::EKinOperator(e, tl, PB, 0, Llead-1);
   	   
-  //  Mat E2=Operators::EKinOperator(e, tl, PB, Llead+Lchain, Ltot-1);
-  // Mat EI1=Operators::EKinOperator(e, tint, PB, Llead-1, Llead);
-  // Mat EI2=Operators::EKinOperator(e, tint, PB, Llead+Lchain-1, Llead+Lchain);
-  //   Mat NI1=Operators::NumberOperator(e, -V/2, PB,  0, Llead-1);
-  // Mat NI2=Operators::NumberOperator(e, V/2, PB, Llead+Lchain, Ltot-1);
-  // // // Mat E4=Operators::EKinOperator(e, tl, PB, Llead+Lchain, Ltot-1);
-  //  Mat E3=Operators::EKinOperator(e, t0, PB, Llead, Llead+Lchain-1);
+   Mat E2=Operators::EKinOperator(e, tl, PB, Llead+Lchain, Ltot-1);
+  Mat EI1=Operators::EKinOperator(e, tint, PB, Llead-1, Llead);
+  Mat EI2=Operators::EKinOperator(e, tint, PB, Llead+Lchain-1, Llead+Lchain);
+    Mat NI1=Operators::NumberOperator(e, -V/2, PB,  0, Llead-1);
+  Mat NI2=Operators::NumberOperator(e, V/2, PB, Llead+Lchain, Ltot-1);
+  // // Mat E4=Operators::EKinOperator(e, tl, PB, Llead+Lchain, Ltot-1);
+   Mat E3=Operators::EKinOperator(e, t0, PB, Llead, Llead+Lchain-1);
    Mat C1=Operators::CurrOperator(e, tint, PB, Llead-1, Llead);
    Mat C2=Operators::CurrOperator(e, tint, PB, Llead+Lchain-1, Llead+Lchain);
 
@@ -150,7 +143,7 @@ using namespace Many_Body;
        	 TimeEv::timeev_exact(newIn, cEVec, evExp);
   	 
        	  	 std::complex<double> c=im*(newIn.adjoint()*(O*newIn))(0);
-		 std::complex<double> c2=(newIn.adjoint()*(H1*newIn))(0);
+ 		 std::complex<double> c2=(newIn.adjoint()*(H1*newIn))(0);
        		 //	 std::complex<double> c=(inistate.adjoint()*(newIn))(0);
   	 
        	 i++;
@@ -165,10 +158,10 @@ using namespace Many_Body;
  //std::cout<< MatrixXd(OBS2) << std::endl;
  // Eigen::MatrixXd OBS22=HH.adjoint()*(OBS2.selfadjointView<Lower>())*HH;
  // Eigen::VectorXd diagobs2=OBS22.diagonal();
-	// std::cout<< en(0) << std::endl;
+ 	// std::cout<< en(0) << std::endl;
  // std::cout<<diagobs2(0)<<std::endl; 
     std::string filename=".bin";
-    //     bin_write("E"+filename, en);
+    //       bin_write("E"+filename, en);
   return 0;
 }
  

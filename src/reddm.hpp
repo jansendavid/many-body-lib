@@ -140,13 +140,10 @@ template<typename TotalBasis, class SubBasis, typename T>
 std::vector<MatrixD<T>> makeRedDMTP(const TotalBasis& totalBasis, const SubBasis& subBasis, int site, MatrixD<T>& rho )
 {
   // making reduced DM for each degree of freedom in subasis L   
-       using SubBasisIt= typename SubBasis::BasisIt;
-       using TpBasisIt= typename TotalBasis::BasisIt;
-       using LeftBasisIt= typename TotalBasis::LeftBasisIt;     
-       using RightBasisIt= typename TotalBasis::RightBasisIt;
-       using LeftBasis= typename TotalBasis::LB;     
-       using RightBasis= typename TotalBasis::RB;  
-       using Lattice=typename SubBasis::Lattice;
+
+
+
+
        std::vector<MatrixD<T>> mats(totalBasis.lbasis.maxParticles+1);
        size_t dim=(totalBasis.rbasis.maxParticles+1);
 
@@ -212,13 +209,13 @@ std::vector<MatrixD<T>> makeRedDMTP(const TotalBasis& totalBasis, const SubBasis
 std::vector<MatrixD<T>> makeRedDMTP(const TotalBasis& totalBasis, const SubBasis& subBasis, int site, VectorD<T>& psi )
 {
   // making reduced DM for each degree of freedom in subasis L   
-       using SubBasisIt= typename SubBasis::BasisIt;
-       using TpBasisIt= typename TotalBasis::BasisIt;
-       using LeftBasisIt= typename TotalBasis::LeftBasisIt;     
-       using RightBasisIt= typename TotalBasis::RightBasisIt;
-       using LeftBasis= typename TotalBasis::LB;     
-       using RightBasis= typename TotalBasis::RB;  
-       using Lattice=typename SubBasis::Lattice;
+
+
+
+
+
+   
+   
        std::vector<MatrixD<T>> mats(totalBasis.lbasis.maxParticles+1);
        size_t dim=(totalBasis.rbasis.maxParticles+1);
 

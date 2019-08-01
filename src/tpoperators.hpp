@@ -344,7 +344,7 @@ auto it21=totalBasis.lbasis.find(LeftId(tpState));
 
   	 
   	 
-	    for(int i=0; i<sites; i++)
+	    for(size_t i=0; i<sites; i++)
 	      {
 
 		  	    RightBasisIt it2=subBasis.find(RightId(tpState));
@@ -406,7 +406,7 @@ auto it21=totalBasis.lbasis.find(LeftId(tpState));
   	  {
 
   	    
-	    for(int i=0; i<sites; i++)
+	    for(size_t i=0; i<sites; i++)
 	      {
 		RightBasisIt it2=subBasis.find(RightId(tpState));
 		//		std::cout<< "at "<<Position(tpState) <<" havinfg state BD " << i <<std::endl;
