@@ -35,8 +35,13 @@ namespace Many_Body{
     Vector vecTwo=Eigen::VectorXcd::Zero(dim);
     Vector vecThree=Eigen::VectorXcd::Zero(dim);
     }
-    double alpha{};
+    const Matrix& A;
     double beta{1};
+    double alpha{};
+    Vector vecOne;
+    Vector vecTwo;
+    Vector vecThree;
+
 void iterate()
     {
       	vecThree=A*vecTwo;	
@@ -65,23 +70,12 @@ void iterate()
 
 
     }
-    // void setVecOne(Vector& newOne){
-    //   vecOne=newOne;
-    // }
-    //     void setVecTwo(Vector& newTwo){
-    //   vecOne=newOne;
-    // }
-    //     void setVecTwo(Vector& newTwo){
-    //   vecOne=newTwo;
-    // }
-    Vector vecOne;
-    Vector vecTwo;
-    Vector vecThree;
-    const Matrix& A;
+  
+    
  
   };
   template<typename Matrix>
-  TriDiagMat Lanczos(Matrix& A, Eigen::VectorXcd& state, const size_t iterations)
+  TriDiagMat Lanczos3Vec(Matrix& A, Eigen::VectorXcd& state, const size_t iterations)
   {
     using namespace Eigen::internal;
     using namespace Eigen;
@@ -108,44 +102,15 @@ void iterate()
      for (size_t k = 1; k < iterations; ++k)
        {
 	 threeLanczVec.iterate();
-	 //	Eigen::VectorXcd qMiddle=A*qk;
-	 //threeLanczVec.vecThree=A*threeLanczVec.vecTwo;	
-	//	std::complex<double> c=qk.adjoint()*qMiddle;
-	//std::complex<double> c=(threeLanczVec.vecTwo).adjoint()*threeLanczVec.vecThree;
 
       	alpha=threeLanczVec.alpha;
-
-	//	Eigen::VectorXcd  rk=qMiddle - alpha*qk -beta*qkmin;
-
-	//Eigen::VectorXcd  rk=threeLanczVec.vecThree - alpha*threeLanczVec.vecTwo -beta*threeLanczVec.vecOne;
-	
      	beta=threeLanczVec.beta;
 
 	bandTdiag(k-1)=alpha;
      	bandTOff(k-1)=beta;
-
-      	//qkmin=qk;
-		
-	//threeLanczVec.vecOne=threeLanczVec.vecTwo;
-
-	//qk=rk/rk.norm();
-			
-	//	threeLanczVec.vecTwo=rk/rk.norm();
-		//   Q.col(k)=qk;
-	
-	//	     Q.col(k)=	threeLanczVec.vecTwo;
      	 
 	  	 if( std::abs(beta)<0.00001)
      	   {
-	     // std::cout<< "happend "<<std::endl;
-	     // Eigen::MatrixXcd W=Q;
-	     //       Q.resize(A.rows(), k);
-	     // 	 for (size_t i = 0; i < k; ++i)
-	     // 	   {
-	     // 	     Q.col(i)=W.col(i);
-		     
-	     // 	   }
-
 		 
     		  bandTdiag.resize( k);
     		  bandTOff.resize( k-1);
@@ -153,31 +118,21 @@ void iterate()
 		 
      	    break;
      	   }
-
-
-    	 
-	dim=k;   
-    	 
-
-             }
+    	 dim=k;   
+    	 }
      
      
     
 
     
      {
-       //Eigen::VectorXcd qMiddle=A*qk;
-       threeLanczVec.lastIterate();
-       //       	threeLanczVec.vecThree=A*threeLanczVec.vecTwo;
 
-	//	std::complex<double> c=qk.adjoint()*qMiddle;
-	//std::complex<double> c=(threeLanczVec.vecTwo).adjoint()*threeLanczVec.vecThree;
-     	//alpha=real(c);
+       threeLanczVec.lastIterate();
        bandTdiag(dim)=threeLanczVec.alpha;
 
     }
 
-     //                  assert(std::abs( (Q.adjoint()*Q).sum() -(dim+1)) < Many_Body::err);     
+
 
 
 	  
@@ -185,8 +140,76 @@ void iterate()
     TriDiagMat T(bandTdiag, bandTOff);
     return T;
   }
+    template<typename Matrix>
+  TriDiagMat Lanczos(Matrix& A, Eigen::VectorXcd& state, const size_t iterations, Eigen::MatrixXcd& Q)
+  {
+    using namespace Eigen::internal;
+    using namespace Eigen;
+    	assert(std::abs(state.norm() -1.) < Many_Body::err);
 
-  
+Q.setZero();
+     Q.col(0)=state;
+   
+        long double beta=1;
+
+    double alpha(0);
+    Eigen::VectorXd bandTdiag(iterations);
+        Eigen::VectorXd bandTOff(iterations-1);
+    bandTdiag.setZero();
+        bandTOff.setZero();
+
+    Eigen::VectorXcd qk=state;
+    Eigen::VectorXcd qkmin(A.rows());
+    qkmin.setZero();
+    size_t dim=0;
+for (size_t k = 1; k < iterations; ++k)
+       {
+     	Eigen::VectorXcd qMiddle=A*qk;
+		
+     	std::complex<double> c=qk.adjoint()*qMiddle;
+      	alpha=real(c);
+
+      	Eigen::VectorXcd  rk=qMiddle - alpha*qk -beta*qkmin;
+     	beta=rk.norm();
+
+		bandTdiag(k-1)=alpha;
+     	bandTOff(k-1)=beta;
+
+      	qkmin=qk;
+	qk=rk/rk.norm();
+	     Q.col(k)=qk;
+     	 
+	  	 if( std::abs(beta)<0.0001)
+     	   {
+	     Eigen::MatrixXcd W=Q;
+	           Q.resize(A.rows(), k);
+		 for (size_t i = 0; i < k; ++i)
+		   {
+		     Q.col(i)=W.col(i);
+		     
+		   }
+    		  bandTdiag.resize( k);
+    		  bandTOff.resize( k-1);
+		  break;
+     	   }
+	dim=k;
+             }
+     {
+       Eigen::VectorXcd qMiddle=A*qk;
+       	std::complex<double> c=qk.adjoint()*qMiddle;
+     	alpha=real(c);
+
+       		        bandTdiag(dim)=(alpha);
+
+    }
+             assert(std::abs( (Q.adjoint()*Q).sum() -(dim+1)) < Many_Body::err);     
+
+	  
+	  
+     TriDiagMat T(bandTdiag, bandTOff);
+    return T;
+  }
+
   
   template<typename Vector, typename Vector2, typename Matrix>
   auto lanczTrafo(const  Vector & state, const Vector2 & iniState, size_t iteration, const Matrix& A)
@@ -198,7 +221,7 @@ void iterate()
     Eigen::VectorXcd qkmin(A.rows());
     qkmin.setZero();
     threeLanczVec.vecOne=qkmin;
-    for(int i=0; i<iteration; i++)
+    for(size_t i=0; i<iteration; i++)
       {
 	newVec+=threeLanczVec.vecTwo*state(i);
 	threeLanczVec.iterate();

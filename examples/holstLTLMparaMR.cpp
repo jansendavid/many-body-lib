@@ -200,7 +200,7 @@ Eigen::VectorXd Zstot=Eigen::VectorXd::Zero(beta.size());
  for(int i=0; i<runs; i++)
    {
      std::cout<< " om num thread " <<omp_get_thread_num()<<" from process " << world.rank() <<std::endl;
-     auto [Observables, SUMs]=calculate_lanczLT(obs[0], obs, beta, Ldim, err);
+     auto [Observables, SUMs]=calculate_lanczLT_fast(obs[0], obs, beta, Ldim, err);
 
 	#pragma omp critical
 	{
@@ -213,7 +213,7 @@ Eigen::VectorXd Zstot=Eigen::VectorXd::Zero(beta.size());
   }
 
   std::cout<< "Astot  "<<std::endl<< Astot<< std::endl;
-  for(int i=0; i<beta.size(); i++)
+  for(size_t i=0; i<beta.size(); i++)
     {
       Astot.row(i)/=Zstot(i);
   	   std::cout<<" T "<< 1./beta[i] << "  "<<Astot(i, 0)<<" SUM "<< Astot(i, 1)+Astot(i, 2)+Astot(i, 3)*gamma<<std::endl;
