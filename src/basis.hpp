@@ -173,7 +173,7 @@ struct CompareState{
 
      if(std::accumulate(state.begin(), state.end(),0)>1)
        {std::cout<< "error"<<'\n';}
-     for(int i=0; i<state.size(); i++)
+     for(size_t i=0; i<state.size(); i++)
        {
 	 if(state[i]==1){
 	   id=i;
@@ -204,7 +204,7 @@ std::vector<size_t> makeStateVec() const override
      size_t sum=0;
         //   if(std::accumulate(state.begin(), state.end(),0)>1)
        // {std::cout<< "x error"<<'\n';}
-     for(int i=0; i<state.size(); i++)
+     for(size_t i=0; i<state.size(); i++)
        {
 	 if(state[i]==1){
 	   sum=i;
@@ -676,7 +676,7 @@ auto generateMomBasis(TotalBasis& totalBasis, int k)->TotalBasis
 {
   TotalBasis newBasis;
   int sites=totalBasis.sites;
-  using Lattice=typename TotalBasis::Lattice;     
+
   for(auto tpState : totalBasis)
     {
       //      const Lattice state=GetLattice(tpState);
