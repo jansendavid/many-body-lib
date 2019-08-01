@@ -25,6 +25,7 @@ int main(int argc, char *argv[])
   bool PB{0};
    int runs={};
       int rep={};
+     int start={};
    int Ldim={};
     double T{};
     double err{};
@@ -51,6 +52,7 @@ std::string sPB{};
       ("M", value(&M)->default_value(2), "M")
       ("r", value(&runs)->default_value(20), "r")
       ("rep", value(&rep)->default_value(1), "rep")
+      ("start", value(&start)->default_value(0), "start")
       ("Ld", value(&Ldim)->default_value(20), "Ld")
       ("t0", value(&t0)->default_value(1.), "t0")
       ("gam", value(&gamma)->default_value(1.), "gamma")
@@ -183,7 +185,7 @@ if (vm.count("Ld"))
   mpi::environment env;
   mpi::communicator world;
 
-    for(int l=0; l<rep; l++)
+    for(int l=start; l<rep; l++)
       {
 	if(l%world.size()!=world.rank())
 	  {
