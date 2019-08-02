@@ -4,8 +4,57 @@
 using VecD=Eigen::VectorXd;
 using VecC=Eigen::VectorXcd;
 using MatD=Eigen::MatrixXd;
-template<bool Fast, typename Vector, typename MatrixHam, typename MatrixTrafo, typename OBS,typename Container>
-void LTiterate(int lanczosDim,  double beta, OBS&& obs, Container& observable, VecD& eigenVals,  double& Z, MatrixTrafo& T1, Vector& iniState,  MatrixHam& hamiltonian){
+using MatC=Eigen::MatrixXcd;
+template<bool Fast, typename MatrixHam,typename Container, typename TrafoMat>
+void LTiterate(int lanczosDim,  std::vector<double>& beta, MatD& obs, Container& observable, VecD& eigenVals,  VecD& Z, TrafoMat& T1, VecC& iniState,  MatrixHam& hamiltonian){
+   for(int j=0; j<lanczosDim; j++)
+   		    {
+		      VecC qvecj;
+		         if constexpr(!Fast)
+				     {
+      qvecj=Many_Body::lanczTrafo(T1.col(j), iniState, lanczosDim, hamiltonian);
+				     }
+			  else{
+			 qvecj=T1.col(j);
+			}
+			  auto link=iniState.adjoint()*qvecj;
+		      for(int l=0; l<lanczosDim; l++)
+		    {
+		     // auto link=iniState.adjoint()*Q.col(j);
+		     VecC qvecl;
+		       if constexpr(!Fast)
+				     {
+				       
+				       qvecl=Many_Body::lanczTrafo(T1.col(l), iniState, lanczosDim, hamiltonian);
+				     }
+		       else{
+			
+			 qvecl=T1.col(l);
+			
+		       }
+		       for(size_t i=0; i<beta.size(); i++)
+			 {
+ double exponent=(eigenVals[j]+eigenVals[l])/2-eigenVals[0];
+		      exponent*=-beta[i];
+		      auto exp=std::exp(exponent);
+		      auto right=(qvecl).adjoint()*iniState;
+		      if(l==j)
+			{
+			  Z(i)+=real(right(0, 0)*link(0, 0))*exp;
+			}
+		      
+		       for(int m=0; m<observable.size(); m++)
+		       	{
+			  auto expval=((qvecj).adjoint())*observable[m]*qvecl;
+
+			  obs(i,m)+=real((link(0, 0)*right(0,0)*expval(0, 0)))*exp;
+			}
+			 }
+			}
+		    }
+}
+template<bool Fast, typename MatrixHam,typename Container, typename TrafoMat>
+void LTiterate(int lanczosDim,  double beta, VecD& obs, Container& observable, VecD& eigenVals,  double& Z, TrafoMat& T1, VecC& iniState,  MatrixHam& hamiltonian){
    for(int j=0; j<lanczosDim; j++)
    		    {
 		      VecC qvecj;
@@ -106,11 +155,9 @@ std::uniform_real_distribution<double> dis(-1.0, 1.0);
   
    Eigen::MatrixXd obs=Eigen::MatrixXd::Zero( beta.size(),observable.size());
    Eigen::VectorXd z=Eigen::VectorXd::Zero(beta.size());
- for(size_t i=0; i<beta.size(); i++)
-   {    
-    
-   	       LTiterate<false>(lanczosDim, beta[i], obs.row(i), observable, eigenVals,  z(i), S, iniState, hamiltonian);
-   }
+
+   	       LTiterate<false>(lanczosDim, beta, obs, observable, eigenVals,  z, S, iniState, hamiltonian);
+
    		    
 		  return {obs, z};
 }
@@ -157,14 +204,13 @@ std::uniform_real_distribution<double> dis(-1.0, 1.0);
   
    auto [Q, S, eigenVals]=estimateLDwithQ(lanczosDim, hamiltonian, iniState, err);
    std::cout<< "lancos vectors vas "<< lanczosDim<<std::endl;
-  
+         Q=Q*S;
    Eigen::MatrixXd obs=Eigen::MatrixXd::Zero( beta.size(),observable.size());
    Eigen::VectorXd z=Eigen::VectorXd::Zero(beta.size());
- for(size_t i=0; i<beta.size(); i++)
-   {    
+
     
-   	       LTiterate<true>(lanczosDim, beta[i], obs.row(i), observable, eigenVals,  z(i), Q, iniState, hamiltonian);
-   }
+   	       LTiterate<true>(lanczosDim, beta, obs, observable, eigenVals,  z, Q, iniState, hamiltonian);
+
    		    
 		  return {obs, z};
 }

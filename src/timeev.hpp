@@ -40,24 +40,31 @@ namespace TimeEv{
   void timeev_lanzcos( Eigen::VectorXcd& initialState,  Matrix& hamiltonian, size_t lanczosDim, double dt)
   {
     
-    Eigen::VectorXcd initialState2=initialState;
+ Eigen::VectorXcd initialState2=initialState;
+    Eigen::MatrixXcd Q(hamiltonian.rows(), lanczosDim);
 
+      Many_Body::TriDiagMat tri=Many_Body::Lanczos(hamiltonian, initialState2, lanczosDim, Q);
 
-      Many_Body::TriDiagMat tri=Many_Body::Lanczos(hamiltonian, initialState2, lanczosDim);
+      Eigen::MatrixXd S(Q.cols(), Q.cols());
+      Eigen::VectorXd eigenVals(Q.cols());
 
-      Eigen::MatrixXd S(lanczosDim, lanczosDim);
-      Eigen::VectorXd eigenVals(lanczosDim);
      	 Many_Body::diag(tri, S, eigenVals);
-	 Eigen::SparseMatrix<std::complex<double>,Eigen::RowMajor> evExp=TimeEv::EigenvalExponent(eigenVals, dt);
-	 Eigen::MatrixXcd S2=S.cast<std::complex<double>>();
 
-	 VectorXcd initialStateTemp(lanczosDim);
-       initialStateTemp= evExp*(S2.row(0).transpose());
+
+
+
+	 Eigen::SparseMatrix<std::complex<double>,Eigen::RowMajor> evExp=TimeEv::EigenvalExponent(eigenVals, dt);
+    Eigen::MatrixXcd S2=S.cast<std::complex<double>>();
+       Eigen::MatrixXcd Q2=Q.cast<std::complex<double>>();
+       VectorXcd initialStateTemp(Q.cols());
+
+	 initialStateTemp= evExp*(S2.row(0).transpose());
+
     	initialStateTemp= S2*initialStateTemp;
 	
-	initialState=Many_Body::lanczTrafo(initialStateTemp, initialState, lanczosDim, hamiltonian);
-	assert(std::abs(initialState.norm() -1.) < Many_Body::err);
-	
+ 	  	initialState= Q2*initialStateTemp;
+		
+		  assert(std::abs(initialState.norm() -1.) < Many_Body::err);
     return ; 
   }
 }
