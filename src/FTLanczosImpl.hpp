@@ -40,7 +40,7 @@ for(int j=std::min(lanczosDim,lanczosDim2); j<std::max(lanczosDim,lanczosDim2); 
    		    {
 		          double exponent=-(beta*(eigenVals[j]-eigenVals[0]));
 		       auto exp=std::exp(exponent);
-		      if(lanczosDim<lanczosDim2)
+		      if(lanczosDim>lanczosDim2)
 			{
 			  VecC qvec1;
 			  
