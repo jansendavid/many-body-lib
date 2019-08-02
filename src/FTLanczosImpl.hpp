@@ -4,8 +4,82 @@
 using VecD=Eigen::VectorXd;
 using VecC=Eigen::VectorXcd;
 using MatD=Eigen::MatrixXd;
-template<bool Fast, typename Vector, typename MatrixHam, typename MatrixTrafo, typename OBS,typename Container>
-void FTiterate(int lanczosDim, int lanczosDim2, double beta, OBS&& obs, Container& observable, VecD& eigenVals, VecD& eigenVals2, double& Z, MatrixTrafo& T1, MatrixTrafo& T2, Vector& iniState1, Vector& iniState2, MatrixHam& hamiltonian){
+using MatC=Eigen::MatrixXcd;
+template<bool Fast, typename MatrixHam, typename MatrixTrafo, typename Container>
+void FTiterate(int lanczosDim, int lanczosDim2, std::vector<double> beta, MatD& obs, Container& observable, VecD& eigenVals, VecD& eigenVals2, VecD& Z, MatrixTrafo& T1, MatrixTrafo& T2, VecC& iniState1, VecC& iniState2, MatrixHam& hamiltonian){
+  for(size_t i=0; i<beta.size(); i++)
+    {
+  for(int j=0; j<std::min(lanczosDim,lanczosDim2) ; j++)
+   		    {
+		      double exponent=-(beta[i]*(eigenVals[j]-eigenVals[0]));
+		       auto exp=std::exp(exponent);
+		       VecC qvec1;
+		       VecC qvec2;
+		       if constexpr(!Fast)
+				     {
+				       qvec1=Many_Body::lanczTrafo(T1.col(j), iniState1, lanczosDim, hamiltonian);
+				       qvec2=Many_Body::lanczTrafo(T2.col(j), iniState2, lanczosDim2, hamiltonian);
+				     }
+		       else{
+			 qvec1=T1.col(j);
+			 qvec2=T2.col(j);
+		       }
+
+		       auto link1=iniState1.adjoint()*qvec1;
+		       auto link2=iniState2.adjoint()*qvec2;
+		       Z(i)+=std::abs(link2(0, 0))*std::abs(link2(0, 0))*exp;
+		       for(size_t m=0; m<observable.size(); m++)
+		       	{
+			 auto expval=qvec1.adjoint()*observable[m]*iniState1;
+			 obs(i, m)+=real((link1(0, 0)*expval(0, 0)))*exp;
+			}
+   		    }
+  if(lanczosDim!=lanczosDim2){
+for(int j=std::min(lanczosDim,lanczosDim2); j<std::max(lanczosDim,lanczosDim2); j++)
+   		    {
+		          double exponent=-(beta[i]*(eigenVals[j]-eigenVals[0]));
+		       auto exp=std::exp(exponent);
+		      if(lanczosDim>lanczosDim2)
+			{
+			  VecC qvec1;
+			  
+		       if constexpr(!Fast)
+				     {
+				       qvec1=Many_Body::lanczTrafo(T1.col(j), iniState1, lanczosDim, hamiltonian);
+			
+				     }
+		       else{
+			 qvec1=T1.col(j);
+			
+		       }
+		       auto link1=iniState1.adjoint()*qvec1;
+		       
+		       for(size_t m=0; m<observable.size(); m++)
+		       	{
+			 auto expval=qvec1.adjoint()*observable[m]*iniState1;
+			 obs(i, m)+=real((link1(0, 0)*expval(0, 0)))*exp;
+			}
+			}
+		      else{
+			 VecC qvec2;
+			   if constexpr(!Fast)
+				     {
+				       qvec2=Many_Body::lanczTrafo(T2.col(j), iniState2, lanczosDim2, hamiltonian);
+				     }
+		       else{
+			 qvec2=T2.col(j);
+		       }
+
+		       auto link2=iniState2.adjoint()*qvec2;
+		       Z(i)+=std::abs(link2(0, 0))*std::abs(link2(0, 0))*exp;
+		     }
+
+   		    }
+  }}
+  
+}
+template<bool Fast, typename MatrixHam, typename MatrixTrafo, typename Container>
+void FTiterate(int lanczosDim, int lanczosDim2, double beta, MatD& obs, Container& observable, VecD& eigenVals, VecD& eigenVals2, double& Z, MatrixTrafo& T1, MatrixTrafo& T2, VecC& iniState1, VecC& iniState2, MatrixHam& hamiltonian){
   for(int j=0; j<std::min(lanczosDim,lanczosDim2) ; j++)
    		    {
 		      double exponent=-(beta*(eigenVals[j]-eigenVals[0]));
@@ -124,11 +198,10 @@ std::mt19937 gen(rd());  //here you could set the seed, but std::random_device a
   std::cout<< "lancos vectors vas "<< lanczosDim << " and " << lanczosDim2<<std::endl;
     Eigen::MatrixXd obs=Eigen::MatrixXd::Zero( beta.size(),observable.size());
     Eigen::VectorXd z=Eigen::VectorXd::Zero(beta.size());
-   for(size_t i=0; i<beta.size(); i++)
-     {
-       FTiterate<false>(lanczosDim, lanczosDim2, beta[i], obs.row(i), observable, eigenVals, eigenVals2, z(i), S, S2, iniState, iniState2, hamiltonian);
+ 
+    FTiterate<false>(lanczosDim, lanczosDim2, beta, obs, observable, eigenVals, eigenVals2, z, S, S2, iniState, iniState2, hamiltonian);
 
-    }
+ 
 		  return {obs, z};
 }
 template<typename Matrix, typename Container>
@@ -179,11 +252,9 @@ std::mt19937 gen(rd());  //here you could set the seed, but std::random_device a
   std::cout<< "lancos vectors vas "<< lanczosDim << " and " << lanczosDim2<<std::endl;
     Eigen::MatrixXd obs=Eigen::MatrixXd::Zero( beta.size(),observable.size());
     Eigen::VectorXd z=Eigen::VectorXd::Zero(beta.size());
-   for(size_t i=0; i<beta.size(); i++)
-     {
-       FTiterate<true>(lanczosDim, lanczosDim2, beta[i], obs.row(i), observable, eigenVals, eigenVals2, z(i), Q1, Q2, iniState, iniState2, hamiltonian);
+       FTiterate<true>(lanczosDim, lanczosDim2, beta, obs, observable, eigenVals, eigenVals2, z, Q1, Q2, iniState, iniState2, hamiltonian);
 
-    }
+    
 		  return {obs, z};
 }
 template<typename Matrix, typename Container>

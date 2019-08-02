@@ -202,7 +202,7 @@ for (size_t k = 1; k < iterations; ++k)
        		        bandTdiag(dim)=(alpha);
 
     }
-             assert(std::abs( (Q.adjoint()*Q).sum() -(dim+1)) < Many_Body::err);     
+     //             assert(std::abs( (Q.adjoint()*Q).sum() -(dim+1)) < Many_Body::err);     
 
 	  
 	  
