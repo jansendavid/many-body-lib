@@ -142,31 +142,25 @@ if (vm.count("Ld"))
        }
      
      
-    Mat H;
-    Mat N;
-    Mat EK;
-    Mat X;
+   
   std::vector<Mat> obs;
   {
     
     ElectronBasis e( L, 1);
   PhononBasis ph(L, M);
-  HolsteinBasis TP(e, ph);
-  std::cout<< TP.dim<<std::endl;
-        Mat E1=Operators::EKinOperatorL(TP, e, t0,PB);
-       Mat Ebdag=Operators::NBosonCOperator(TP, ph, gamma, PB);
-       Mat Eb=Operators::NBosonDOperator(TP, ph, gamma, PB);
-      Mat Eph=Operators::NumberOperator(TP, ph, omega,  PB);
-
-      Eigen::VectorXd eigenVals(TP.dim);
-       H=E1+Eb+Eph+Ebdag;
-        N=Eph/omega;
-	EK=E1;
-	X=(Ebdag+Eb)/gamma;
-       obs.push_back(H);
-       obs.push_back(N);
-       obs.push_back(E1);
-       obs.push_back(X);
+   HolsteinBasis TP(e, ph);
+   std::cout<< TP.dim<<std::endl;
+  
+  
+    obs.push_back(Operators::EKinOperatorL(TP, e, t0,PB));
+    
+         obs.push_back(Operators::NumberOperator(TP, ph, 1,  PB));
+         obs.push_back(Operators::EKinOperatorL(TP, e, t0,PB));
+	 obs.push_back(Operators::NBosonDOperator(TP, ph, 1, PB));
+	 obs[obs.size()-1]+=Operators::NBosonCOperator(TP, ph, 1, PB);
+	  obs[0]+=gamma*obs[obs.size()-1];
+	  obs[0]+=omega*obs[1];
+	
   }
 
 
@@ -210,11 +204,11 @@ if (vm.count("Ld"))
     	 {
     	   std::cout<<" T "<< 1./beta[i] << "  "<<Astot(i, 0)<<" SUM "<< Astot(i, 1)+Astot(i, 2)+Astot(i, 3)*gamma<<std::endl;
     	 }
-	    	    bin_write("E"+filename, Eigen::VectorXd(Astot.col(0)));
-	    bin_write("Nph"+filename,  Eigen::VectorXd(Astot.col(1)));
-	    bin_write("EK"+filename, Eigen::VectorXd(Astot.col(2)));
-	    bin_write("nX"+filename, Eigen::VectorXd(Astot.col(3)));
-	    bin_write("temp"+filename, Tem);
+  	    	    bin_write("E"+filename, Eigen::VectorXd(Astot.col(0)));
+  	    bin_write("Nph"+filename,  Eigen::VectorXd(Astot.col(1)));
+  	    bin_write("EK"+filename, Eigen::VectorXd(Astot.col(2)));
+  	    bin_write("nX"+filename, Eigen::VectorXd(Astot.col(3)));
+  	    bin_write("temp"+filename, Tem);
       
     }
   else{
