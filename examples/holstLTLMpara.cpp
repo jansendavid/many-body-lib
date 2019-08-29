@@ -185,7 +185,7 @@ if (vm.count("Ld"))
 Eigen::VectorXd Zstot=Eigen::VectorXd::Zero(beta.size());
        for(int i=0; i<runs/world.size(); i++)
       {
-   	auto [Observables, SUMs]=calculate_lanczLT_slow(obs[0], obs, beta, Ldim, err);
+   	auto [Observables, SUMs]=calculate_lanczLT_fast(obs[0], obs, beta, Ldim, err);
 
   	As+=Observables;
   	Zs+=SUMs;
@@ -226,7 +226,7 @@ Eigen::VectorXd Zstot=Eigen::VectorXd::Zero(beta.size());
    
     for(int i=0; i<runs/world.size(); i++)
       {
-   		auto [Observables, SUMs]=calculate_lanczLT_slow(obs[0], obs, beta, Ldim, err);
+   		auto [Observables, SUMs]=calculate_lanczLT_fast(obs[0], obs, beta, Ldim, err);
   	As+=Observables;
   	Zs+=SUMs;
 	
