@@ -30,7 +30,7 @@ namespace Operators{
     size_t dim=totalBasis.dim;
     size_t sites=totalBasis.sites;
     Mat op(dim, dim);
-   op.setZero();
+    //   op.setZero();
   
 
 
@@ -65,7 +65,7 @@ using Lattice=typename SubBasis::Lattice;
    size_t dim=totalBasis.dim;
     size_t sites=totalBasis.sites;
     Mat op(dim, dim);
-      op.setZero();
+    //      op.setZero();
       
       
       
@@ -338,7 +338,7 @@ auto it21=totalBasis.lbasis.find(LeftId(tpState));
    size_t dim=totalBasis.dim;
     size_t sites=totalBasis.sites;
     Mat op(dim, dim);
-      op.setZero();
+    //      op.setZero();
         	for(const auto& tpState : totalBasis)   
   	  {	    
 
@@ -401,7 +401,7 @@ auto it21=totalBasis.lbasis.find(LeftId(tpState));
    size_t dim=totalBasis.dim;
     size_t sites=totalBasis.sites;
     Mat op(dim, dim);
-      op.setZero();
+    //      op.setZero();
   	for(const auto& tpState : totalBasis)   
   	  {
 
