@@ -143,10 +143,7 @@ if (vm.count("Ld"))
        }
      
      
-    Mat H;
-    Mat N;
-    Mat EK;
-    Mat X;
+
   std::vector<Mat> obs;
   {
     
@@ -154,20 +151,14 @@ if (vm.count("Ld"))
   PhononBasis ph(L, M);
   HolsteinBasis TP(e, ph);
   std::cout<< TP.dim<<std::endl;
-        Mat E1=Operators::EKinOperatorL(TP, e, t0,PB);
-       Mat Ebdag=Operators::NBosonCOperator(TP, ph, gamma, PB);
-       Mat Eb=Operators::NBosonDOperator(TP, ph, gamma, PB);
-      Mat Eph=Operators::NumberOperator(TP, ph, omega,  PB);
-
-      Eigen::VectorXd eigenVals(TP.dim);
-       H=E1+Eb+Eph+Ebdag;
-        N=Eph/omega;
-	EK=E1;
-	X=(Ebdag+Eb)/gamma;
-       obs.push_back(H);
-       obs.push_back(N);
-       obs.push_back(E1);
-       obs.push_back(X);
+    obs.push_back(Operators::EKinOperatorL(TP, e, t0,PB));
+    
+         obs.push_back(Operators::NumberOperator(TP, ph, 1,  PB));
+         obs.push_back(Operators::EKinOperatorL(TP, e, t0,PB));
+	 obs.push_back(Operators::NBosonDOperator(TP, ph, 1, PB));
+	 obs[obs.size()-1]+=Operators::NBosonCOperator(TP, ph, 1, PB);
+	  obs[0]+=gamma*obs[obs.size()-1];
+	  obs[0]+=omega*obs[1];
   }
 
 
