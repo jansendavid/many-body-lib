@@ -41,7 +41,7 @@ return;
       F<<std::fixed <<  std::setprecision(15)<< x[i] << '\n';
     }
   F.close();
-  std::cout << "yout data should be stored in the dirctory as " << s1  << std::endl;
+  // std::cout << "yout data should be stored in the dirctory as " << s1  << std::endl;
 return;
 }
     template<typename T>
