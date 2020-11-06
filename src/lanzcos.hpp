@@ -1,4 +1,5 @@
 #pragma once
+#include<complex>
 #include<vector>
 #include"mkl_lapacke.h"
 #include <Eigen/Sparse>
@@ -147,32 +148,30 @@ void iterate()
     using namespace Eigen;
     	assert(std::abs(state.norm() -1.) < Many_Body::err);
 
-Q.setZero();
-     Q.col(0)=state;
-   
+	Q.setZero();
+	Q.col(0)=state;
         long double beta=1;
-
     double alpha(0);
-    Eigen::VectorXd bandTdiag(iterations);
-        Eigen::VectorXd bandTOff(iterations-1);
-    bandTdiag.setZero();
+     Eigen::VectorXd bandTdiag(iterations);
+         Eigen::VectorXd bandTOff(iterations-1);
+	   bandTdiag.setZero();
         bandTOff.setZero();
 
     Eigen::VectorXcd qk=state;
     Eigen::VectorXcd qkmin(A.rows());
     qkmin.setZero();
     size_t dim=0;
-for (size_t k = 1; k < iterations; ++k)
-       {
-     	Eigen::VectorXcd qMiddle=A*qk;
+ for (size_t k = 1; k < iterations; ++k)
+        {
+	  Eigen::VectorXcd qMiddle=A*qk;
 		
-     	std::complex<double> c=qk.adjoint()*qMiddle;
-      	alpha=real(c);
+	    	std::complex<double> c=qk.adjoint()*qMiddle;
+	     	alpha=real(c);
 
       	Eigen::VectorXcd  rk=qMiddle - alpha*qk -beta*qkmin;
      	beta=rk.norm();
 
-		bandTdiag(k-1)=alpha;
+	bandTdiag(k-1)=alpha;
      	bandTOff(k-1)=beta;
 
       	qkmin=qk;
@@ -201,9 +200,9 @@ for (size_t k = 1; k < iterations; ++k)
 
        		        bandTdiag(dim)=(alpha);
 
-    }
+     }
      //             assert(std::abs( (Q.adjoint()*Q).sum() -(dim+1)) < Many_Body::err);     
-
+     std::cout<<"Qdag Q sum "<< (Q.adjoint()*Q).sum()<<std::endl;
 	  
 	  
      TriDiagMat T(bandTdiag, bandTOff);

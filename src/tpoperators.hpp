@@ -20,12 +20,153 @@ namespace Operators{
   using Many_Body::LeftId;
   
   using Mat= Eigen::SparseMatrix<ValType,Eigen::RowMajor>;
+ template<class TotalBasis>
+  Mat CdagTPOperator(const TotalBasis& totalBasis, int i,   const bool& PB=true)
+{
+  
+   using LeftBasisIt= typename TotalBasis::LeftBasisIt;     
+      using RightBasisIt= typename TotalBasis::RightBasisIt;
 
-  template<class TotalBasis, class SubBasis>
+
+ using Lattice=typename TotalBasis::LeftLattice;   
+    size_t dim=totalBasis.dim;
+    
+    Mat op(dim, dim);
+       op.setZero();
+ for( auto& tpState :totalBasis)
+	     {
+	  	 
+	    
+	        LeftBasisIt it2=totalBasis.lbasis.find(LeftId(tpState));	     
+
+	       Lattice state=GetLattice(*it2);
+	       //std::cout << " stat "<< state << "\n";
+	       //std::cout << " i "<< i<< "  has "<< state[i]<< std::endl;
+	       
+	       if(state[i]==0 and (state.Count()<totalBasis.lbasis.totalmaxPar) )
+	         	 {
+			   
+			   auto temp=state;
+	         	   state.setPartNr(i, 1);
+			   size_t signControl=CheckSign2(temp, i, 0);
+			   // std::cout << "at i="<< i <<" changed to  "<< state << "\n"<< "with aign cont "<< signControl<< '\n';
+	         	   it2= totalBasis.lbasis.find(state.GetId());
+	        	   RightBasisIt it3=totalBasis.rbasis.find(RightId(tpState));
+	     		   size_t newStateNr= Position(*it3)*totalBasis.lbasis.dim +Position(*it2);
+	      		              if(signControl%2==0)
+   	      	    	 {
+	      		   op.coeffRef(newStateNr, Position(tpState))+= ValType{1};}
+   	      	       else
+   	      	    	 { op.coeffRef(newStateNr, Position(tpState))-= ValType{1};}
+	      	    }
+	         
+   	         	     
+		 
+	      }
+      return op;
+      
+       }
+  template<class TotalBasis>
+  Mat CTPOperator(const TotalBasis& totalBasis, int i,   const bool& PB=true)
+{
+  
+   using LeftBasisIt= typename TotalBasis::LeftBasisIt;     
+      using RightBasisIt= typename TotalBasis::RightBasisIt;
+
+
+ using Lattice=typename TotalBasis::LeftLattice;   
+    size_t dim=totalBasis.dim;
+    
+    Mat op(dim, dim);
+       op.setZero();
+ for( auto& tpState :totalBasis)
+	     {
+	  	 
+	    
+	        LeftBasisIt it2=totalBasis.lbasis.find(LeftId(tpState));	     
+
+	       Lattice state=GetLattice(*it2);
+	       // std::cout << " stat "<< state << "\n";
+	       //std::cout << " i "<< i<< "  has "<< state[i]<< std::endl;
+	       
+	       if(state[i]==1)
+	         	 {
+			   
+			   auto temp=state;
+	         	   state.setPartNr(i, 0);
+			   size_t signControl=CheckSign2(temp, i, 0);
+			   // std::cout << "at i="<< i <<" changed to  "<< state << "\n"<< "with aign cont "<< signControl<< '\n';
+	         	   it2= totalBasis.lbasis.find(state.GetId());
+	        	   RightBasisIt it3=totalBasis.rbasis.find(RightId(tpState));
+	     		   size_t newStateNr= Position(*it3)*totalBasis.lbasis.dim +Position(*it2);
+	      		              if(signControl%2==0)
+   	      	    	 {
+	      		   op.coeffRef(newStateNr, Position(tpState))+= ValType{1};}
+   	      	       else
+   	      	    	 { op.coeffRef(newStateNr, Position(tpState))-= ValType{1};}
+	      	    }
+	         
+   	         	     
+		 
+	      }
+      return op;
+      
+       }
+   template<class TotalBasis, class SubBasis>
+ Mat NumberOperatorph_1(const TotalBasis& totalBasis, const SubBasis& subBasis, const double omega=1., size_t i=0, const bool& PB=true)
+
+  {
+ 
+
+    size_t dim=totalBasis.dim;
+    size_t sites=totalBasis.sites;
+    Mat op(dim, dim);
+    //   op.setZero();
+  
+
+
+      for(const auto& tpState : totalBasis)
+	{
+
+	  // left vs right id ?
+ op.coeffRef(Position(tpState), Position(tpState))+=(omega*subBasis.particlesAt(RightId(tpState), i));
+       
+	   
+	  
+	}
+      return op;
+      
+       }
+ template<class TotalBasis, class SubBasis>
+ Mat NumberOperatore_1(const TotalBasis& totalBasis, const SubBasis& subBasis, const double omega=1., size_t i=0, const bool& PB=true)
+
+  {
+ 
+
+    size_t dim=totalBasis.dim;
+    size_t sites=totalBasis.sites;
+    Mat op(dim, dim);
+    //   op.setZero();
+  
+
+
+      for(const auto& tpState : totalBasis)
+	{
+
+	  // left vs right id ?
+ op.coeffRef(Position(tpState), Position(tpState))+=(omega*subBasis.particlesAt(LeftId(tpState), i));
+       
+	   
+	  
+	}
+      return op;
+      
+       }
+   template<class TotalBasis, class SubBasis>
   Mat NumberOperator(const TotalBasis& totalBasis, const SubBasis& subBasis, const double omega=1., const bool& PB=true)
 
   {
-
+ 
 
     size_t dim=totalBasis.dim;
     size_t sites=totalBasis.sites;
@@ -292,6 +433,61 @@ using Lattice=typename SubBasis::Lattice;
     
   return op;
   }
+ template<class TotalBasis, class SubBasis >
+ Mat EKinOperatorRPH(const TotalBasis& totalBasis, const SubBasis& subBasis, double var=1. , const bool& PB=true)
+     {
+
+
+       using LeftBasisIt= typename TotalBasis::LeftBasisIt;     
+       using RightBasisIt= typename TotalBasis::RightBasisIt;
+
+
+       using Lattice=typename SubBasis::Lattice;     
+    
+ 
+   size_t dim=totalBasis.dim;
+    size_t sites=totalBasis.sites;
+    Mat op(dim, dim);
+      op.setZero();
+      
+      
+      
+	  for( auto& tpState : totalBasis)
+	    {
+	      	    for(size_t i=0; i<Operators::Length( sites, PB); i++)
+                {
+	       RightBasisIt it2=subBasis.find(RightId(tpState));	     
+
+	       Lattice state=GetLattice(*it2);
+	       size_t j=Operators::NextWithBC(i, sites, PB);
+	       size_t particleNumber1=subBasis.particlesAt(RightId(tpState), i);
+	       size_t particleNumber2=subBasis.particlesAt(RightId(tpState), j);
+
+  	     if( particleNumber1==0 or particleNumber2==subBasis.maxParticles )
+  	       {
+  	       }
+   	   	 else{
+		      Lattice temp=state;
+		      state.setPartNr(j, temp[j]+1);
+ state.setPartNr(i, temp[i]-1);
+		 
+ 
+		       
+ it2= subBasis.find(state.GetId());
+ LeftBasisIt it3=totalBasis.lbasis.find(LeftId(tpState));
+ size_t newStateNr= Position(*it2)*totalBasis.lbasis.dim +Position(*it3);
+// 	  	              if(signControl%2==0)
+//    	  	    	 {
+	   		   op.coeffRef(newStateNr, Position(tpState))-= var*(std::sqrt(state[i]+1))*(std::sqrt(state[j]));
+			   op.coeffRef( Position(tpState), newStateNr)-= var*(std::sqrt(state[i]+1))*(std::sqrt(state[j]));
+}
+  	     	     }
+	   
+
+   	  }
+    
+  return op;
+  }
   template<typename TotalBasis, typename Basis>
     Mat CalculateCouplungOperator( const TotalBasis& totalBasis, const Basis& subBasis,   const double u=1.)
     {
@@ -325,6 +521,111 @@ auto it21=totalBasis.lbasis.find(LeftId(tpState));
       
        }
   // Holstein model obc, for now this is n_0(n)
+   template<typename TotalBasis, typename Basis>
+   Mat BosonCOperator_1(const TotalBasis& totalBasis, Basis& subBasis, double var=1. , size_t i=0, const bool& PB=true)
+  {
+
+
+      using LeftBasisIt= typename TotalBasis::LeftBasisIt;
+      using LeftLattice=  typename    TotalBasis::LeftLattice;     
+      using RightBasisIt= typename TotalBasis::RightBasisIt;     
+      using RightLattice=typename TotalBasis::RightLattice;
+
+   size_t dim=totalBasis.dim;
+    size_t sites=totalBasis.sites;
+    Mat op(dim, dim);
+    //      op.setZero();
+        	for(const auto& tpState : totalBasis)   
+  	  {	    
+
+  	 
+  	 
+	 
+		  	    RightBasisIt it2=subBasis.find(RightId(tpState));
+
+	    	    LeftBasisIt it33=totalBasis.lbasis.find(LeftId(tpState));
+	     LeftLattice stateEl(GetLattice(*it33));
+
+  	    size_t particleNumber=subBasis.particlesAt(RightId(tpState), i);
+
+  	     if( particleNumber==subBasis.maxParticles)
+  	       {
+  	       }
+  	     else{
+	       
+  	       LeftBasisIt it3=totalBasis.lbasis.find(LeftId(tpState));
+  	       RightLattice state(GetLattice(*it2));
+
+			     state.setPartNr(i, particleNumber+1);
+
+
+  	       it2= subBasis.find(state.GetId());
+  	      
+  	       size_t newStateNr= Position(*it2) *totalBasis.lbasis.dim +Position(*it3) ;
+
+
+
+  	       op.coeffRef(newStateNr, Position(tpState))+= ValType{var*(std::sqrt(state[i]))};
+  	   
+
+  		    }
+	      
+  	  }
+  		return op;
+  }
+
+ template<typename TotalBasis, typename Basis>
+ Mat BosonDOperator_1(const TotalBasis& totalBasis, Basis& subBasis,   double var=1. , size_t i=0,  const bool& PB=true)
+  {
+     
+
+
+
+      using LeftBasisIt= typename TotalBasis::LeftBasisIt;
+      using LeftLattice=  typename    TotalBasis::LeftLattice;     
+      using RightBasisIt= typename TotalBasis::RightBasisIt;     
+      using RightLattice=typename TotalBasis::RightLattice;
+       
+   size_t dim=totalBasis.dim;
+    size_t sites=totalBasis.sites;
+    Mat op(dim, dim);
+    //      op.setZero();
+  	for(const auto& tpState : totalBasis)   
+  	  {
+
+  	    
+	 
+		RightBasisIt it2=subBasis.find(RightId(tpState));
+
+	    	    LeftBasisIt it33=totalBasis.lbasis.find(LeftId(tpState));
+	     LeftLattice stateEl(GetLattice(*it33));
+
+	    size_t particleNumber=subBasis.particlesAt(RightId(tpState), i);
+
+  	     if( particleNumber==0)
+  	       {
+  	       }
+  	     else{
+	       
+  	       LeftBasisIt it3=totalBasis.lbasis.find(LeftId(tpState));
+  	       RightLattice state(GetLattice(*it2));
+
+	       state.setPartNr(i, particleNumber-1);
+
+  	       it2= subBasis.find(state.GetId());
+
+  	       size_t newStateNr= Position(*it2)*totalBasis.lbasis.dim +Position(*it3);
+	       
+
+  	       op.coeffRef(newStateNr, Position(tpState))+= ValType{var*(std::sqrt(state[i]+1))};
+  	   
+	     
+  		    }
+  	  
+	  }
+  		return op;
+   }
+  
    template<typename TotalBasis, typename Basis>
   Mat NBosonCOperator(const TotalBasis& totalBasis, Basis& subBasis, double var=1. , const bool& PB=true)
   {
@@ -786,7 +1087,18 @@ using Lattice=typename SubBasis::Lattice;
     
   return op;
   }
+template<class TotalBasis>
+Mat HolsteinHam(const TotalBasis& totalBasis,  const double t0=1., const double omega=1., const double gamma=1., const bool& PB=true)
 
+  {
+
+
+       Mat EK=Operators::EKinOperatorL(totalBasis, totalBasis.lbasis,  t0,PB);
+       Mat Ebdag=Operators::NBosonCOperator(totalBasis, totalBasis.rbasis, gamma, PB);
+       Mat Eb=Operators::NBosonDOperator(totalBasis, totalBasis.rbasis, gamma, PB);
+       Mat Eph=Operators::NumberOperator(totalBasis, totalBasis.rbasis, omega,  PB);
+      return EK+Eb+Eph+Ebdag;
+  }
   // template<class TotalBasis, class SubBasis>
  //  Mat NumberOperatore(const TotalBasis& totalBasis, const SubBasis& subBasis, const double omega=1., const bool& PB=true)
  // {    using BasisIt= typename TotalBasis::BasisIt;

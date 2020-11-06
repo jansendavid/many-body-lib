@@ -5,15 +5,17 @@
 namespace TimeEv{
     using Many_Body::im;
   using namespace Eigen;
-  Eigen::SparseMatrix<std::complex<double>, Eigen::RowMajor> EigenvalExponent(Eigen::VectorXd& eigenVals, double dt)
+  template<typename T>
+  Eigen::SparseMatrix<std::complex<double>, Eigen::RowMajor> EigenvalExponent(Eigen::VectorXd& eigenVals, T dt)
   {
     using std::exp;
     Eigen::VectorXcd expEigenVals=(-eigenVals*im*dt);
-    Eigen::SparseMatrix<std::complex<double>, Eigen::RowMajor> expEigenValsMatrix(eigenVals.rows(), eigenVals.rows());
+    //std::cout << "max "<< expEigenVals.maxCoeff()<< "\n";
+    Eigen::SparseMatrix<std::complex<double>> expEigenValsMatrix(eigenVals.rows(), eigenVals.rows());
         for (int i = 0; i < eigenVals.rows(); ++i)
        {
-	 expEigenValsMatrix.coeffRef(i, i)=std::exp( expEigenVals(i) );
-	
+	 	 expEigenValsMatrix.coeffRef(i, i)=std::exp( expEigenVals(i) );
+	 //expEigenValsMatrix.coeffRef(i, i)=std::exp(-(eigenVals(i)-eigenVals(0))*im*dt );	
 }
 	//    expEigenValsMatrix.diagonal()=(expEigenVals);
     return expEigenValsMatrix;
@@ -31,7 +33,9 @@ namespace TimeEv{
  	initialState= (hamiltonianAdj*initialState);
 	initialState=expEigenVals*initialState;
 	initialState=eigenVectors*initialState;
+
 		assert(std::abs(initialState.norm() -1.) < Many_Body::err);		
+
 
     return ; 
   }

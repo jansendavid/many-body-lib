@@ -103,7 +103,27 @@ struct CompareState{
     {
       assert(nr<=maxParNr && nr>=0);
       std::vector<size_t> state=makeStateVec();
+
+
+
         state[site]=nr;
+
+
+	id=makeId(state);
+
+    }
+    inline void switchPartNr(size_t site_1, size_t nr_1, size_t site_2, size_t nr_2)
+    {
+
+      std::vector<size_t> state=makeStateVec();
+
+
+
+
+        state[site_1]=nr_1;
+	        state[site_2]=nr_2;
+
+
 
 	id=makeId(state);
 
@@ -114,6 +134,7 @@ struct CompareState{
      size_t sum = std::accumulate(state.begin(), state.end(), 0);
      return sum;
    }
+
     
     auto operator[] ( size_t i) const{
   std::vector<size_t> state=makeStateVec();
@@ -173,12 +194,15 @@ struct CompareState{
 
      if(std::accumulate(state.begin(), state.end(),0)>1)
        {std::cout<< "error"<<'\n';}
-     for(size_t i=0; i<state.size(); i++)
-       {
+     size_t n=0;
+     
+for(long int i=sites-1; i>=0; i--)
+        {
+	 //	 std::cout<< i<< "x "<<std::endl;
 	 if(state[i]==1){
-	   id=i;
+	   id=n;
 	 }
-
+	 n++;
        }
    };
 
@@ -193,23 +217,28 @@ std::vector<size_t> makeStateVec() const override
      std::vector<size_t> state(sites, 0);
           
 
-	  state[id]=1;
+	  state[sites-1-id]=1;
 	  return state;
 
    }
- 
+   inline void setPartNr(size_t site, size_t nr)=delete;
        inline size_t makeId(std::vector<size_t>& state) override
    {
 
      size_t sum=0;
         //   if(std::accumulate(state.begin(), state.end(),0)>1)
        // {std::cout<< "x error"<<'\n';}
-     for(size_t i=0; i<state.size(); i++)
+     size_t n=0;
+
+     for(int i=state.size()-1; i>=0; i--)
        {
+
 	 if(state[i]==1){
-	   sum=i;
+	   sum=n;
 	 }
+	 n++;
        }
+     
      return sum;
      
               }
@@ -265,7 +294,7 @@ struct ElectronBasis
   using Const_BasisIt= typename  Basis::const_iterator;
 
    
-  ElectronBasis( size_t sites, size_t numberOfParticles): sites(sites), dim(0) {
+  ElectronBasis( size_t sites, size_t numberOfParticles): totalmaxPar(numberOfParticles), sites(sites), dim(0) {
     for(size_t i=0; i<static_cast<size_t>(std::pow(2, sites)); i++)
         {
 
@@ -280,24 +309,61 @@ struct ElectronBasis
         
    }
   }
-   ElectronBasis(size_t sites ):   sites(sites), dim(0){
+  ElectronBasis( size_t sites, std::vector<int> spaces): totalmaxPar(*std::max_element(spaces.begin(), spaces.end())),
+ sites(sites), dim(0) {
+    for(size_t i=0; i<static_cast<size_t>(std::pow(2, sites)); i++)
+        {
+
+	   
+   	  ElectronState newState( sites, i);
+	  if(std::count(spaces.begin(), spaces.end(), newState.Count()))
+             {
+	      
+   	      basis.insert({newState.GetId(), dim, newState});
+	      dim++;    
+             }
+        
+   }
+  }
+  ElectronBasis(size_t sites ): totalmaxPar(sites), sites(sites), dim(0){
+    
       for(size_t i=0; i<static_cast<size_t>(std::pow(2, sites)); i++)
         {
-   	  ElectronState newState(i, sites);
-            
+   	  ElectronState newState( sites, i);
+	  //	  std::cout<< newState<<std::endl;
              
    	     
 	  basis.insert({newState.GetId(), i, newState});
-	       dim++;    
+	       dim++;
+	       
              }
+     
         
     }
-  ElectronBasis(ElectronState state): sites(state.sites), dim(0){             
+  ElectronBasis(ElectronState state): sites(state.sites), totalmaxPar(state.Count()), dim(0){             
    	     
    	      basis.insert({state.GetId(), 0, state});
 	       dim++;    
             
    }
+  void append(size_t numberOfParticles)
+  {
+    // use this function to append states to an already exisiting basis 
+    for(size_t i=0; i<static_cast<size_t>(std::pow(2, sites)); i++)
+        {
+
+	   
+   	  ElectronState newState( sites, i);
+            if(newState.Count()==numberOfParticles)
+             {
+	      
+   	      basis.insert({newState.GetId(), dim, newState});
+	      dim++;    
+             }
+  }
+    totalmaxPar=std::max(totalmaxPar, numberOfParticles);
+    
+  }
   void insert(Lattice& newState) 
    	      {
 		size_t i=newState.GetId();
@@ -364,6 +430,7 @@ struct ElectronBasis
   }
    Basis basis;
   const size_t maxParticles=1;
+  size_t totalmaxPar=0;
    size_t sites;
    size_t dim;
 //   //  const size_t numberofparticles;
@@ -380,19 +447,22 @@ struct OneElectronBasis
   using BasisIt= typename  Basis::iterator;
   using Const_BasisIt= typename  Basis::const_iterator;
    OneElectronBasis(size_t sites ):   sites(sites), dim(0){
+     size_t n=0;
 
-      for(size_t i=0; i<sites; i++)
+     for(long int i=0; i<sites; i++)
         {
 
 	  std::vector<size_t> v(sites, 0);
-	  v[i]=1;
+	  v[sites-i-1]=1;
 
-   	  OneElectronState newState(v);
-            
-	  std::cout<< "new "<<newState.GetId()<<std::endl;
+
+	     	  OneElectronState newState(v);
+
+
    	     
 	  basis.insert({i, i, newState});
-	       dim++;    
+	  n++;
+	  dim++;    
              }
         
     }
