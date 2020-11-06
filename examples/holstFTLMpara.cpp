@@ -164,79 +164,79 @@ if (vm.count("Ld"))
   }
 
 
-  mpi::environment env;
-  mpi::communicator world;
-  //  std::vector<double> As(obs.size(), 0);
-  Eigen::MatrixXd As=Eigen::MatrixXd::Zero(beta.size(), obs.size());
-    Eigen::VectorXd Zs=Eigen::VectorXd::Zero(beta.size());
+  // mpi::environment env;
+  // mpi::communicator world;
+  // //  std::vector<double> As(obs.size(), 0);
+  // Eigen::MatrixXd As=Eigen::MatrixXd::Zero(beta.size(), obs.size());
+  //   Eigen::VectorXd Zs=Eigen::VectorXd::Zero(beta.size());
 
-    //  double Z{0.};
-  if(world.rank()==0)
-    {
+  //   //  double Z{0.};
+  // if(world.rank()==0)
+  //   {
 
-      Eigen::MatrixXd Astot=Eigen::MatrixXd::Zero(beta.size(), obs.size());
-      Eigen::VectorXd Zstot=Eigen::VectorXd::Zero(beta.size());
-          for(int i=0; i<runs/world.size(); i++)
-       {
-      auto [Observables, SUMs]=calculate_lanczFT_fast(obs[0], obs, beta, Ldim, err);
+  //     Eigen::MatrixXd Astot=Eigen::MatrixXd::Zero(beta.size(), obs.size());
+  //     Eigen::VectorXd Zstot=Eigen::VectorXd::Zero(beta.size());
+  //         for(int i=0; i<runs/world.size(); i++)
+  //      {
+  //     auto [Observables, SUMs]=calculate_lanczFT_fast(obs[0], obs, beta, Ldim, err);
 
-    	As+=Observables;
-    	Zs+=SUMs;
-      }
-       std::cout<< " process # " << world.rank() << " got meanZ "<< Zs.mean() << std::endl;
-       for(size_t i=0; i<beta.size(); i++)
-    	 {
-    	   reduce(world, Zs(i), Zstot(i), std::plus<double>(), 0);
+  //   	As+=Observables;
+  //   	Zs+=SUMs;
+  //     }
+  //      std::cout<< " process # " << world.rank() << " got meanZ "<< Zs.mean() << std::endl;
+  //      for(size_t i=0; i<beta.size(); i++)
+  //   	 {
+  //   	   reduce(world, Zs(i), Zstot(i), std::plus<double>(), 0);
 
-    for(size_t k=0; k<obs.size(); k++)
-    	   {
-    	     reduce(world, As(i, k), Astot(i, k), std::plus<double>(), 0);
+  //   for(size_t k=0; k<obs.size(); k++)
+  //   	   {
+  //   	     reduce(world, As(i, k), Astot(i, k), std::plus<double>(), 0);
 
-    	   }
-    	 }
+  //   	   }
+  //   	 }
 
-      for(size_t i=0; i<beta.size(); i++)
-    	 {
-    	   Astot.row(i)/=Zstot(i);
-    	 }
-      std::cout<< "Astot  "<<std::endl<< Astot<< std::endl;
-            for(size_t i=0; i<beta.size(); i++)
-    	 {
-    	   std::cout<<" T "<< 1./beta[i] << "  "<<Astot(i, 0)<<" SUM "<< Astot(i, 1)+Astot(i, 2)+Astot(i, 3)*gamma<<std::endl;
-    	 }
-  	    	    bin_write("E"+filename, Eigen::VectorXd(Astot.col(0)));
-  	    bin_write("Nph"+filename,  Eigen::VectorXd(Astot.col(1)));
-  	    bin_write("EK"+filename, Eigen::VectorXd(Astot.col(2)));
-  	    bin_write("nX"+filename, Eigen::VectorXd(Astot.col(3)));
-  	    bin_write("temp"+filename, Tem);
+  //     for(size_t i=0; i<beta.size(); i++)
+  //   	 {
+  //   	   Astot.row(i)/=Zstot(i);
+  //   	 }
+  //     std::cout<< "Astot  "<<std::endl<< Astot<< std::endl;
+  //           for(size_t i=0; i<beta.size(); i++)
+  //   	 {
+  //   	   std::cout<<" T "<< 1./beta[i] << "  "<<Astot(i, 0)<<" SUM "<< Astot(i, 1)+Astot(i, 2)+Astot(i, 3)*gamma<<std::endl;
+  //   	 }
+  // 	    	    bin_write("E"+filename, Eigen::VectorXd(Astot.col(0)));
+  // 	    bin_write("Nph"+filename,  Eigen::VectorXd(Astot.col(1)));
+  // 	    bin_write("EK"+filename, Eigen::VectorXd(Astot.col(2)));
+  // 	    bin_write("nX"+filename, Eigen::VectorXd(Astot.col(3)));
+  // 	    bin_write("temp"+filename, Tem);
       
-    }
-  else{
+  //   }
+  // else{
 
    
-     for(int i=0; i<runs/world.size(); i++)
-       {
-         		auto [Observables, SUMs]=calculate_lanczFT_fast(obs[0], obs, beta, Ldim, err);
-    	As+=Observables;
-    	Zs+=SUMs;
+  //    for(int i=0; i<runs/world.size(); i++)
+  //      {
+  //        		auto [Observables, SUMs]=calculate_lanczFT_fast(obs[0], obs, beta, Ldim, err);
+  //   	As+=Observables;
+  //   	Zs+=SUMs;
 	
-      }
-    	std::cout<< " process # " << world.rank() << " got meanZ "<< Zs.mean() << std::endl;
-       for(size_t i=0; i<beta.size(); i++)
-    	 {
-    	   reduce(world, Zs[i], std::plus<double>(), 0);
+  //     }
+  //   	std::cout<< " process # " << world.rank() << " got meanZ "<< Zs.mean() << std::endl;
+  //      for(size_t i=0; i<beta.size(); i++)
+  //   	 {
+  //   	   reduce(world, Zs[i], std::plus<double>(), 0);
 
-    for(size_t k=0; k<obs.size(); k++)
-    	   {
-    	     reduce(world, As(i, k), std::plus<double>(), 0);
+  //   for(size_t k=0; k<obs.size(); k++)
+  //   	   {
+  //   	     reduce(world, As(i, k), std::plus<double>(), 0);
 
-    	   }
+  //   	   }
 
     
 
 
-    	}
-  }
+  //   	}
+  // }
 
 
   return 0;
