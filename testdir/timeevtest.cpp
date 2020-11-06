@@ -20,7 +20,7 @@ BOOST_AUTO_TEST_CASE(timeev)
    std::cout << e.dim << std::endl;
    // Eigen::MatrixXd AA = Eigen::MatrixXd::Random(e.dim, e.dim);
    // 	 Eigen::MatrixXd H = AA + AA.transpose();
-        Operators::Mat H= Operators::NumberOperator(e)+Operators::EKinOperator(e);
+        Operators::Mat H= Operators::NumberOperatorE(e)+Operators::EKinOperator(e);
    Eigen::VectorXcd inistate(e.dim);
   
    inistate.setZero();

@@ -50,7 +50,7 @@ using namespace Many_Body;
       ("T", value(&T)->default_value(0.1), "T")
       ("M,m", value(&M)->default_value(2), "M")
       ("t0", value(&t0)->default_value(1.), "t0")
-      ("gam", value(&gamma)->default_value(1.), "gamma")
+      ("gam", value(&gamma)->default_value(std::sqrt(2)), "gamma")
       ("omg", value(&omega)->default_value(1.), "omega")
       ("pb", value(&PB)->default_value(0), "pb");
   boost::program_options::variables_map vm;
@@ -161,7 +161,9 @@ using namespace Many_Body;
       ensvec[i]=eigenVals(i);
       obs[i]=v(i);
       obs2[i]=v2(i);
-      obs3[i]=v3(i)/gamma;
+      obs3[i]=v3(i);
+      if(gamma!=0)
+	{	obs3[i]/=gamma;}
 
       //std::cout<< ensvec[i]<<'\n';
     }// 	   	    std::cout<< "gS "<<   eigenVals[0] <<std::endl;
@@ -173,9 +175,9 @@ using namespace Many_Body;
    	    	   std::vector<double> Evec;
    	    	   //		   std::vector<double> Tr={0.01, 0.05, 0.1, 0.15, 0.2, 0.25};
    	    	   		   std::vector<double> Tr;
-   	    	   for(int i=1; i<11; i++)
+   	    	   for(int i=1; i<22; i++)
    	    	     {
-   	    	       Tr.push_back(i*0.1);
+   	    	       Tr.push_back(i*0.05);
 		       
    	    	     }
 
@@ -190,7 +192,7 @@ using namespace Many_Body;
 			    double o2=expvalCan(ensvec, obs2,  t);
 			    double o3=expvalCan(ensvec, obs3,  t);
    	    		    std::cout<< " at T "<< t<<std::endl;
-   	    		    std::cout<<std::setprecision(15)<<e1 <<"  "<< o+o2+o3*gamma <<std::endl;
+		std::cout<<std::setprecision(15)<<e1 <<"  "<< o+o2+o3*gamma <<" Nph "<<o <<std::endl;
 			    Ovec.push_back(o);
 			    Ovec2.push_back(o2);
 			    Ovec3.push_back(o3);

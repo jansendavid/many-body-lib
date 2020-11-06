@@ -1,10 +1,9 @@
-
 #all:
 #CXX= icc
 
 IMPI=mpic++ -std=c++17
 
-IXX=g++
+
 
 # PATHS
 MPILINK32= -DMKL_Complex16="std::complex<double>" -m64 -I${MKLROOT}/include -L${MKLROOT}/lib/intel64 -Wl,--no-as-needed -lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl -lboost_serialization -lboost_mpi  -I$MPI_INCLUDE -L$MPI_LIB 
@@ -35,15 +34,15 @@ LIBS32+=-leigenmkl32 -lboost_program_options
 LIBS64+=-leigenmkl64 -lboost_program_options
 TESTLIBS+= -lboost_unit_test_framework
 #  DEBUG
-ND+= -DNDEBUG
+ND+=-DNDEBUG
 OP+=-O2
 D+= -g
 # executables
 EXEC+=test timeevtest exvalcompare operatortest diagtest32 diagtest64 basistest basisbenchmark
 diag32.o: src/diag.h src/diag.cpp
-	$(IXX) $(ND)  $(FLAGS) $(INCS) src/diag.cpp -c -o diag32.o  $(MKLLINK32) $(OP)
+	$(CXX)   $(FLAGS) $(INCS) src/diag.cpp -c -o diag32.o  $(MKLLINK32) $(OP) $(ND)
 diag64.o: src/diag.h src/diag.cpp
-	$(IXX) $(ND)  $(FLAGS) $(INCS) src/diag.cpp -c -o diag64.o  $(MKLLINK64) $(OP)
+	$(CXX)  $(FLAGS) $(INCS) src/diag.cpp -c -o diag64.o  $(MKLLINK64) $(OP) $(ND)
 # LIBS
 libs/libeigenmkl64.a: diag64.o
 	ar cr libs/libeigenmkl64.a diag64.o
@@ -62,7 +61,7 @@ operatortest: testdir/basistest.cpp src/basis.hpp src/operators.hpp src/accesfun
 	$(IXX) $(FLAGS) $(INCS) testdir/operatortest.cpp -o operatortest  $(MKLLINK32) $(LIBSLINK) $(TESTLIBS) $(LIBS32)  $(OP)
 
 diagtest32: testdir/diagtest.cpp src/basis.hpp  src/accesfunctions.hpp src/numerics.hpp src/timeev.hpp src/diag.h libs/libeigenmkl32.a
-	$(IXX) $(FLAGS) $(INCS) testdir/diagtest.cpp -o diagtest32  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(TESTLIBS) $(OP)
+	$(CXX) $(FLAGS) $(INCS) testdir/diagtest.cpp -o diagtest32  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(TESTLIBS) $(OP)
 
 diagtest64: testdir/diagtest.cpp src/basis.hpp  src/accesfunctions.hpp src/numerics.hpp src/timeev.hpp src/diag.h libs/libeigenmkl64.a
 	$(IXX) $(FLAGS) $(INCS) testdir/diagtest.cpp -o diagtest64  $(MKLLINK64) $(LIBSLINK) $(LIBS64) $(TESTLIBS) $(OP)
@@ -79,11 +78,16 @@ reddm: examples/reddm.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp
 
 holstexDi: examples/holstexDi.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp  src/diag.h
 	$(CXX) $(FLAGS) $(INCS) examples/holstexDi.cpp -o holstexDi  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(ND) $(OP)
+holstexDi_disp: examples/holstexDi_disp.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp  src/diag.h
+	$(CXX) $(FLAGS) $(INCS) examples/holstexDi_disp.cpp -o holstexDi_disp  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(ND) $(OP)
 
 holstFTexact: examples/holstFTexact.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h
 	$(CXX) $(FLAGS) $(INCS) examples/holstFTexact.cpp -o holstFTexact  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(ND) $(OP)
-holstSpekfTex: examples/holstSpekfTex.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h
-	$(CXX) $(FLAGS) $(INCS) examples/holstSpekfTex.cpp -o holstSpekfTex  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(ND) $(OP)
+holstFTSPexact: examples/holstFTSPexact.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h
+	$(CXX) $(FLAGS) $(INCS) examples/holstFTSPexact.cpp -o holstFTSPexact  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(ND) $(OP)
+freefermFTSPexact: examples/freefermFTSPexact.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h
+	$(CXX) $(FLAGS) $(INCS) examples/freefermFTSPexact.cpp -o freefermFTSPexact  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(ND) $(OP)
+
 hetFerex: examples/hetFerex.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h
 	$(CXX) $(FLAGS) $(INCS) examples/hetFerex.cpp -o hetFerex  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(ND) $(OP)
 hetFerexSP: examples/hetFerexSP.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h
@@ -109,7 +113,7 @@ holstLTLMparaOMP: examples/holstLTLMparaOMP.cpp src/basis.hpp src/operators.hpp 
 	$(CXX) $(FLAGS) $(INCS) examples/holstLTLMparaOMP.cpp -o holstLTLMparaOMP $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(ND) $(OP) $(OMPF) 
 
 holstLTLMpara: examples/holstLTLMpara.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h
-	$(IMPI) $(FLAGS) $(INCS) examples/holstLTLMpara.cpp -o holstLTLMpara  $(LIBSLINK) $(MPILINK32)  $(LIBS32) $(ND)  $(OP)
+	$(IMPI) $(FLAGS) $(INCS) examples/holstLTLMpara.cpp -o holstLTLMpara  $(LIBSLINK) $(MPILINK32)  $(LIBS32) $(ND)  $(OP) -g
 holstLTLMparaMR: examples/holstLTLMparaMR.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h
 	$(IMPI) $(FLAGS) $(INCS) examples/holstLTLMparaMR.cpp -o holstLTLMparaMR  $(LIBSLINK) $(MPILINK32)  $(LIBS32) $(ND)  $(OP) $(OMPF)
 

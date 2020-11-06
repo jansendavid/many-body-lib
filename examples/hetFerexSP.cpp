@@ -130,7 +130,7 @@ using namespace Many_Body;
 
 		std::cout<< "dim "<< e.dim << std::endl;  
 
-
+		//	std::cout<< "dim "<< e << std::endl;  
   // Mat E1=Operators::EKinOperator(e, tl, PB, 0, Llead-1);
   	   
   //  Mat E2=Operators::EKinOperator(e, tl, PB, Llead+Lchain, Ltot-1);
@@ -157,14 +157,15 @@ using namespace Many_Body;
     
        Eigen::MatrixXd HH1=Eigen::MatrixXd(H1);
        Eigen::MatrixXd HH2=Eigen::MatrixXd(H2);
-        std::cout<< Eigen::MatrixXd(H1)<<std::endl;
+    std::cout<< Eigen::MatrixXd(H1)<<std::endl;
 	std::cout<< "  end "<<std::endl;
-       std::cout<< Eigen::MatrixXd(H2)<<std::endl;
+	//std::cout<< Eigen::MatrixXd(H2)<<std::endl;
    //      Eigen::MatrixXd N=Eigen::MatrixXd(Eph);
       Many_Body::diagMat(HH1, eigenVals1);
       Many_Body::diagMat(HH2, eigenVals2);
       std::cout << "done diag"<<std::endl;
-      //  std::cout<< "EV 1 "<<eigenVals(0)<<std::endl;
+        std::cout<< "EV 1 "<<eigenVals1(0)<<std::endl;
+      
     std::cout<< eigenVals2(eigenVals2.rows()-1)<<std::endl;
     std::cout<< std::exp(eigenVals2(0))<<std::endl;
     std::cout<< std::exp(eigenVals2(eigenVals2.rows()-1))<<std::endl;
@@ -172,17 +173,20 @@ using namespace Many_Body;
     Eigen::MatrixXcd cEVec=HH2.cast<std::complex<double>>();
     Eigen::VectorXcd newIn=HH1.col(0);
     std::vector<Eigen::VectorXcd> statesVec(int(Ltot/2), Eigen::VectorXcd::Zero(e.dim));
-
+    double energy_0=0;
     for(int i=0; i<int(Ltot/2); i++)
       {
  	statesVec[i]=HH1.col(i);
-
+	energy_0+=eigenVals1(i);
+	std::cout<< "i "<< i<< std::endl;
       }
+    std::cout<< "GS "<< energy_0<<std::endl;
 
  
     std::vector<double> obstebd;
   std::vector<double> time;
   Eigen::MatrixXd O1=Eigen::MatrixXd(O);
+  //std::cout<< O << std::endl;
  //  for(int b=0; b<e.dim; b++)
 //     {
 //       for(int v=0; v<e.dim; v++)
@@ -200,19 +204,20 @@ using namespace Many_Body;
  	 double sum1{0};
  	 double sum2{0};
 
- 	   	 i++;
+ 	   
 		 
 
  	 for(auto& state : statesVec)
  	   {
-       	 TimeEv::timeev_exact(state, cEVec, evExp);
+       	 
   	 
-	 std::complex<double> c=im*(state.adjoint()*(O*state))(0);
+	 std::complex<double> c=-im*(state.adjoint()*(O*state))(0);
 
 		   //
  		 std::complex<double> c2=(state.adjoint()*(H1*state))(0);
  		 sum1+=real(c);
  		 sum2+=real(c2);
+		 TimeEv::timeev_exact(state, cEVec, evExp);
  	   }
   		  time.push_back(i*dt);
   		  obstebd.push_back(sum1);
@@ -220,6 +225,7 @@ using namespace Many_Body;
        			// 	outputVals(i)=real(c);
        			// 	outputVals2(i)=real(c2);
         		// outputTime(i)=i*dt;
+		  	 i++;
 		  std::cout<< std::setprecision(8)<<sum1<<" dt "<< i*dt<< "  E  "<< sum2<< std::endl;
        	 //	  	 BOOST_CHECK(std::abs(real(c2)-real(c))<Many_Body::err);
        	     	             }
