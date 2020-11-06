@@ -3,6 +3,6 @@
 #include"operators.hpp"
 #include"timeev.hpp"
 #include"accesfunctions.hpp"
-#include"diag.hpp"
+#include"diag.h"
 #include"tpoperators.hpp"
 #include"files.hpp"
