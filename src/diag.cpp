@@ -72,7 +72,35 @@ void diag(std::complex<double>* aH, double* ev, size_t M)
 
 
   }
+  void diagzheevr(std::complex<double>* aH,std::complex<double>* z, double* ev, size_t M)
+  {
+    MKL_INT N= M;
+        MKL_INT LDA= N;
+	 MKL_INT m= N;
+	 char V='V';
+	 char A='A';
+	 char U='U';
+	 // vl and vu are not referenced
+	 double vl=0;
+	 double vu=0;
+	 // vl and vu are not referenced
+    	 MKL_INT il= 0;
+    	 MKL_INT iu= 0;
+    	 // tolerance
+    	 double abstol=1e-17;
+    // 	 // ldz
+	 MKL_INT ldz= M;
 
+	 std::vector<MKL_INT> izups(2*m, 0);
+     	 MKL_INT info= LAPACKE_zheevr(LAPACK_COL_MAJOR, V, A, U,  N, aH, LDA,vl, vu, il, iu,abstol, &m,  ev, z, ldz, izups.data());
+    if(info!=0)
+      {
+    	std::cout << " diagonalization failed" << '\n';
+      }
+
+
+
+  }
       // void diagzheevr(std::complex<double>* aH, double* ev, size_t M)
   // {
   //   MKL_INT N= M;

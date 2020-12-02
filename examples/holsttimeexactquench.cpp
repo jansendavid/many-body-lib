@@ -7,6 +7,7 @@
 #include"timeev.hpp"
 #include"ETH.hpp"
 #include <boost/program_options.hpp>
+
 int main(int argc, char *argv[])
 {
   using namespace Eigen;
@@ -103,12 +104,12 @@ using namespace Many_Body;
   ElectronState estate1(L, 1);
   ElectronBasis e( L, 1);
   
-  //  std::cout<< e<<std::endl;
+    std::cout<< e<<std::endl;
 std::vector<size_t> es(L, 0);
       es[0]=1;
       ElectronState aa(es);
   PhononBasis ph(L, M);
-  //       std::cout<< ph<<std::endl;
+         std::cout<< ph<<std::endl;
       HolsteinBasis TP(e, ph);
       std::vector<size_t> state(L, 0);
       //std::fill(state.begin(), state.end(), 1);
@@ -139,7 +140,11 @@ std::vector<size_t> es(L, 0);
 	 Mat QP3=QP2*(P0-P1);
 	 Mat Q4=Q3*(X0-X1);
 	 Mat QP4=QP3*(P0-P1);
-	 //	 
+	 Mat AdagA=Operators::BosonCOperator_1(TP, ph, para,0,  PB)*Operators::BosonDOperator_1(TP, ph, para,0,  PB)+Operators::BosonCOperator_1(TP, ph, para,1,  PB)*Operators::BosonDOperator_1(TP, ph, para,1,  PB)-Operators::BosonCOperator_1(TP, ph, para,0,  PB)*Operators::BosonDOperator_1(TP, ph, para,1,  PB)-Operators::BosonCOperator_1(TP, ph, para,1,  PB)*Operators::BosonDOperator_1(TP, ph, para,0,  PB);
+	 //
+	 AdagA*=0.5*omega;
+	 
+	 
    inistate.setZero();
 
    inistate[StateNr]=1;
@@ -147,7 +152,13 @@ std::vector<size_t> es(L, 0);
 		  std::cout<<"dim " <<e.dim << std::endl;
 		  
            std::cout<< TP.dim << std::endl;     
-      Mat E1=Operators::EKinOperatorL(TP, e, t0, PB);
+      Mat E1=Operators::EKinOperatorL(TP, e, 1, PB);
+      auto Cdag_1C_0=Mat(E1.triangularView<Upper>());
+      Eigen::MatrixXcd Cdag_1C_0_cp=-1*Eigen::MatrixXcd(Cdag_1C_0);
+      auto Cdag_0C_1=Mat(E1.triangularView<Lower>());
+      Eigen::MatrixXcd Cdag_0C_1_cp=-1*Eigen::MatrixXcd(Cdag_0C_1);
+      E1*=t0;
+      
       Mat Ebdag=Operators::NBosonCOperator(TP, ph, gamma, PB);
       Mat Eb=Operators::NBosonDOperator(TP, ph, gamma, PB);
       Mat Eph=Operators::NumberOperator(TP, ph, omega,  PB);
@@ -155,22 +166,23 @@ std::vector<size_t> es(L, 0);
       //Mat E=Operators::NumberOperatore(TP, e, 1, false);
       //    std::cout<< HH << std::xbendl;
       Eigen::VectorXd eigenVals(TP.dim);
+Eigen::VectorXd eigenVals_0(TP.dim);
       Mat H=E1+Eph  +Ebdag + Eb;
       // making one Hamiltonian with infinite chem pot on one site
-      // double mu=100000;
-      // Eigen::VectorXd eigenVals_mit_pot(TP.dim);
-      // Mat H_mit_pot=H+Operators::NumberOperatore_1(TP, e, mu, 1,  PB);
+       double mu=100000;
+
+       Mat H_0=Operators::EKinOperatorL(TP, e, t0, PB);
       //    
  
     Eigen::MatrixXd HH=Eigen::MatrixXd(H);
-    //    Eigen::MatrixXd HH_mit_pot=Eigen::MatrixXd(H_mit_pot);
+        Eigen::MatrixXd HH_0=Eigen::MatrixXd(H_0);
      Eigen::MatrixXd H_cop=Eigen::MatrixXd(H);
-     // Eigen::MatrixXd H_mit_pot_cop=Eigen::MatrixXd(H_mit_pot);
+     Eigen::MatrixXd H_0_cop=Eigen::MatrixXd(H_0);
     //        std::cout<< HH<<std::endl;
         Eigen::MatrixXd N=Eigen::MatrixXd(Eph);
 	
      Many_Body::diagMat(HH, eigenVals);
-     // Many_Body::diagMat(HH_mit_pot, eigenVals_mit_pot);
+     Many_Body::diagMat(HH_0, eigenVals_0);
          Eigen::VectorXd energy(TP.dim);
     	   std::vector<double> n0_vec;
 	   std::vector<double> n1_vec;
@@ -189,14 +201,17 @@ std::vector<size_t> es(L, 0);
 	   std::vector<double> q4_vec;
 	   std::vector<double> qp4_vec;
 	   std::vector<double> ensvec_vec;
+	   std::vector<double> adaga_vec;
+	   std::vector<std::complex<double>> cdag1_c0_vec;
+	   std::vector<std::complex<double>> cdag0_c1_vec;
 	   //	   Eigen::MatrixXd PHD2=HH.adjoint()*N.selfadjointView<Lower>()*HH;
 	   std::cout<< "eigenVals(0) "<<eigenVals(0)<<std::endl;
+	   std::cout<< "eigenVals(0) "<<eigenVals_0(0)<<std::endl;
 	   //	    std::cout<< "eigenValseigenVals_mit_pot(0) "<<eigenVals_mit_pot(0)<<std::endl;
      Eigen::MatrixXcd evExp=TimeEv::EigenvalExponent(eigenVals, dt);
    Eigen::MatrixXcd cEVec=HH.cast<std::complex<double>>();
-   // Eigen::MatrixXcd cEVec_mit_pot=HH_mit_pot.cast<std::complex<double>>();
-   Eigen::VectorXcd newIn=inistate;
-     //cEVec_mit_pot.col(0);
+    Eigen::MatrixXcd cEVec_0=HH_0.cast<std::complex<double>>();
+   Eigen::VectorXcd newIn=cEVec_0.col(0);
    //
      
    
@@ -205,11 +220,13 @@ std::vector<size_t> es(L, 0);
 
    // O=H;
    std::complex<double> E_in=(newIn.adjoint()*(H_cop*newIn))(0);
+   std::complex<double> X_in=(newIn.adjoint()*(X0*newIn))(0);
       std::complex<double> n_in=(newIn.adjoint()*(O0*newIn))(0);
            std::complex<double> N_in=(newIn.adjoint()*(Nph0*newIn))(0);
    std::cout<< " init energy "<<E_in<<std::endl;
    std::cout<< " init n site 0 "<<n_in<<std::endl;
    std::cout<< " init N site 0 "<<N_in<<std::endl;
+      std::cout<< " init X site 0 "<<X_in<<std::endl;
         while(i*dt<tot)
        {
 
@@ -224,14 +241,18 @@ std::vector<size_t> es(L, 0);
  		 std::complex<double> x1=(newIn.adjoint()*(X1*newIn))(0);
  		 std::complex<double> p0=std::complex<double>(0,1)*(newIn.adjoint()*(P0*newIn))(0);
  		 std::complex<double> p1=std::complex<double>(0,1)*(newIn.adjoint()*(P1*newIn))(0);
-		 std::complex<double> q1=(newIn.adjoint()*(Q1*newIn))(0);
+ 		 std::complex<double> q1=(newIn.adjoint()*(Q1*newIn))(0);
  		 std::complex<double> qp1=std::complex<double>(0,1)*(newIn.adjoint()*(QP1*newIn))(0);
-		 std::complex<double> q2=(newIn.adjoint()*(Q2*newIn))(0);
-		 std::complex<double> qp2=std::complex<double>(0,1)*std::complex<double>(0,1)*(newIn.adjoint()*(QP2*newIn))(0);
-		 std::complex<double> q3=(newIn.adjoint()*(Q3*newIn))(0);
-		 std::complex<double> qp3=std::complex<double>(0,1)*std::complex<double>(0,1)*std::complex<double>(0,1)*(newIn.adjoint()*(QP3*newIn))(0);
-		 std::complex<double> q4=(newIn.adjoint()*(Q4*newIn))(0);
-		 std::complex<double> qp4=std::complex<double>(0,1)*std::complex<double>(0,1)*std::complex<double>(0,1)*std::complex<double>(0,1)*(newIn.adjoint()*(QP4*newIn))(0);
+ 		 std::complex<double> q2=(newIn.adjoint()*(Q2*newIn))(0);
+ 		 std::complex<double> qp2=std::complex<double>(0,1)*std::complex<double>(0,1)*(newIn.adjoint()*(QP2*newIn))(0);
+ 		 std::complex<double> q3=(newIn.adjoint()*(Q3*newIn))(0);
+ 		 std::complex<double> qp3=std::complex<double>(0,1)*std::complex<double>(0,1)*std::complex<double>(0,1)*(newIn.adjoint()*(QP3*newIn))(0);
+ 		 std::complex<double> q4=(newIn.adjoint()*(Q4*newIn))(0);
+ 		 std::complex<double> qp4=std::complex<double>(0,1)*std::complex<double>(0,1)*std::complex<double>(0,1)*std::complex<double>(0,1)*(newIn.adjoint()*(QP4*newIn))(0);
+ 		 std::complex<double> adaga=(newIn.adjoint()*(AdagA*newIn))(0);
+		 std::complex<double> cdag_0c_1=(newIn.adjoint()*(Cdag_0C_1_cp*newIn))(0);
+
+		 std::complex<double> cdag_1c_0=(newIn.adjoint()*(Cdag_1C_0_cp*newIn))(0);
 		 
  		 n0_vec.push_back(real(n0));
  		 n1_vec.push_back(real(n1));
@@ -241,14 +262,17 @@ std::vector<size_t> es(L, 0);
  		 x1_vec.push_back(real(x1));
  		 p0_vec.push_back(real(p0));
  		 p1_vec.push_back(real(p1));
-		 q1_vec.push_back(real(q1));
-		 qp1_vec.push_back(real(qp1));
-		 q2_vec.push_back(real(q2));
-		 qp2_vec.push_back(real(qp2));
-		 q3_vec.push_back(real(q3));
-		 qp3_vec.push_back(real(qp3));
-		 q4_vec.push_back(real(q4));
-		 qp4_vec.push_back(real(qp4));
+ 		 q1_vec.push_back(real(q1));
+ 		 qp1_vec.push_back(real(qp1));
+ 		 q2_vec.push_back(real(q2));
+ 		 qp2_vec.push_back(real(qp2));
+ 		 q3_vec.push_back(real(q3));
+ 		 qp3_vec.push_back(real(qp3));
+ 		 q4_vec.push_back(real(q4));
+ 		 qp4_vec.push_back(real(qp4));
+ 		 adaga_vec.push_back(real(adaga));
+		 cdag1_c0_vec.push_back(cdag_1c_0);
+		 cdag0_c1_vec.push_back(cdag_0c_1);
  		 //	 std::complex<double> c=(inistate.adjoint()*(newIn))(0);
   
 
@@ -275,14 +299,17 @@ std::vector<size_t> es(L, 0);
  	     bin_write(dirname+"/x1"+filename, x1_vec);
  	       bin_write(dirname+"/p0"+filename, p0_vec);
  	         bin_write(dirname+"/p1"+filename, p1_vec);
-		 bin_write(dirname+"/q1"+filename, q1_vec);
-		 bin_write(dirname+"/qp1"+filename, qp1_vec);
-		 bin_write(dirname+"/q2"+filename, q2_vec);
-		 bin_write(dirname+"/qp2"+filename, qp2_vec);
-		 bin_write(dirname+"/q3"+filename, q3_vec);
-		 bin_write(dirname+"/qp3"+filename, qp3_vec);
-		 bin_write(dirname+"/q4"+filename, q4_vec);
-		 bin_write(dirname+"/qp4"+filename, qp4_vec);
+ 		 bin_write(dirname+"/q1"+filename, q1_vec);
+ 		 bin_write(dirname+"/qp1"+filename, qp1_vec);
+ 		 bin_write(dirname+"/q2"+filename, q2_vec);
+ 		 bin_write(dirname+"/qp2"+filename, qp2_vec);
+ 		 bin_write(dirname+"/q3"+filename, q3_vec);
+ 		 bin_write(dirname+"/qp3"+filename, qp3_vec);
+ 		 bin_write(dirname+"/q4"+filename, q4_vec);
+ 		 bin_write(dirname+"/qp4"+filename, qp4_vec);
+ 		 bin_write(dirname+"/adaga"+filename, adaga_vec);
+		 bin_write(dirname+"/cdag1c0"+filename, cdag1_c0_vec);
+		 bin_write(dirname+"/cdag0c1"+filename, cdag0_c1_vec);
   return 0;
 }
- 
+

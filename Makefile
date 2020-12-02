@@ -95,6 +95,11 @@ hetFerexSP: examples/hetFerexSP.cpp src/basis.hpp src/operators.hpp src/accesfun
 
 holsttimeexact: examples/holsttimeexact.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h
 	$(CXX) $(FLAGS) $(INCS) examples/holsttimeexact.cpp -o holsttimeexact  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(ND) $(OP)
+holsttimeexactpol: examples/holsttimeexactpol.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h
+	$(CXX) $(FLAGS) $(INCS) $< -o $@  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(ND) $(OP)
+
+holsttimeexactquench: examples/holsttimeexactquench.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h
+	$(CXX) $(FLAGS) $(INCS) $< -o $@  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(ND) $(OP)
 
 holstLTLM: examples/holstLTLM.cpp src/basis.hpp src/operators.hpp src/accesfunctions.hpp src/numerics.hpp src/reddm.hpp src/diag.h
 	$(CXX) $(FLAGS) $(INCS) examples/holstLTLM.cpp -o holstLTLM  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(ND) $(OP)

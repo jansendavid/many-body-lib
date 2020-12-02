@@ -415,7 +415,13 @@ using Lattice=typename TotalBasis::Lattice;
     size_t sites=totalBasis.sites;
     Mat op(dim, dim);
       op.setZero();
- 
+ int L_x=Llead1+(Lchain+1)/2;
+ double E=0;
+ if(Lchain>1)
+   {
+   E=V/(Lchain+1);
+   }
+ std::cout<< "L x "<<L_x<< " E "<<E<<std::endl;  
    for( auto& tpState : totalBasis)
 	     {
 const Lattice state=GetLattice(tpState);
@@ -424,6 +430,7 @@ const Lattice state=GetLattice(tpState);
 	
 		   if(state[i]==1)
 		     {
+		       // std::cout<<" i "<<i+1<< " V "<< -V <<std::endl;
 		       op.coeffRef(Position(tpState), Position(tpState))-= ValType{V};
 		     }
 		   size_t j=Operators::NextWithBC(i, sites, PB);
@@ -436,6 +443,7 @@ const Lattice state=GetLattice(tpState);
                  {
 		   if(state[i]==1)
 		     {
+		       // std::cout<<" i "<<i+1<< " V "<< V <<std::endl;
 		       op.coeffRef(Position(tpState), Position(tpState))+= ValType{V};
 		     }
 		   		  
@@ -451,6 +459,7 @@ const Lattice state=GetLattice(tpState);
 		     }
 			   if(state[Llead1-1]==1)
 		     {
+		       
 		       op.coeffRef(Position(tpState), Position(tpState))-= ValType{V};
 		     }
 		    // chain
@@ -461,7 +470,17 @@ const Lattice state=GetLattice(tpState);
                      size_t j=Operators::NextWithBC(i, sites, PB);
 		     // first lead
 		     Act(i, j, totalBasis, tpState, state, op, t0);
+		     	   if(state[i]==1)
+		     {
+		       //  op.coeffRef(Position(tpState), Position(tpState))-= ValType{((i+1)-L_x)*E};
+		       //   std::cout<<" XXi "<<i+1 << " V "<< (static_cast<double>(i+1)-L_x)*E<<std::endl;
+		     }
 	   	     }
+				      	   if(state[Llead1+Lchain-1]==1)
+		     {
+		       //		       op.coeffRef(Position(tpState), Position(tpState))-= ValType{((Llead1+Lchain)-L_x)*E};
+		       //std::cout<<" XXi "<<Llead1+Lchain << " V "<< (static_cast<double>(Llead1+Lchain)-L_x)*E<<std::endl;
+		     }
 				    Act(Llead1-1, Llead1, totalBasis, tpState, state, op, tint);
 				    Act(Llead1+Lchain-1, Llead1+Lchain, totalBasis, tpState, state, op, tint);	  }
     
