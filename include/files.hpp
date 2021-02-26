@@ -9,7 +9,7 @@
 namespace Many_Body{
   using namespace Eigen;
   template<typename T>
-  void ToFile(const T& x, const T& y, const std::string s1, const size_t N)
+  void ToFile(const T& x, const T& y, const std::string s1, const size_t N, bool Verbose=false)
 {
   // if(x.n_elem!= y.n_elem)
   //   {
@@ -23,11 +23,14 @@ namespace Many_Body{
       F<<std::fixed <<  std::setprecision(15)<< x[i] << '\t' << std::setprecision(15) << y[i] << '\n';
     }
   F.close();
-  std::cout << "yout data should be stored in the dirctory as " << s1  << std::endl;
+  if(Verbose)
+    {
+    std::cout << "yout data should be stored in the dirctory as " << s1  << std::endl;
+    }
 return;
 }
     template<typename T>
-    void ToFile(const T& x, const std::string s1, const size_t N)
+    void ToFile(const T& x, const std::string s1, const size_t N, bool Verbose=false)
 {
   // if(x.n_elem!= y.n_elem)
   //   {
@@ -41,7 +44,12 @@ return;
       F<<std::fixed <<  std::setprecision(15)<< x[i] << '\n';
     }
   F.close();
-  // std::cout << "yout data should be stored in the dirctory as " << s1  << std::endl;
+
+if(Verbose)
+    {
+  std::cout << "yout data should be stored in the dirctory as " << s1  << std::endl;
+    }
+
 return;
 }
     template<typename T>
