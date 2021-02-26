@@ -20,7 +20,8 @@ namespace Operators{
   using Many_Body::LeftId;
   
   using Mat= Eigen::SparseMatrix<ValType,Eigen::RowMajor>;
-    template<typename T>
+
+  template<typename T>
     size_t CheckSign(const T& state, size_t i, size_t j)
   {
     size_t m=0;
@@ -39,6 +40,7 @@ namespace Operators{
   	  }
     return m;
   }
+
    template<typename TotalBasis, typename State, typename Lattice>
   void Act(int i, int j, TotalBasis& totalBasis, State& tpState, Lattice state, Mat& op, double var)
   {
@@ -70,6 +72,7 @@ namespace Operators{
    	   	    	 { op.coeffRef(newStateNr, Position(tpState))+= ValType{var};}
 		    }
   }
+
 
   // carefull with changes, making one for cdag and one for ccdag
     template<typename T>
@@ -346,6 +349,7 @@ using Lattice=typename TotalBasis::Lattice;
   }
 
 
+
  
 Mat EKinOperator(const Many_Body::OneElectronBasis& totalBasis, double var=1. , bool PB=0, int start=0, int stop=0 )
      {
@@ -388,8 +392,6 @@ Mat EKinOperator(const Many_Body::OneElectronBasis& totalBasis, double var=1. , 
     
   return op;
   }
-
-
 
    template<class TotalBasis>
   Mat CurrOperator(const TotalBasis& totalBasis, double var=1. , bool PB=0, int start=0, int stop=0)
@@ -455,6 +457,7 @@ using Lattice=typename TotalBasis::Lattice;
 
 
 
+
     
   Mat CurrOperator(const  Many_Body::OneElectronBasis& totalBasis, double var=1. , bool PB=0, int start=0, int stop=0)
      {
@@ -515,6 +518,38 @@ using Lattice=typename  Many_Body::OneElectronBasis::Lattice;
    	  }
     
   return op;
+
+    template<typename TotalBasis, typename State, typename Lattice>
+  void Act(int i, int j, TotalBasis& totalBasis, State& tpState, Lattice state, Mat& op, double var)
+  {
+    if(state[i]==state[j])
+      {	
+    		  
+      }
+    else{
+      Lattice temp=state;
+      //  std::cout<< "i,jx "<< i << ", "<< j << std::endl;
+       state.flip(i);
+       //setPartNr(j, temp[i]);
+      state.flip(j);
+		     		 
+      size_t signControl=CheckSign(temp, i, j);
+    
+		    auto it2 = totalBasis.find(state.GetId());
+		    
+	  	    
+		     
+		     size_t newStateNr= Position(*it2);
+		     //	         std::cout<< "old "<< temp << " at "<< Position(tpState)<< std::endl;
+      
+		     // std::cout<< "new "<< state <<" at  "<<newStateNr<<  std::endl;
+	   	              if(signControl%2==0)
+   	   	    	 {
+	   		   op.coeffRef(newStateNr, Position(tpState))-= ValType{var};}
+   	   	       else
+   	   	    	 { op.coeffRef(newStateNr, Position(tpState))+= ValType{var};}
+		    }
+
   }
     template<class TotalBasis>
     Mat totalHetOperator(const TotalBasis& totalBasis, double tint, double t0, double tl, double V, int Llead1,  int Llead2,  int Lchain )
@@ -532,7 +567,9 @@ using Lattice=typename TotalBasis::Lattice;
  double E=0;
  if(Lchain>1)
    {
-     E=V/(Lchain+1);
+
+   E=V/(Lchain+1);
+
    }
  std::cout<< "L x "<<L_x<< " E "<<E<<std::endl;  
    for( auto& tpState : totalBasis)
@@ -543,21 +580,26 @@ const Lattice state=GetLattice(tpState);
 	
 		   if(state[i]==1)
 		     {
-		       //std::cout<<" i "<<i+1<< " V "<< -V <<std::endl;
-		       op.coeffRef(Position(tpState), Position(tpState))-= ValType{V/2};
+
+		       op.coeffRef(Position(tpState), Position(tpState))-= ValType{V};
+
 		     }
 		   size_t j=Operators::NextWithBC(i, sites, PB);
 		   //	   std::cout<< "i,j "<< i << ", "<< j << std::endl;
 		     // first lead
 
-		      Act(i, j, totalBasis, tpState, state, op, tl);
+
+		     Act(i, j, totalBasis, tpState, state, op, tl);
+
 		 }
 		     for(size_t i=Llead1+Lchain; i<Llead1+Lchain+Llead2-1; i++)
                  {
 		   if(state[i]==1)
 		     {
 		       // std::cout<<" i "<<i+1<< " V "<< V <<std::endl;
-		       op.coeffRef(Position(tpState), Position(tpState))+= ValType{V/2};
+
+		       op.coeffRef(Position(tpState), Position(tpState))+= ValType{V};
+
 		     }
 		   		  
 				   size_t j=Operators::NextWithBC(i, sites, PB);
@@ -568,12 +610,16 @@ const Lattice state=GetLattice(tpState);
 	   	     }
 		    	   if(state[Llead1+Llead2+Lchain-1]==1)
 		     {
-		       op.coeffRef(Position(tpState), Position(tpState))+= ValType{V/2};
+
+		       op.coeffRef(Position(tpState), Position(tpState))+= ValType{V};
+
 		     }
 			   if(state[Llead1-1]==1)
 		     {
 		       
-		       op.coeffRef(Position(tpState), Position(tpState))-= ValType{V/2};
+
+		       op.coeffRef(Position(tpState), Position(tpState))-= ValType{V};
+
 		     }
 		    // chain
 		    	       	    for(size_t i=Llead1; i<Llead1+Lchain-1; i++)
@@ -585,14 +631,17 @@ const Lattice state=GetLattice(tpState);
 		     Act(i, j, totalBasis, tpState, state, op, t0);
 		     	   if(state[i]==1)
 		     {
+
 		       		         op.coeffRef(Position(tpState), Position(tpState))+= (static_cast<double>((i+1))-L_x)*E;
-			 //std::cout<<" XXi "<<i+1 << " V "<< (static_cast<double>(i+1)-L_x)*E<<std::endl;
+
 		     }
 	   	     }
 				      	   if(state[Llead1+Lchain-1]==1)
 		     {
+
 		       	       op.coeffRef(Position(tpState), Position(tpState))+=(static_cast<double>(Llead1+Lchain)-L_x)*E;
 				       //  std::cout<<" XXi "<<Llead1+Lchain << " V "<< (static_cast<ValType>(Llead1+Lchain)-L_x)*E<<std::endl;
+
 		     }
 				    Act(Llead1-1, Llead1, totalBasis, tpState, state, op, tint);
 				    Act(Llead1+Lchain-1, Llead1+Lchain, totalBasis, tpState, state, op, tint);	  }
@@ -613,7 +662,9 @@ Mat totCurrOperator(const TotalBasis& totalBasis, double var ,  int Llead1, int 
    for( auto& tpState : totalBasis)
 	     {
 
+
 	       int i=Llead1-1;
+
 	       int j=i+1;
 	       
 
@@ -650,7 +701,10 @@ Mat totCurrOperator(const TotalBasis& totalBasis, double var ,  int Llead1, int 
    	   	    	 { op.coeffRef(newStateNr, Position(tpState))+= otherSign*ValType{var};}
 		    }
 				    state=GetLattice(tpState);
+
 	 i=Lchain+Llead1-1;
+
+
 	        j=i+1;
 
 		if(state[i]==state[j])
@@ -688,7 +742,9 @@ Mat totCurrOperator(const TotalBasis& totalBasis, double var ,  int Llead1, int 
 	   
 
    	  }
+
    op*=0.5;   
+
   return op;
   }
 }

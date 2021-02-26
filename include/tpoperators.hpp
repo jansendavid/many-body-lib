@@ -190,6 +190,7 @@ namespace Operators{
       return op;
       
        }
+
  template<class TotalBasis, class SubBasis >
   Mat CurOperatorL(const TotalBasis& totalBasis, const SubBasis& subBasis, double var=1. , const bool& PB=true)
      {
@@ -256,6 +257,7 @@ using Lattice=typename SubBasis::Lattice;
     
   return op;
   }
+
   template<class TotalBasis, class SubBasis >
   Mat EKinOperatorL(const TotalBasis& totalBasis, const SubBasis& subBasis, double var=1. , const bool& PB=true)
      {
@@ -322,6 +324,7 @@ using Lattice=typename SubBasis::Lattice;
     
   return op;
   }
+
 
   template<class TotalBasis, class SubBasis >
   Mat HadamardOperator(const TotalBasis& totalBasis, const SubBasis& subBasis, double var=1. , const bool& PB=true)
@@ -404,6 +407,7 @@ if(state[sites-1]==1)
     
   return op;
   }
+
  template<class TotalBasis, class SubBasis >
   Mat EKinOperatorLNNN(const TotalBasis& totalBasis, const SubBasis& subBasis, double var=1. , size_t m=0)
      {
