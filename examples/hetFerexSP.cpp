@@ -130,35 +130,23 @@ using namespace Many_Body;
 
 		std::cout<< "dim "<< e.dim << std::endl;  
 
-		//	std::cout<< "dim "<< e << std::endl;  
-  // Mat E1=Operators::EKinOperator(e, tl, PB, 0, Llead-1);
-  	   
-  //  Mat E2=Operators::EKinOperator(e, tl, PB, Llead+Lchain, Ltot-1);
-  // Mat EI1=Operators::EKinOperator(e, tint, PB, Llead-1, Llead);5A
-  // Mat EI2=Operators::EKinOperator(e, tint, PB, Llead+Lchain-1, Llead+Lchain);
-  //   Mat NI1=Operators::NumberOperator(e, -V/2, PB,  0, Llead-1);
-  // Mat NI2=Operators::NumberOperator(e, V/2, PB, Llead+Lchain, Ltot-1);
+			std::cout<< "dim "<< e << std::endl;  
 
-  //  Mat E3=Operators::EKinOperator(e, t0, PB, Llead, Llead+Lchain-1);
-  //  Mat C1=Operators::CurrOperator(e, tint, PB, Llead-1, Llead);
-  //  Mat C2=Operators::CurrOperator(e, tint, PB, Llead+Lchain-1, Llead+Lchain);
-  //  	      auto O=C1+C2;
-  // 	        Mat H1=E1+E2+E3+ EI1+ EI2;
-  //      Mat H2=E1+E2+E3+ EI1+ EI2 +NI2 +NI1;
        
 		auto O=Operators::totCurrOperator(e, tint,  Llead1, Llead2, Lchain);    
 		Mat H1=Operators::totalHetOperator(e,  tint, t0, tl, 0,  Llead1,  Llead2, Lchain );
-	 Mat H2=Operators::totalHetOperator(e,  tint, t0, tl, V/2, Llead1, Llead2,   Lchain );
+	 Mat H2=Operators::totalHetOperator(e,  tint, t0, tl, V, Llead1, Llead2,   Lchain );
  //       //;
  //      //    
- 
+
        Eigen::VectorXd eigenVals1(e.dim);
        Eigen::VectorXd eigenVals2(e.dim);
     
        Eigen::MatrixXd HH1=Eigen::MatrixXd(H1);
        Eigen::MatrixXd HH2=Eigen::MatrixXd(H2);
-    std::cout<< Eigen::MatrixXd(H1)<<std::endl;
+    std::cout<< Eigen::MatrixXd(H2)<<std::endl;
 	std::cout<< "  end "<<std::endl;
+    std::cout<< Eigen::MatrixXd(O)<<std::endl;
 	//std::cout<< Eigen::MatrixXd(H2)<<std::endl;
    //      Eigen::MatrixXd N=Eigen::MatrixXd(Eph);
       Many_Body::diagMat(HH1, eigenVals1);
@@ -203,6 +191,7 @@ using namespace Many_Body;
        {
  	 double sum1{0};
  	 double sum2{0};
+	  	 double sum3{0};
 
  	   
 		 
@@ -215,8 +204,10 @@ using namespace Many_Body;
 
 		   //
  		 std::complex<double> c2=(state.adjoint()*(H1*state))(0);
+		  		 std::complex<double> c3=(state.adjoint()*(H2*state))(0);
  		 sum1+=real(c);
  		 sum2+=real(c2);
+		  		 sum3+=real(c3);
 		 TimeEv::timeev_exact(state, cEVec, evExp);
  	   }
   		  time.push_back(i*dt);
@@ -226,7 +217,7 @@ using namespace Many_Body;
        			// 	outputVals2(i)=real(c2);
         		// outputTime(i)=i*dt;
 		  	 i++;
-		  std::cout<< std::setprecision(8)<<sum1<<" dt "<< i*dt<< "  E  "<< sum2<< std::endl;
+			 std::cout<< std::setprecision(8)<<sum1<<" dt "<< i*dt<< "  E  "<< sum2<< " E eyt "<< sum3<<std::endl;
        	 //	  	 BOOST_CHECK(std::abs(real(c2)-real(c))<Many_Body::err);
        	     	             }
 

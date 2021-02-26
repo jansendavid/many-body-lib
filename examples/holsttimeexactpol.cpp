@@ -123,6 +123,7 @@ std::vector<size_t> es(L, 0);
       std::cout<<"state nr "<< StateNr<<std::endl;                
          Eigen::VectorXcd inistate(TP.dim);
 	 double para=1;
+	 
  	 Mat O0=Operators::NumberOperatore_1(TP, e, para, 0,  PB);
 	 Mat O1=Operators::NumberOperatore_1(TP, e, para, 1,  PB);
 	 Mat Nph0=Operators::NumberOperatorph_1(TP, ph, para, 0,  PB);
@@ -147,7 +148,7 @@ std::vector<size_t> es(L, 0);
 		  std::cout<<"dim " <<e.dim << std::endl;
 		  
            std::cout<< TP.dim << std::endl;     
-      Mat E1=Operators::EKinOperatorL(TP, e, t0, PB);
+      Mat EK=Operators::EKinOperatorL(TP, e, t0, PB);
       Mat Ebdag=Operators::NBosonCOperator(TP, ph, gamma, PB);
       Mat Eb=Operators::NBosonDOperator(TP, ph, gamma, PB);
       Mat Eph=Operators::NumberOperator(TP, ph, omega,  PB);
@@ -155,7 +156,7 @@ std::vector<size_t> es(L, 0);
       //Mat E=Operators::NumberOperatore(TP, e, 1, false);
       //    std::cout<< HH << std::xbendl;
       Eigen::VectorXd eigenVals(TP.dim);
-      Mat H=E1+Eph  +Ebdag + Eb;
+      Mat H=EK+Eph  +Ebdag + Eb;
       // making one Hamiltonian with infinite chem pot on one site
        double mu=100000;
        Eigen::VectorXd eigenVals_mit_pot(TP.dim);
@@ -172,6 +173,7 @@ std::vector<size_t> es(L, 0);
      Many_Body::diagMat(HH, eigenVals);
      Many_Body::diagMat(HH_mit_pot, eigenVals_mit_pot);
          Eigen::VectorXd energy(TP.dim);
+	 std::vector<double> ek_vec;
     	   std::vector<double> n0_vec;
 	   std::vector<double> n1_vec;
 	   std::vector<double> nph0_vec;
@@ -215,7 +217,7 @@ std::vector<size_t> es(L, 0);
        {
 
        	 
-  	 
+  	   	 std::complex<double> ek=(newIn.adjoint()*(EK*newIn))(0);
    	  	 std::complex<double> n0=(newIn.adjoint()*(O0*newIn))(0);
  		 std::complex<double> nph0=(newIn.adjoint()*(Nph0*newIn))(0);
  		 std::complex<double> nph1=(newIn.adjoint()*(Nph1*newIn))(0);
@@ -233,7 +235,7 @@ std::vector<size_t> es(L, 0);
  		 std::complex<double> qp3=std::complex<double>(0,1)*std::complex<double>(0,1)*std::complex<double>(0,1)*(newIn.adjoint()*(QP3*newIn))(0);
  		 std::complex<double> q4=(newIn.adjoint()*(Q4*newIn))(0);
  		 std::complex<double> qp4=std::complex<double>(0,1)*std::complex<double>(0,1)*std::complex<double>(0,1)*std::complex<double>(0,1)*(newIn.adjoint()*(QP4*newIn))(0);
-		 
+		 ek_vec.push_back(real(ek));
  		 n0_vec.push_back(real(n0));
  		 n1_vec.push_back(real(n1));
  		 nph0_vec.push_back(real(nph0));
@@ -268,6 +270,7 @@ std::vector<size_t> es(L, 0);
  	std::cout<< n0_vec.size()<< "  i "<< i << std::endl;
  // std::cout<<diagobs2(0)<<std::endl; 
    filename+=".bin";
+   bin_write(dirname+"/ek"+filename, ek_vec);
          bin_write(dirname+"/n0"+filename, n0_vec);
  	   bin_write(dirname+"/n1"+filename, n1_vec);
  	   bin_write(dirname+"/nph0"+filename, nph0_vec);

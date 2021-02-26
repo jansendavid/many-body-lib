@@ -191,6 +191,73 @@ namespace Operators{
       
        }
 
+ template<class TotalBasis, class SubBasis >
+  Mat CurOperatorL(const TotalBasis& totalBasis, const SubBasis& subBasis, double var=1. , const bool& PB=true)
+     {
+
+
+	      using LeftBasisIt= typename TotalBasis::LeftBasisIt;     
+     using RightBasisIt= typename TotalBasis::RightBasisIt;
+
+
+using Lattice=typename SubBasis::Lattice;     
+    
+ 
+   size_t dim=totalBasis.dim;
+    size_t sites=totalBasis.sites;
+    Mat op(dim, dim);
+    //      op.setZero();
+      
+      
+      
+	   for( auto& tpState : totalBasis)
+	     {
+
+	       	    for(size_t i=0; i<Operators::Length( sites, PB); i++)
+                 {
+
+	       LeftBasisIt it2=subBasis.find(LeftId(tpState));	     
+
+	       Lattice state=GetLattice(*it2);
+                     size_t j=Operators::NextWithBC(i, sites, PB);
+
+	   	    		    if(state[i]==state[j])
+   	       	     {
+	  // 	     
+    		  
+   	   	     }
+   	   	    else{
+		      
+
+		      Lattice temp=state;
+		      
+		       state.setPartNr(j, temp[i]);
+		      state.setPartNr(i, temp[j]);
+		     		 
+	  	     size_t signControl=CheckSign(temp, i, j);
+		       
+		     it2= subBasis.find(state.GetId());
+		     
+	  	       RightBasisIt it3=totalBasis.rbasis.find(RightId(tpState));
+		     
+	  	       size_t newStateNr= Position(*it3)*totalBasis.lbasis.dim +Position(*it2);
+		      double otherSign=(state[j]==1)?+1:-1;
+	   	              if(signControl%2==0)
+   	   	    	 {
+	   		   op.coeffRef(newStateNr, Position(tpState))-= otherSign*ValType{var};}
+   	   	       else
+   	   	    	 { op.coeffRef(newStateNr, Position(tpState))+=otherSign*ValType{var};}
+		    }
+
+	   	     }
+ 	      	     }
+	   
+
+   	  
+    
+  return op;
+  }
+
   template<class TotalBasis, class SubBasis >
   Mat EKinOperatorL(const TotalBasis& totalBasis, const SubBasis& subBasis, double var=1. , const bool& PB=true)
      {
@@ -257,6 +324,90 @@ using Lattice=typename SubBasis::Lattice;
     
   return op;
   }
+
+
+  template<class TotalBasis, class SubBasis >
+  Mat HadamardOperator(const TotalBasis& totalBasis, const SubBasis& subBasis, double var=1. , const bool& PB=true)
+     {
+
+
+	      using LeftBasisIt= typename TotalBasis::LeftBasisIt;     
+     using RightBasisIt= typename TotalBasis::RightBasisIt;
+
+
+using Lattice=typename SubBasis::Lattice;     
+    
+ 
+   size_t dim=totalBasis.dim;
+    size_t sites=totalBasis.sites;
+    Mat op(dim, dim);
+    //      op.setZero();
+      
+      
+      
+	   for( auto& tpState : totalBasis)
+	     {
+
+	       	    for(size_t i=0; i<Operators::Length( sites, PB); i++)
+                 {
+
+	       LeftBasisIt it2=subBasis.find(LeftId(tpState));	     
+
+	       Lattice state=GetLattice(*it2);
+                     size_t j=Operators::NextWithBC(i, sites, PB);
+
+	   	    		    if(state[i]==1)
+				      {
+					op.coeffRef(Position(tpState), Position(tpState))+= 1;
+}
+
+	   	    		    if(state[i]==state[j])
+   	       	     {
+	  // 	     
+    		  
+   	   	     }
+   	   	    else{
+		      
+
+		      Lattice temp=state;
+		      
+		       state.setPartNr(j, temp[i]);
+		      state.setPartNr(i, temp[j]);
+		     		 
+	  	     size_t signControl=CheckSign(temp, i, j);
+		       
+		     it2= subBasis.find(state.GetId());
+		     
+	  	       RightBasisIt it3=totalBasis.rbasis.find(RightId(tpState));
+		     
+	  	       size_t newStateNr= Position(*it3)*totalBasis.lbasis.dim +Position(*it2);
+		     
+	   	              if(signControl%2==0)
+   	   	    	 {
+	   		   op.coeffRef(newStateNr, Position(tpState))+= 1;}
+   	   	       else
+   	   	    	 { op.coeffRef(newStateNr, Position(tpState))-= 1;}
+		    }
+}
+				    if(!PB)
+				      {
+LeftBasisIt it2=subBasis.find(LeftId(tpState));	     
+
+	       Lattice state=GetLattice(*it2);
+if(state[sites-1]==1)
+				      {
+									op.coeffRef(Position(tpState), Position(tpState))+= var*1;
+}
+}
+	   	     
+ 	      	     }
+	   
+	   op*=1./std::sqrt(sites);
+   	  
+    
+  return op;
+  }
+
  template<class TotalBasis, class SubBasis >
   Mat EKinOperatorLNNN(const TotalBasis& totalBasis, const SubBasis& subBasis, double var=1. , size_t m=0)
      {
