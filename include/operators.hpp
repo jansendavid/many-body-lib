@@ -41,8 +41,7 @@ namespace Operators{
   	  }
     return m;
   }
-
-   template<typename TotalBasis, typename State, typename Lattice>
+    template<typename TotalBasis, typename State, typename Lattice>
   void Act(int i, int j, TotalBasis& totalBasis, State& tpState, Lattice state, Mat& op, double var)
   {
     if(state[i]==state[j])
@@ -72,7 +71,11 @@ namespace Operators{
    	   	       else
    	   	    	 { op.coeffRef(newStateNr, Position(tpState))+= ValType{var};}
 		    }
+
+
+
   }
+
 
 
   // carefull with changes, making one for cdag and one for ccdag
@@ -454,39 +457,6 @@ using Lattice=typename TotalBasis::Lattice;
     
   return op;
   }
-
-
-    template<typename TotalBasis, typename State, typename Lattice>
-  void Act(int i, int j, TotalBasis& totalBasis, State& tpState, Lattice state, Mat& op, double var)
-  {
-    if(state[i]==state[j])
-      {	
-    		  
-      }
-    else{
-      Lattice temp=state;
-      //  std::cout<< "i,jx "<< i << ", "<< j << std::endl;
-       state.flip(i);
-       //setPartNr(j, temp[i]);
-      state.flip(j);
-		     		 
-      size_t signControl=CheckSign(temp, i, j);
-    
-		    auto it2 = totalBasis.find(state.GetId());
-		    
-	  	    
-		     
-		     size_t newStateNr= Position(*it2);
-		     //	         std::cout<< "old "<< temp << " at "<< Position(tpState)<< std::endl;
-      
-		     // std::cout<< "new "<< state <<" at  "<<newStateNr<<  std::endl;
-	   	              if(signControl%2==0)
-   	   	    	 {
-	   		   op.coeffRef(newStateNr, Position(tpState))-= ValType{var};}
-   	   	       else
-   	   	    	 { op.coeffRef(newStateNr, Position(tpState))+= ValType{var};}
-		    }
-
 
 
 
