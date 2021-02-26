@@ -130,10 +130,24 @@ using namespace Many_Body;
 
       Eigen::VectorXd eigenVals(TP.dim);
       Mat H=E1+Eb+Eph+Ebdag;
-      
+   auto J=Operators::CurOperatorL(TP, e, t0, PB);    
+Eigen::MatrixXcd Jcp=J*std::complex<double>(0,1);      
 
     Eigen::MatrixXd HH=Eigen::MatrixXd(H);
-    //         std::cout<< HH<<std::endl;
+   
+
+    //Eigen::MatrixXcd HHcp=HH;
+    Eigen::MatrixXcd HHcp=Eigen::MatrixXd(HH);
+             Eigen::MatrixXcd M2=HHcp*Jcp;
+             Eigen::MatrixXcd M1=Jcp*HHcp;
+	     Eigen::MatrixXcd COMM=M1-M2;
+	     //                  std::cout<< M1<<std::endl;
+	     //           std::cout<< COMM<<std::endl;
+	     //   std::cout<< M2<<std::endl;
+	       COMM*=Jcp;
+		  
+		  //           std::cout<< HHcp<<std::endl;
+		  //           std::cout<< Jcp<<std::endl;
         Eigen::MatrixXd N=Eigen::MatrixXd(Eph);
 	  Many_Body::diagMat(HH, eigenVals);
      std::cout<<"MIN E "<<std::setprecision(15)<< eigenVals(0)<< std::endl;
@@ -144,15 +158,25 @@ using namespace Many_Body;
     	   std::vector<double> obs2(TP.dim);
 	   std::vector<double> obs3(TP.dim);
 	   std::vector<double> obs4(TP.dim);
+	   std::vector<double> obs5(TP.dim);
+	   std::vector<double> obs6(TP.dim);
+	   //std::vector<double> obs(TP.dim);
     	   std::vector<double> ensvec(TP.dim);
 	     
-	   Eigen::MatrixXd PHD2=HH.transpose()*N*HH;
-	   Eigen::MatrixXd EKIN=HH.transpose()*E1*HH;
-	   Eigen::MatrixXd EC=HH.transpose()*(Ebdag+Eb)*HH;
-	    
+	   Eigen::MatrixXd PHD2=HH.adjoint()*N*HH;
+	   Eigen::MatrixXd EKIN=HH.adjoint()*E1*HH;
+	   Eigen::MatrixXd EC=HH.adjoint()*(Ebdag+Eb)*HH;
+	   Eigen::MatrixXcd Jmat=HH.adjoint()*(Jcp*HH);
+	   Eigen::MatrixXcd JJmat=Jmat*Jmat;
+	   Eigen::MatrixXcd COMMmat=HH.adjoint()*(COMM*HH);
+	   //	   std::complex<double> J_in=(newIn.adjoint()*(Jcp*newIn))(0);
+	   // std::complex<double> JJsq_in=(newIn.adjoint()*(Jcp*Jcp*newIn))(0);
 	    Eigen::VectorXd v=PHD2.diagonal();
 	    Eigen::VectorXd v2=EKIN.diagonal();
 	    Eigen::VectorXd v3=EC.diagonal();
+	    Eigen::VectorXd v4=(JJmat.diagonal().real());
+	     Eigen::VectorXd v5=(Jmat.diagonal().real());
+	     Eigen::VectorXd v6=(COMMmat.diagonal().real());
 	    std::cout<< "GS "<<eigenVals(0)<<std::endl;
     	   for(int i=0; i<energy.size(); i++)
     {
@@ -162,6 +186,10 @@ using namespace Many_Body;
       obs[i]=v(i);
       obs2[i]=v2(i);
       obs3[i]=v3(i);
+      obs4[i]=v4(i);
+      obs5[i]=v5(i);
+      obs6[i]=v6(i);
+      std::cout<< COMMmat(i,i)<<std::endl;
       if(gamma!=0)
 	{	obs3[i]/=gamma;}
 
@@ -171,6 +199,8 @@ using namespace Many_Body;
     	   std::vector<double> Ovec;
 	    std::vector<double> Ovec2;
 	     std::vector<double> Ovec3;
+	     std::vector<double> Ovec4;
+	     	     std::vector<double> Ovec5;
 
    	    	   std::vector<double> Evec;
    	    	   //		   std::vector<double> Tr={0.01, 0.05, 0.1, 0.15, 0.2, 0.25};
@@ -191,11 +221,16 @@ using namespace Many_Body;
 			    double o=expvalCan(ensvec, obs,  t);
 			    double o2=expvalCan(ensvec, obs2,  t);
 			    double o3=expvalCan(ensvec, obs3,  t);
+			    double o4=expvalCan(ensvec, obs4,  t);
+			     double o5=expvalCan(ensvec, obs5,  t);
+			     double o6=expvalCan(ensvec, obs6,  t);
    	    		    std::cout<< " at T "<< t<<std::endl;
-		std::cout<<std::setprecision(15)<<e1 <<"  "<< o+o2+o3*gamma <<" Nph "<<o <<std::endl;
+			    std::cout<<std::setprecision(15)<<e1 <<"  "<< o+o2+o3*gamma <<" Nph "<<o << " JJ " <<o4 << "o 6 2 "<< o6<< std::endl;
 			    Ovec.push_back(o);
 			    Ovec2.push_back(o2);
 			    Ovec3.push_back(o3);
+			    Ovec4.push_back(o4);
+			    			    Ovec5.push_back(o5);
 			    Evec.push_back(e1);
 
    	    }
@@ -209,6 +244,8 @@ using namespace Many_Body;
 		      bin_write("Nph"+filename, Ovec);
 		      bin_write("EK"+filename, Ovec2);
 		      bin_write("nX"+filename, Ovec3);
+		      bin_write("JJ"+filename, Ovec4);
+		      bin_write("J"+filename, Ovec5);
 		      bin_write("temp"+filename, Tr);
   return 0;
 }
