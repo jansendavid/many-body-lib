@@ -16,8 +16,10 @@ int main(int argc, char *argv[])
   size_t L{};
   double t0{};
   double omega{};
+  double omegap{};
   double gamma{};
   bool PB{};
+  std::string filename="";
   try
   {
     options_description desc{"Options"};
@@ -28,6 +30,7 @@ int main(int argc, char *argv[])
       ("t", value(&t0)->default_value(1.), "t0")
       ("gam", value(&gamma)->default_value(1.), "gamma")
       ("omg", value(&omega)->default_value(1.), "omega")
+      ("omgp", value(&omegap)->default_value(1.), "omegap")
     ("pb", value(&PB)->default_value(true), "PB");
   
 
@@ -41,28 +44,40 @@ int main(int argc, char *argv[])
     else{
       if (vm.count("L"))
       {      std::cout << "L: " << vm["L"].as<size_t>() << '\n';
+	filename+="L"+std::to_string(vm["L"].as<size_t>());
 	
       }
      if (vm.count("M,m"))
       {
 	std::cout << "M: " << vm["M"].as<size_t>() << '\n';
+	filename+="M"+std::to_string(vm["M"].as<size_t>());
 	
       }
       if (vm.count("t"))
       {
 	std::cout << "t0: " << vm["t"].as<double>() << '\n';	
+	filename+="t"+std::to_string(vm["t"].as<double>()).substr(0,6);
       }
        if (vm.count("omg"))
       {
 	std::cout << "omega: " << vm["omg"].as<double>() << '\n';
+	filename+="omg"+std::to_string(vm["omg"].as<double>()).substr(0,6);
+      }
+
+       if (vm.count("omgp"))
+      {
+	std::cout << "omegap: " << vm["omgp"].as<double>() << '\n';
+	filename+="omgp"+std::to_string(vm["omgp"].as<double>()).substr(0,6);
       }
        if (vm.count("gam"))
       {
 	std::cout << "gamma: " << vm["gam"].as<double>() << '\n';
+	filename+="gam"+std::to_string(vm["gam"].as<double>()).substr(0,10);
       }
               if (vm.count("pb"))
       {
 	std::cout << "PB: " << vm["pb"].as<bool>() << '\n';
+	filename+="pb"+std::to_string(vm["pb"].as<bool>());
       }
     }
   }
@@ -82,23 +97,25 @@ using HolsteinBasis= TensorProduct<ElectronBasis, PhononBasis>;
    //   std::cout<< e<<std::endl;
   
   PhononBasis ph(L, M);
-  //  std::cout<< ph<<std::endl;
+  // std::cout<< ph<<std::endl;
   HolsteinBasis TP(e, ph);
-  //  std::cout<< TP<<std::endl;
-  double t1=0.5;
+  // std::cout<< TP<<std::endl;
+  
   std::cout<<"total dim "<< TP.dim << std::endl;
   std::cout<<std::endl;
-  gamma=1;
+  
   //std::sqrt(2);
         Mat E1=Operators::EKinOperatorL(TP, e, t0, PB);
       Mat Ebdag=Operators::NBosonCOperator(TP, ph, gamma, PB);
       Mat Eb=Operators::NBosonDOperator(TP, ph, gamma, PB);
-      Mat Eph=Operators::NumberOperator(TP, ph, omega,  PB);
-      Mat EDI=Operators::EKinOperatorRPH(TP, ph,2, PB);
+    Mat Eph=Operators::NumberOperator(TP, ph, omega,  PB);
+    Mat EDI=Operators::EKinOperatorRPH(TP, ph,omegap, PB);
 
 
  //      Eigen::VectorXd eigenVals(TP.dim);
       Mat H=E1  +Ebdag + Eb+ Eph+EDI;
+
+
       //+phMOM;
       //
       //
@@ -108,7 +125,7 @@ using HolsteinBasis= TensorProduct<ElectronBasis, PhononBasis>;
       //+ phKNN phK+;
       
           Eigen::MatrixXcd HH=Eigen::MatrixXcd(H);
-	  //	  std::cout<<Eigen::MatrixXcd(EDI)<<std::endl;
+	  //	  	  std::cout<<Eigen::MatrixXcd(EDI)<<std::endl;
 	  // std::cout<< HH << std::endl;
 	  // for(int i=0; i<HH.rows(); i++)
 	  //   {
@@ -123,9 +140,11 @@ using HolsteinBasis= TensorProduct<ElectronBasis, PhononBasis>;
 	  // std::cout<< HH << std::endl;
 	     Eigen::VectorXd ev=Eigen::VectorXd(TP.dim);
 	     diagMat(HH, ev);
-	     std::cout<<"GS "<< std::setprecision(8)<< ev[0]<< std::endl;
+	     // std::cout<<"ev "<< std::setprecision(8)<< ev<< std::endl;
 	     std::cout<< " nect "<< std::endl;
 	     std::cout<< HH.col(0).adjoint()*Eph*HH.col(0);
+	     std::cout<< std::setprecision(15)<<ev<<std::endl;
+			      bin_write("holstdatadisp"+filename+".bin", ev);
    // 	     Eigen::MatrixXd MDF2=HH.adjoint()*(O)*HH;
    // Eigen::VectorXd v=MDF2.diagonal();
    // std::cout<< v << std::endl;
