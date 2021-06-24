@@ -106,7 +106,7 @@ using HolsteinBasis= TensorProduct<ElectronBasis, PhononBasis>;
       //+ phKNN phK+;
       
           Eigen::MatrixXcd HH=Eigen::MatrixXcd(H);
-	  // std::cout<< HH << std::endl;
+	  //	   std::cout<< HH << std::endl;
 	  // for(int i=0; i<HH.rows(); i++)
 	  //   {
 	  //    for(int j=0; j<HH.rows(); j++)
@@ -123,6 +123,7 @@ using HolsteinBasis= TensorProduct<ElectronBasis, PhononBasis>;
 	     std::cout<<"GS "<< std::setprecision(8)<< ev[0]<< std::endl;
 	     std::cout<< " nect "<< std::endl;
 	     std::cout<< ev<<std::endl;
+			      bin_write("holstdata.bin", ev);
 	     //	     std::cout<< HH.col(0).adjoint()*Eph*HH.col(0);
    // 	     Eigen::MatrixXd MDF2=HH.adjoint()*(O)*HH;
    // Eigen::VectorXd v=MDF2.diagonal();
@@ -146,7 +147,7 @@ using HolsteinBasis= TensorProduct<ElectronBasis, PhononBasis>;
  // 		 std::cout<< "value "<< " fot T = "<< t <<std::endl;
  // 		 	      std::cout<< l<<std::endl;
  // 			      std::cout << " and sum "<< l.sum()<< std::endl;
- // 			      //bin_write(filename, l);
+  // 			      //bin_write(filename, l);
  // 		 n++;
  // 	    }
 	  

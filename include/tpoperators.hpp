@@ -629,8 +629,8 @@ using Lattice=typename SubBasis::Lattice;
  size_t newStateNr= Position(*it2)*totalBasis.lbasis.dim +Position(*it3);
 // 	  	              if(signControl%2==0)
 //    	  	    	 {
-	   		   op.coeffRef(newStateNr, Position(tpState))-= var*(std::sqrt(state[i]+1))*(std::sqrt(state[j]));
-			   op.coeffRef( Position(tpState), newStateNr)-= var*(std::sqrt(state[i]+1))*(std::sqrt(state[j]));
+	   		   op.coeffRef(newStateNr, Position(tpState))+= var*(std::sqrt(state[i]+1))*(std::sqrt(state[j]));
+			   op.coeffRef( Position(tpState), newStateNr)+= var*(std::sqrt(state[i]+1))*(std::sqrt(state[j]));
 }
   	     	     }
 	   

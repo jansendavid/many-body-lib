@@ -15,7 +15,7 @@ OMPF=-fopenmp
 MKLPATH=${MKLROOT}/lib/intel64_lin
 MKLINCLUDE=${MKLROOT}/include
 
-INCS+=-I${MANYBODY}/src
+INCS+=-I${MANYBODY}/include
 INCS+=-I${EIGEN}
 INCS+=-I${EINC}
 # FLAGS
@@ -75,6 +75,12 @@ reddmtest: testdir/reddmtest.cpp include/basis.hpp include/operators.hpp include
 reddm: examples/reddm.cpp include/basis.hpp include/operators.hpp include/accesfunctions.hpp include/numerics.hpp include/reddm.hpp include/diag.h
 
 	$(CXX) $(FLAGS) $(INCS) examples/reddm.cpp -o reddm  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(ND) $(OP)
+
+
+FermHubexdi: examples/FermHubexdi.cpp include/basis.hpp include/operators.hpp include/accesfunctions.hpp include/numerics.hpp  include/diag.h
+	$(CXX) $(FLAGS) $(INCS) examples/FermHubexdi.cpp -o FermHubexdi  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(ND) $(OP)
+
+
 
 holstexDi: examples/holstexDi.cpp include/basis.hpp include/operators.hpp include/accesfunctions.hpp include/numerics.hpp  include/diag.h
 	$(CXX) $(FLAGS) $(INCS) examples/holstexDi.cpp -o holstexDi  $(MKLLINK32) $(LIBSLINK) $(LIBS32) $(ND) $(OP)
