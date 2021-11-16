@@ -21,7 +21,7 @@ namespace TimeEv{
     return expEigenValsMatrix;
   }
   // template <typename State, typename Matrix >
-  void timeev_exact(Eigen::VectorXcd& initialState, Eigen::MatrixXcd& eigenVectors, Eigen::MatrixXcd& expEigenVals)
+  void timeev_exact(Eigen::VectorXcd& initialState, Eigen::MatrixXcd& eigenVectors, Eigen::SparseMatrix<std::complex<double>> expEigenVals)
   {
     	
 
