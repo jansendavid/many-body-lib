@@ -294,7 +294,7 @@ struct ElectronBasis
   using Const_BasisIt= typename  Basis::const_iterator;
 
    
-  ElectronBasis( size_t sites, size_t numberOfParticles): totalmaxPar(numberOfParticles), sites(sites), dim(0) {
+  ElectronBasis( size_t sites, size_t numberOfParticles): sites(sites), totalmaxPar(numberOfParticles),  dim(0) {
     for(size_t i=0; i<static_cast<size_t>(std::pow(2, sites)); i++)
         {
 
@@ -309,8 +309,7 @@ struct ElectronBasis
         
    }
   }
-  ElectronBasis( size_t sites, std::vector<int> spaces): totalmaxPar(*std::max_element(spaces.begin(), spaces.end())),
- sites(sites), dim(0) {
+  ElectronBasis( size_t sites, std::vector<int> spaces):sites(sites), totalmaxPar(*std::max_element(spaces.begin(), spaces.end())), dim(0) {
     for(size_t i=0; i<static_cast<size_t>(std::pow(2, sites)); i++)
         {
 
@@ -325,7 +324,7 @@ struct ElectronBasis
         
    }
   }
-  ElectronBasis(size_t sites ): totalmaxPar(sites), sites(sites), dim(0){
+  ElectronBasis(size_t sites ):sites(sites), totalmaxPar(sites),  dim(0){
     
       for(size_t i=0; i<static_cast<size_t>(std::pow(2, sites)); i++)
         {
@@ -340,7 +339,7 @@ struct ElectronBasis
      
         
     }
-  ElectronBasis(ElectronState state): sites(state.sites), totalmaxPar(state.Count()), dim(0){             
+  ElectronBasis(ElectronState state):  sites(state.sites),totalmaxPar(state.Count()), dim(0){             
    	     
    	      basis.insert({state.GetId(), 0, state});
 	       dim++;    
@@ -430,8 +429,9 @@ struct ElectronBasis
   }
    Basis basis;
   const size_t maxParticles=1;
-  size_t totalmaxPar=0;
    size_t sites;
+  size_t totalmaxPar=0;
+
    size_t dim;
 //   //  const size_t numberofparticles;
   
@@ -449,7 +449,7 @@ struct OneElectronBasis
    OneElectronBasis(size_t sites ):   sites(sites), dim(0){
      size_t n=0;
 
-     for(long int i=0; i<sites; i++)
+     for(size_t i=0; i<sites; i++)
         {
 
 	  std::vector<size_t> v(sites, 0);

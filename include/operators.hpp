@@ -353,7 +353,7 @@ using Lattice=typename TotalBasis::Lattice;
   }
 
 
-Mat EKinOperator(const Many_Body::OneElectronBasis& totalBasis, double var=1. , bool PB=0, int start=0, int stop=0 )
+Mat EKinOperator(const Many_Body::OneElectronBasis& totalBasis, double var=1. , bool PB=0,size_t start=0, size_t stop=0 )
      {
 
        using Lattice=typename Many_Body::OneElectronBasis::Lattice;     
@@ -462,7 +462,7 @@ using Lattice=typename TotalBasis::Lattice;
 
 
     
-  Mat CurrOperator(const  Many_Body::OneElectronBasis& totalBasis, double var=1. , bool PB=0, int start=0, int stop=0)
+  Mat CurrOperator(const  Many_Body::OneElectronBasis& totalBasis, double var=1. , bool PB=0, size_t start=0, size_t stop=0)
      {
 
 using Lattice=typename  Many_Body::OneElectronBasis::Lattice;     

@@ -144,7 +144,7 @@ namespace Operators{
  
 
     size_t dim=totalBasis.dim;
-    size_t sites=totalBasis.sites;
+
     Mat op(dim, dim);
     //   op.setZero();
   
@@ -170,7 +170,7 @@ template<class TotalBasis, class SubBasis>
  
 
     size_t dim=totalBasis.dim;
-    size_t sites=totalBasis.sites;
+
     Mat op(dim, dim);
     //   op.setZero();
   
@@ -216,7 +216,107 @@ template<class TotalBasis, class SubBasis>
       return op;
       
        }
+//   template<class TotalBasis, class SubBasis_L, class SubBasis_R>
+//   Mat CurCoupOperator(const TotalBasis& totalBasis, const SubBasis_L& subBasis_L,const SubBasis_R& subBasis_R, double var=1. , const bool& PB=true)
+//   {// electron current with phonon displacement for Holstein current
+// 	      using LeftBasisIt= typename TotalBasis::LeftBasisIt;     
+//      using RightBasisIt= typename TotalBasis::RightBasisIt;
 
+
+// using Lattice_L=typename SubBasis::Lattice_L;     
+// using Lattice_R=typename SubBasis::Lattice_R;     
+    
+ 
+//    size_t dim=totalBasis.dim;
+//     size_t sites=totalBasis.sites;
+//     Mat op(dim, dim);
+// 	   for( auto& tpState : totalBasis)
+// 	     {
+	     
+
+// 	       	    for(size_t i=0; i<Operators::Length( sites, PB); i++)
+//                  {
+
+// 	       LeftBasisIt it2=subBasis_L.find(LeftId(tpState));	     
+
+// 	       Lattice_L state=GetLattice(*it2);
+//                      size_t j=Operators::NextWithBC(i, sites, PB);
+
+// 	   	    		    if(state[i]==state[j])
+//    	       	     {
+// 	  // 	     
+    		  
+//    	   	     }
+//    	   	    else{
+		      
+
+// 		      Lattice_L temp_L=state_L;
+		      
+// 		       state_L.setPartNr(j, temp[i]);
+// 		      state_L.setPartNr(i, temp[j]);
+		     		 
+// 	  	     size_t signControl=CheckSign(temp_L, i, j);
+		       
+// 		     it2= subBasis_L.find(state_L.GetId());
+		     
+// 	  	       RightBasisIt it3=totalBasis.rbasis.find(RightId(tpState));
+//   	    size_t particleNumber=subBasis_R.particlesAt(RightId(tpState), j);
+// 	     // J_jb^{dagger}_j
+//   	     if( particleNumber==subBasis.maxParticles)
+//   	       {
+//   	       }
+// 	     else{
+
+// 	       Lattice_R state_R(GetLattice(*it3));
+// 	     state_R.setPartNr(j, particleNumber+1);
+
+
+//   	       it4= subBasis_R.find(state_R.GetId());
+		     
+// 	  	       size_t newStateNr= Position(*it4)*totalBasis.lbasis.dim +Position(*it2);
+// 		      double otherSign=(state_L[j]==1)?+1:-1;
+// 	   	              if(signControl%2==0)
+//    	   	    	 {
+// 	   		   op.coeffRef(newStateNr, Position(tpState))-= otherSign*ValType{var*(std::sqrt(state_R[i])};}
+// 			 }
+//    	   	       else
+//    	   	    	 { op.coeffRef(newStateNr, Position(tpState))+=otherSign*ValType{var*(std::sqrt(state_R[i])};}
+// 	     }		    
+// }
+// 	     // J_jb_j
+
+//   	     if( particleNumber==0)
+//   	       {
+//   	       }
+// 	     else{
+
+// 	       Lattice_R state_R(GetLattice(*it3));
+// 	     state_R.setPartNr(j, particleNumber-1);
+
+
+//   	       it4= subBasis_R.find(state_R.GetId());
+		     
+// 	  	       size_t newStateNr= Position(*it4)*totalBasis.lbasis.dim +Position(*it2);
+// 		      double otherSign=(state[j]==1)?+1:-1;
+// 	   	              if(signControl%2==0)
+//    	   	    	 {
+// 	   		   op.coeffRef(newStateNr, Position(tpState))-= otherSign*ValType{var*(std::sqrt(state_R[i]+1)};}
+// 			 }
+//    	   	       else
+//    	   	    	 { op.coeffRef(newStateNr, Position(tpState))+=otherSign*ValType{var*(std::sqrt(state_R[i]+1)};}
+// 	     }		    
+// }
+
+
+
+
+// 	   	     }
+ 	      	     
+
+// }
+// 		    return op;
+
+// }
  template<class TotalBasis, class SubBasis >
   Mat CurOperatorL(const TotalBasis& totalBasis, const SubBasis& subBasis, double var=1. , const bool& PB=true)
      {
@@ -283,6 +383,83 @@ using Lattice=typename SubBasis::Lattice;
     
   return op;
   }
+
+  template<class TotalBasis, class SubBasis >
+  Mat LongRangeHopOperatorL(const TotalBasis& totalBasis, const SubBasis& subBasis, size_t hop_length,double var=1. , const bool& PB=true)
+     {
+
+
+	      using LeftBasisIt= typename TotalBasis::LeftBasisIt;     
+     using RightBasisIt= typename TotalBasis::RightBasisIt;
+
+
+using Lattice=typename SubBasis::Lattice;     
+    
+ 
+   size_t dim=totalBasis.dim;
+    size_t sites=totalBasis.sites;
+    Mat op(dim, dim);
+    //      op.setZero();
+      
+      
+      
+	   for( auto& tpState : totalBasis)
+	     {
+
+	       	    for(size_t i=0; i<Operators::Length( sites, PB); i++)
+                 {
+
+	       LeftBasisIt it2=subBasis.find(LeftId(tpState));	     
+
+	       Lattice state=GetLattice(*it2);
+	       size_t j=0;
+	       if(PB){
+		 j=(i+hop_length)%sites;
+}
+	       else{
+		 j=(i+hop_length);
+
+}
+	       if(!PB and j>=sites)
+		 {continue; }
+	       else{	   
+	   	    		    if(state[i]==state[j])
+   	       	     {
+	   	     
+    		  
+   	   	     }
+   	   	    else{
+		      
+
+		      Lattice temp=state;
+		      
+		       state.setPartNr(j, temp[i]);
+		      state.setPartNr(i, temp[j]);
+		     		 
+	  	     size_t signControl=CheckSign(temp, i, j);
+		       
+		     it2= subBasis.find(state.GetId());
+		     
+	  	       RightBasisIt it3=totalBasis.rbasis.find(RightId(tpState));
+		     
+	  	       size_t newStateNr= Position(*it3)*totalBasis.lbasis.dim +Position(*it2);
+		     
+	   	              if(signControl%2==0)
+   	   	    	 {
+	   		   op.coeffRef(newStateNr, Position(tpState))-= ValType{var};}
+   	   	       else
+   	   	    	 { op.coeffRef(newStateNr, Position(tpState))+= ValType{var};}
+		    }
+
+	   	     }
+ 	      	     }
+	     }
+
+   	  
+    
+  return op;
+  }
+
 
   template<class TotalBasis, class SubBasis >
   Mat EKinOperatorL(const TotalBasis& totalBasis, const SubBasis& subBasis, double var=1. , const bool& PB=true)
@@ -688,7 +865,7 @@ auto it21=totalBasis.lbasis.find(LeftId(tpState));
 	  auto it22=totalBasis.rbasis.find(RightId(tpState));
 	  RightLattice rState=GetLattice(*it22);
 	  // RightLattice rState=GetLattice(RightId(tpState));
-  	  for(int i=0; i<sites; i++)
+  	  for(size_t i=0; i<sites; i++)
 	    {
 	      op.coeffRef(Position(tpState), Position(tpState))+= (u*static_cast<double>(lState[i])*static_cast<double>(rState[i]));
 	  }
