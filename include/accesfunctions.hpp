@@ -57,7 +57,7 @@ auto GetLattice( const T& state)
      {
        
        State newState(state);
-       
+
        for(size_t t=0; t<translation; t++)
 	 {
 	   State tempState(newState);
@@ -66,11 +66,12 @@ auto GetLattice( const T& state)
 	 {
 	   size_t j=(i+1)%(state.sites);
 	   //	   newState[i]=tempState[j];
+
 	   newState.setPartNr(i, tempState[j]);
 	 }
        
 	 }
-
+       
         return newState.GetId();
        
        

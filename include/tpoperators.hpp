@@ -877,6 +877,60 @@ auto it21=totalBasis.lbasis.find(LeftId(tpState));
       return op;
       
        }
+
+
+  template<typename TotalBasis, typename Basis>
+  Mat rho_ij( const TotalBasis& totalBasis, const Basis& subBasis, int i, int j)
+    {
+      // compute cdag_i c_j
+
+
+    using LeftLattice=typename TotalBasis::LeftLattice;
+
+    size_t dim=totalBasis.dim;
+    Mat op(dim, dim);
+    op.setZero(); 
+
+	
+      for(const auto& tpState : totalBasis)
+  	{
+	  auto it21=totalBasis.lbasis.find(LeftId(tpState));
+	  LeftLattice lState=GetLattice(*it21);
+
+
+
+	  if(std::abs(lState[j]-1.)<1e-09)
+	    {
+	  // RightLattice rState=GetLattice(RightId(tpState));
+	      //	      std::cout<<"start "<< lState<<std::endl;  	  
+		  lState.flip(j);	  
+	      if(lState[i]==0)
+		{
+		  //		  LeftLattice temp=lState;
+
+		  lState.flip(i);
+		  //  std::cout<<"then  "<< lState<<std::endl;  	  
+		  //		  size_t signControl=CheckSign(temp, i, j);
+		  // for when not dealing with polaron   
+		  it21= subBasis.find(lState.GetId());
+		  auto it3=totalBasis.rbasis.find(RightId(tpState));
+
+		  size_t newStateNr= Position(*it3)*totalBasis.lbasis.dim +Position(*it21);
+		  //std::cout<< " state nrs "<< newStateNr << " "<< Position(tpState)<< " and pos iterator "<< Position(*it21)<<std::endl;
+	      op.coeffRef(newStateNr, Position(tpState))+= 1;
+	  }
+	    
+
+	    }
+	   
+
+  	}
+      return op;
+      
+       }
+
+
+
   // Holstein model obc, for now this is n_0(n)
    template<typename TotalBasis, typename Basis>
    Mat BosonCOperator_1(const TotalBasis& totalBasis, Basis& subBasis, double var=1. , size_t i=0, const bool& PB=true)
